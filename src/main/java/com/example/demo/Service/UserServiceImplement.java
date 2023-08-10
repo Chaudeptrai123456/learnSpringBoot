@@ -70,7 +70,6 @@ public class UserServiceImplement implements UserService {
  		String accessToken = jwtService.generateJwtToken(authentication);
 		return new LoginResponse(accessToken,"refresh","Login SucessFully");
 	}
-
 	@Override
 	public LoginResponse handleSignup(SignInRequest req) {
 		if (userRepo.existsByEmail(req.getEmail())) {
@@ -83,20 +82,17 @@ public class UserServiceImplement implements UserService {
  		user.setemail(req.getEmail());
 		user.setusername(req.getUserName());
 		user.setpassword(encodePassword.encode(req.getPassword()));
-		//System.out.println("test1 "+encodePassword.encode(req.getPassword()));
-		Set<Role>roles = new HashSet<>();
+ 		Set<Role>roles = new HashSet<>();
 		Role role = roleRepo.findByroleName(req.getRole());
 		roles.add(role);
 		role.getUsers().add(user);
  		user.setRole(roles);
 		userRepo.save(user);
-//		Authentication authentication = authenManager.authenticate(new UsernamePasswordAuthenticationToken(user.getusername(),user.getpassword()));
-//		String accessToken = jwtService.generateJwtToken(authentication);
-		return new LoginResponse("access","refresh",req.getPassword());
+ 		Authentication authentication = authenManager.authenticate(new UsernamePasswordAuthenticationToken(user.getusername(),user.getpassword()));
+ 		System.out.println(user.getusername());
+ 		String accessToken = jwtService.generateTokenSignup(user);
+		return new LoginResponse(accessToken,"refresh",req.getPassword());
 	}
-
- 
-
 
 }
 

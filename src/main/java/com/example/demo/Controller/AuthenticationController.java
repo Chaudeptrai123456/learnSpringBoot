@@ -36,8 +36,10 @@ public class AuthenticationController {
 	 }
 	  @PostMapping("/signup")
 	  public ResponseEntity<?> registerUser(@Validated @RequestBody SignInRequest request) {
+		System.out.print(request.getEmail());
 		LoginResponse res = userService.handleSignup(request);
 	    return new ResponseEntity<LoginResponse>(res,HttpStatus.ACCEPTED);
 		    //return new ResponseEntity<String>(request.getRole(),HttpStatus.ACCEPTED);
 	  }
+	  
 }

@@ -30,7 +30,7 @@ public class User   {
 	private String username;
 	@Column(name="password",nullable=false)
 	private String password;
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", 
 	             joinColumns = @JoinColumn(name = "user_id"),
 	             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -82,5 +82,14 @@ public class User   {
 	  }
 
 
-	
+	public long getId() {
+		return id;
+	}
+
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	  
 }

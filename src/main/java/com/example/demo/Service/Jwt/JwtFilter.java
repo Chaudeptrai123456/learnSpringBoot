@@ -1,5 +1,5 @@
 package com.example.demo.Service.Jwt;
-
+import com.example.demo.Entity.*;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,14 +28,16 @@ import org.springframework.util.StringUtils;
 			throws ServletException, IOException {
 		try { 
 			 String jwt = parseJwt(request);
-		      if (jwt != null && jwtService.validateJwtToken(jwt)) {
-		        String username = jwtService.getUserNameFromJwtToken(jwt);
-		        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-		        UsernamePasswordAuthenticationToken authentication =
+  		      if (jwt != null && jwtService.validateJwtToken(jwt)) {
+  				 String username = jwtService.getUserDetailFromToken(jwt);
+ 		        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+  		        UsernamePasswordAuthenticationToken authentication =
 		            new UsernamePasswordAuthenticationToken(
 		                userDetails,
 		                null,
 		                userDetails.getAuthorities());
+		                
 		        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
 		        SecurityContextHolder.getContext().setAuthentication(authentication);			
