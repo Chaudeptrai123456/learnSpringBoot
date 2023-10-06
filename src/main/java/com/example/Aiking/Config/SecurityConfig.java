@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -27,8 +28,15 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> {
                     authorize.requestMatchers("/auth/**").permitAll();
+                    authorize.requestMatchers("/api/user/**").hasAuthority("user");
+                    authorize.requestMatchers("/api/admin/**").hasAuthority("admin");
                     authorize.anyRequest().authenticated();
                 })
+                .logout(httpSecurityLogoutConfigurer ->
+                    httpSecurityLogoutConfigurer.invalidateHttpSession(true)
+                            .clearAuthentication(true)
+                            .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         ;
         return http.build();

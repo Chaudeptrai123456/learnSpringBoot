@@ -3,11 +3,12 @@ package com.example.Aiking.Controller;
 import com.example.Aiking.DTO.Auth.AuthRequest;
 import com.example.Aiking.DTO.Auth.AuthResponse;
 import com.example.Aiking.DTO.UserDTO;
-import com.example.Aiking.Service.AuthServiceImplement;
+import com.example.Aiking.Service.Auth.AuthServiceImplement;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,5 +30,9 @@ public class UserAuthController {
         return new ResponseEntity<AuthResponse>(authResponse, HttpStatusCode.valueOf(200));
     }
 
-
+    @PostMapping("/logout")
+    public ResponseEntity<?> handleLogout(HttpServletRequest req) throws ServletException {
+        req.logout();
+        return new ResponseEntity<String>("log out",HttpStatusCode.valueOf(200));
+    }
 }

@@ -34,4 +34,19 @@ public class UserService implements UserServiceImplement {
     public AuthResponse handleResgiter(UserDTO user) {
         return null;
     }
+
+    @Override
+    public User handleUpdateUserInfo(UserDTO dto) throws Exception {
+        Optional<User> user = userRepository.findUserByUserName(dto.getUserName());
+        if (user.isPresent()) {
+            user.get().setUserName(dto.getUserName());
+            user.get().setPoint(dto.getPoint());
+            user.get().setEmail(dto.getEmail());
+            user.get().setFullName(dto.getFullName());
+        } else {
+            throw new Exception("user has not existed");
+        }
+        return userRepository.save(user.get());
+    }
 }
+

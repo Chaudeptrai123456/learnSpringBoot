@@ -1,4 +1,4 @@
-package com.example.Aiking.Service;
+package com.example.Aiking.Service.Auth;
 
 import com.example.Aiking.DTO.Auth.AuthRequest;
 import com.example.Aiking.DTO.Auth.AuthResponse;
@@ -54,10 +54,11 @@ public class AuthServiceImplement  implements AuthService {
             User newUser = new User();
             newUser.setEmail(user.getEmail());
             newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-            newUser.setPoint(newUser.getPoint());
+            newUser.setPoint(user.getPoint());
             newUser.setUserName(user.getUserName());
             newUser.setCreateDate(new Date());
             newUser.setUpdateDate(new Date());
+            newUser.setFullName(user.getFullName());
             Role role = roleRepository.findByRoleName("user").get();
             Set<Role> roleList = new HashSet<>();
             roleList.add(role);

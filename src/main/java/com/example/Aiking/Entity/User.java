@@ -12,7 +12,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-
+    @Column(name="fullname",length = 50,nullable = false)
+    private String fullName;
     @Column(name="username",length = 50,nullable = false,unique = true)
     private String username;
     @Column(name="email",length = 50,nullable = false,unique = true)
@@ -34,7 +35,25 @@ public class User {
     )
     private Set<Role> roleList = new HashSet<>();
 
+    public String getFullName() {
+        return fullName;
+    }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
 
     public Long getUserId() {
         return userId;

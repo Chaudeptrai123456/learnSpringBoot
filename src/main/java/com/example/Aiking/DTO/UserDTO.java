@@ -1,12 +1,18 @@
 package com.example.Aiking.DTO;
 
-import java.util.Date;
-
 public class UserDTO {
     private String userName;
     private String password;
     private Integer point;
     private String email;
+
+    private String fullName;
+
+
+
+    public String getFullName() {
+        return fullName;
+    }
 
     public String getUserName() {
         return userName;

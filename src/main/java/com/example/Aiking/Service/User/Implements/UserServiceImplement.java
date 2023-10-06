@@ -8,4 +8,5 @@ import com.example.Aiking.Entity.User;
 public interface UserServiceImplement {
     public AuthResponse handleLogin(AuthRequest request);
     public AuthResponse handleResgiter(UserDTO user);
+    public User handleUpdateUserInfo(UserDTO user) throws Exception;
 }
