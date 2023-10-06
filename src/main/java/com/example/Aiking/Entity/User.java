@@ -2,9 +2,7 @@ package com.example.Aiking.Entity;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name="user")
@@ -14,9 +12,9 @@ public class User {
     private Long userId;
     @Column(name="fullname",length = 50,nullable = false)
     private String fullName;
-    @Column(name="username",length = 50,nullable = false,unique = true)
+    @Column(name="username",length = 50,nullable = false)
     private String username;
-    @Column(name="email",length = 50,nullable = false,unique = true)
+    @Column(name="email",length = 50,nullable = false)
     private String email;
     @Column(name="password",nullable = false , unique = true)
     private String password;
@@ -34,6 +32,16 @@ public class User {
             inverseJoinColumns = @JoinColumn(name="roleid",referencedColumnName = "roleid")
     )
     private Set<Role> roleList = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Payment> paymentList;
+
+    public List<Payment> getPaymentList() {
+        return paymentList;
+    }
+
+    public void setPaymentList(List<Payment> paymentList) {
+        this.paymentList = paymentList;
+    }
 
     public String getFullName() {
         return fullName;

@@ -9,6 +9,7 @@ import com.example.Aiking.Service.User.Implements.UserServiceImplement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,15 +18,18 @@ public class UserService implements UserServiceImplement {
     @Autowired()
     private UserRepository userRepository;
 
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
     public AuthResponse handleLogin(AuthRequest request) {
-        Optional user = userRepository.findUserByUserName(request.getUserName());
+        Optional<User> user = userRepository.findUserByUserName(request.getUserName());
         if (user.isPresent()) {
             String token = UUID.randomUUID().toString();
-            User newUser = (User) user.get();
+            User newUser =  user.get();
             userRepository.save(newUser);
-            AuthResponse result = new AuthResponse("acctoken",token);
-            return result;
+            return new AuthResponse("acctoken",token);
         }
         return null;
     }
@@ -43,6 +47,7 @@ public class UserService implements UserServiceImplement {
             user.get().setPoint(dto.getPoint());
             user.get().setEmail(dto.getEmail());
             user.get().setFullName(dto.getFullName());
+            user.get().setUpdateDate(new Date());
         } else {
             throw new Exception("user has not existed");
         }
