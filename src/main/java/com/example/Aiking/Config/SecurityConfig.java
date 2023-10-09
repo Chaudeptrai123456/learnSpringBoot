@@ -1,5 +1,6 @@
 package com.example.Aiking.Config;
 
+import com.example.Aiking.Service.Jwt.JwtAuthenEntryPoint;
 import com.example.Aiking.Service.Jwt.JwtFilter;
 import com.example.Aiking.Service.User.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class SecurityConfig {
     private UserDetailsService userDetailsService;
     @Autowired
     private JwtFilter jwtFilter;
+    @Autowired
+    private JwtAuthenEntryPoint jwtAuthenEntryPoint;
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -32,10 +35,13 @@ public class SecurityConfig {
                     authorize.requestMatchers("/api/admin/**").hasAuthority("admin");
                     authorize.anyRequest().authenticated();
                 })
+                .exceptionHandling((exp)->{
+                    exp.authenticationEntryPoint(jwtAuthenEntryPoint);
+                })
                 .logout(httpSecurityLogoutConfigurer ->
-                    httpSecurityLogoutConfigurer.invalidateHttpSession(true)
-                            .clearAuthentication(true)
-                            .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+                        httpSecurityLogoutConfigurer.invalidateHttpSession(true)
+                                .clearAuthentication(true)
+                                .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         ;

@@ -48,10 +48,11 @@ public class UserService implements UserServiceImplement {
             user.get().setEmail(dto.getEmail());
             user.get().setFullName(dto.getFullName());
             user.get().setUpdateDate(new Date());
+            user.get().setFullName(dto.getFullName());
+            return userRepository.save(user.get());
         } else {
             throw new Exception("user has not existed");
         }
-        return userRepository.save(user.get());
     }
 }
 

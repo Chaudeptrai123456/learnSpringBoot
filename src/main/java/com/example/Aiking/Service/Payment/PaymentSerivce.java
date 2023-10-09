@@ -29,6 +29,8 @@ public class PaymentSerivce implements PaymentServiceimplement{
             payment.setCreateDate(new Date());
             payment.setUpdateDate(new Date());
             payment.setUser(user);
+            user.addPaymentToList(payment);
+            userRepository.save(user);
             return paymentRepository.save(payment);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -49,6 +51,7 @@ public class PaymentSerivce implements PaymentServiceimplement{
             updatePayment.setUpdateDate(new Date());
             return paymentRepository.save(updatePayment);
         } catch(Exception e) {
+            System.out.println("test update payment "+ e.getMessage());
             throw  new Exception(e.getMessage());
         }
     }

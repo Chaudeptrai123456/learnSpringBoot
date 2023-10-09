@@ -31,9 +31,25 @@ public class User {
             joinColumns =  @JoinColumn(name="userid",referencedColumnName = "userid"),
             inverseJoinColumns = @JoinColumn(name="roleid",referencedColumnName = "roleid")
     )
+
     private Set<Role> roleList = new HashSet<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payment> paymentList;
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private List<Post> postList = new ArrayList<>();
+
+    public void addPosttoList(Post post) {
+        this.postList.add(post);
+    }
+    public void addPaymentToList(Payment payment) {this.paymentList.add(payment);}
+
+    public List<Post> getPostList() {
+        return postList;
+    }
+
+    public void setPostList(List<Post> postList) {
+        this.postList = postList;
+    }
 
     public List<Payment> getPaymentList() {
         return paymentList;
