@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -27,17 +28,14 @@ public class AdminService implements AdminServiceImplement{
 
     @Override
     public String refreshPassword(String userName) {
-        User user = userRepository.findUserByUserName("test1").get();
+        User user = userRepository.findUserByUserName(userName).get();
         UUID newPassword = UUID.fromString(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(newPassword.toString()));
+        user.setUpdateDate(new Date());
+        System.out.println("test user refreshPassword " + user.getPassword());
         userRepository.save(user);
-//        try {
-//            gmailService.sendMail("Refresh Password", "New Password : "+newPassword,"phamchaugiatu123@gmail.com");
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
         try {
-            gmailService.sendMessage("refreshPassword","New Password " + newPassword.toString(),"phamchaugiatu123@gmail.com");
+            gmailService.sendMessage("refreshPassword","New Password " + newPassword.toString(),user.getEmail());
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

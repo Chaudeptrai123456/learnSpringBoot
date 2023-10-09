@@ -1,5 +1,6 @@
 package com.example.Aiking.Controller;
 
+import com.example.Aiking.DTO.requestRefreshPassword;
 import com.example.Aiking.Service.Admin.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -15,8 +16,8 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
     @PostMapping("/refreshPassword")
-    public ResponseEntity<?> handleRefreshPassword(@RequestBody String userName) {
-        String result = adminService.refreshPassword(userName);
+    public ResponseEntity<?> handleRefreshPassword(@RequestBody requestRefreshPassword userName) {
+        String result = adminService.refreshPassword(userName.getUserName());
         return new ResponseEntity<>(result, HttpStatusCode.valueOf(200));
     }
 
