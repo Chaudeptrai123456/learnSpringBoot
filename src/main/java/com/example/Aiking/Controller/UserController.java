@@ -1,5 +1,7 @@
 package com.example.Aiking.Controller;
 
+import com.example.Aiking.DTO.RequestChangePassword;
+import com.example.Aiking.DTO.RequestSendOpt;
 import com.example.Aiking.DTO.UserDTO;
 import com.example.Aiking.Entity.User;
 import com.example.Aiking.Service.User.UserService;
@@ -21,9 +23,14 @@ public class UserController {
         User result = userService.handleUpdateUserInfo(req);
         return new ResponseEntity<User>(result,HttpStatusCode.valueOf(200));
     }
-
-
-
-
-
+    @PostMapping("/sendOpt")
+    public ResponseEntity<?> handSendOpt(@RequestBody RequestSendOpt requestSendOpt) {
+        String result = userService.sendOpt(requestSendOpt.email(), requestSendOpt.userName());
+        return new ResponseEntity<>(result+" "+"check your email ",HttpStatusCode.valueOf(200));
+    }
+    @PostMapping("/handleChangePasswordByOpt")
+    public ResponseEntity<?> handleChangePasswordByOpt(@RequestBody RequestChangePassword req) {
+        String result = userService.handleChangPasswordUsingOpt(req.userName(), req.opt(), req.newPassword());
+        return new ResponseEntity<>(result,HttpStatusCode.valueOf(200));
+    }
 }

@@ -3,6 +3,7 @@ package com.example.Aiking.Controller;
 import com.example.Aiking.DTO.Auth.AuthRequest;
 import com.example.Aiking.DTO.Auth.AuthResponse;
 import com.example.Aiking.DTO.UserDTO;
+import com.example.Aiking.Entity.User;
 import com.example.Aiking.Service.Auth.AuthServiceImplement;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,10 +25,9 @@ public class UserAuthController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<AuthResponse> regis (@RequestBody UserDTO req) {
-        System.out.println(req.getPoint());
-        AuthResponse authResponse = authServiceImplement.register(req);
-        return new ResponseEntity<AuthResponse>(authResponse, HttpStatusCode.valueOf(200));
+    public ResponseEntity<?> regis (@RequestBody UserDTO req) {
+        User authResponse = authServiceImplement.register(req);
+        return new ResponseEntity<User>(authResponse, HttpStatusCode.valueOf(200));
     }
 
     @PostMapping("/logout")

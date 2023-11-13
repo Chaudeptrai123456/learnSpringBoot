@@ -16,6 +16,9 @@ public class User {
     private String username;
     @Column(name="email",length = 50,nullable = false)
     private String email;
+    @Column(name="isblock")
+    private Boolean isBlock;
+
     @Column(name="password",nullable = false , unique = true)
     private String password;
     @Column(name = "point",nullable = false)
@@ -141,5 +144,13 @@ public class User {
 
     public void setRoleList(Set<Role> roleList) {
         this.roleList = roleList;
+    }
+
+    public Boolean getBlock() {
+        return isBlock;
+    }
+
+    public void setBlock(Boolean block) {
+        isBlock = block;
     }
 }

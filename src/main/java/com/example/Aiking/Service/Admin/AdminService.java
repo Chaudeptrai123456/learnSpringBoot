@@ -1,5 +1,6 @@
 package com.example.Aiking.Service.Admin;
 
+import com.example.Aiking.DTO.RequestBlockUser;
 import com.example.Aiking.Entity.User;
 import com.example.Aiking.Repository.UserRepository;
 import com.example.Aiking.Service.Gmail.GmailService;
@@ -20,6 +21,7 @@ public class AdminService implements AdminServiceImplement{
     @Autowired
     private UserRepository userRepository;
 
+
     public AdminService(GmailService gmailService, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.gmailService = gmailService;
         this.passwordEncoder = passwordEncoder;
@@ -37,10 +39,20 @@ public class AdminService implements AdminServiceImplement{
         try {
             gmailService.sendMessage("refreshPassword","New Password " + newPassword.toString(),user.getEmail());
         } catch (MessagingException e) {
+
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return newPassword.toString();
     }
+
+    @Override
+    public User blockUser(RequestBlockUser req) {
+        User user = userRepository.findUserByUserName(req.userName()).get();
+        user.setBlock(req.isBlock());
+        return userRepository.save(user);
+    }
+
+
 }

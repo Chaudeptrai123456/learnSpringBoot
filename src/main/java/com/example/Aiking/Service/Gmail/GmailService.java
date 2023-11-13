@@ -77,7 +77,7 @@ public class GmailService {
         refreshAccessToken();
        // Message message = createMessageWithEmail(createEmail(userEmail, gmailCredential.userEmail(), subject, body,attachment));
         Message message = createMessageWithEmail(createEmail(userEmail, gmailCredential.userEmail(), subject, body));
-
+        System.out.println("test send email " + subject);
         return createGmail()
                 .users()
                 .messages()

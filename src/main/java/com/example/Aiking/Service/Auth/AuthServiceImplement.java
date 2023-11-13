@@ -7,7 +7,6 @@ import com.example.Aiking.Entity.Role;
 import com.example.Aiking.Entity.User;
 import com.example.Aiking.Repository.RoleRepository;
 import com.example.Aiking.Repository.UserRepository;
-import com.example.Aiking.Service.Auth.AuthService;
 import com.example.Aiking.Service.Jwt.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -48,16 +46,17 @@ public class AuthServiceImplement  implements AuthService {
     }
 
     @Override
-    public AuthResponse register(UserDTO user){
+    public User register(UserDTO user){
         AuthResponse authResponse = new AuthResponse("","");
+        User newUser = new User();
         try {
-            User newUser = new User();
             newUser.setEmail(user.getEmail());
             newUser.setPassword(passwordEncoder.encode(user.getPassword()));
             newUser.setPoint(user.getPoint());
             newUser.setUserName(user.getUserName());
             newUser.setCreateDate(new Date());
             newUser.setUpdateDate(new Date());
+            newUser.setBlock(Boolean.TRUE);
             newUser.setFullName(user.getFullName());
             Role role = roleRepository.findByRoleName("user").get();
             Set<Role> roleList = new HashSet<>();
@@ -72,6 +71,6 @@ public class AuthServiceImplement  implements AuthService {
         } catch (Exception err) {
             System.out.print(err.toString());
         }
-        return authResponse;
+        return newUser;
     }
 }

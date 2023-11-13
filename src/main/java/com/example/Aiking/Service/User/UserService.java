@@ -5,40 +5,32 @@ import com.example.Aiking.DTO.Auth.AuthResponse;
 import com.example.Aiking.DTO.UserDTO;
 import com.example.Aiking.Entity.User;
 import com.example.Aiking.Repository.UserRepository;
+import com.example.Aiking.Service.Gmail.GmailService;
 import com.example.Aiking.Service.User.Implements.UserServiceImplement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@EnableCaching
 public class UserService implements UserServiceImplement {
     @Autowired()
     private UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
+    @Autowired
+    private GmailService gmailService;
+    private PasswordEncoder passwordEncoder;
+    public UserService(UserRepository userRepository , GmailService gmailService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.gmailService = gmailService;
+        this.passwordEncoder = passwordEncoder;
     }
-
-    @Override
-    public AuthResponse handleLogin(AuthRequest request) {
-        Optional<User> user = userRepository.findUserByUserName(request.getUserName());
-        if (user.isPresent()) {
-            String token = UUID.randomUUID().toString();
-            User newUser =  user.get();
-            userRepository.save(newUser);
-            return new AuthResponse("acctoken",token);
-        }
-        return null;
-    }
-
-    @Override
-    public AuthResponse handleResgiter(UserDTO user) {
-        return null;
-    }
-
     @Override
     public User handleUpdateUserInfo(UserDTO dto) throws Exception {
         Optional<User> user = userRepository.findUserByUserName(dto.getUserName());
@@ -53,6 +45,33 @@ public class UserService implements UserServiceImplement {
         } else {
             throw new Exception("user has not existed");
         }
+    }
+
+    @Override
+    public String sendOpt(String email, String userName) {
+        String uuid = UUID.randomUUID().toString();
+        try {
+            gmailService.sendMessage("Opt for changing password","Opt " + uuid,"phamchaugiatu123@gmail.com");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        String optToken = redisService.saveOpt(uuid,email+"_"+userName);
+        return uuid;
+    }
+
+    @Override
+    public String handleChangPasswordUsingOpt(String userName, String opt,String newPassword) {
+        User user = userRepository.findUserByUserName(userName).get();
+//        String optRedis = redisService.findItemById(user.getEmail()+"_"+userName);
+//        if (optRedis != null) {
+            //change password
+            user.setPassword(passwordEncoder.encode(newPassword.toString()));
+            user.setUpdateDate(new Date());
+            userRepository.save(user);
+//        }
+        return newPassword;
     }
 }
 
