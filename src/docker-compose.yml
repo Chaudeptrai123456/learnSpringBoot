@@ -1,0 +1,79 @@
+services:
+  mysqldbmaster:
+    container_name: mysqldb_master
+    image: mysql
+    restart: unless-stopped
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+      - "33060:33060"
+    environment:
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: root
+    cap_add:
+      - all
+    volumes:
+      - ./data/master:/var/lib/mysql
+      - ./data/master:/ect/my.cnf
+  mysqldbslave:
+    container_name: mysqldbslave1
+    image: mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_USER=slave
+      - MYSQL_PASSWORD=123
+      - MYSQL_ROOT_PASSWORD=root
+    cap_add:
+      - all
+    expose:
+      - "3307"
+    ports:
+      - "3307:3307"
+      - "33070:33070"
+    volumes:
+      - ./data/slave:/var/lib/mysql
+      - ./data/slave/:/ect/my.cnf
+
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    container_name: elasticsearch
+    environment:
+      - ELASTICS_PASSWORD=123
+    ports:
+      - 561:5601
+    volumes:
+      - ./elastic:/data
+    networks:
+      - elastic
+  kibana:
+    image: kibana:8.12.2
+    environment:
+      - ELASTIC_HOSTS=http://elasticsearch:5601
+      - ELASTIC_USERNAME = elastic
+      - ELASTIC_PASSWORD = 123
+    networks:
+      - elastic
+    volumes:
+      - ./kibana:/data
+    depends_on:
+      - elasticsearch
+networks:
+  elastic:
+    driver: bridge
+#creat user
+# grant replication for this user
+# get infor MASTER_LOG_FILE  and MASTER_LOG_POS of master db
+
+#stop slave;
+#reset slave;
+#    change master to
+#    MASTER_HOST = 'mysqldb_master',
+#    MASTER_PORT = 3306,
+#    MASTER_USER = 'replica',
+#    MASTER_PASSWORD = '123',
+#    MASTER_LOG_FILE = {MASTER_LOG_FILE},
+#    MASTER_LOG_POS = {MASTER_LOG_POS};
+
+#start slave;
