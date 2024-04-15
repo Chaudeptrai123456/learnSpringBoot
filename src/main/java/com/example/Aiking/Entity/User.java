@@ -34,8 +34,6 @@ public class User {
     )
     private Set<Role> roleList = new HashSet<>();
 
-
-
     public Long getUserId() {
         return userId;
     }

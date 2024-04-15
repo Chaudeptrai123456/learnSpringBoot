@@ -9,10 +9,13 @@ import com.example.Aiking.Repository.RoleRepository;
 import com.example.Aiking.Repository.UserRepository;
 import com.example.Aiking.Service.Auth.AuthService;
 import com.example.Aiking.Service.Jwt.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,21 +26,23 @@ import java.util.Set;
 
 @Service
 public class AuthServiceImplement  implements AuthService {
+    @Autowired
     private AuthenticationManager authenticationManager;
-
+    @Autowired
     private RoleRepository roleRepository;
-
+    @Autowired
     private UserRepository userRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
     private JwtService jwtService;
-
-    public AuthServiceImplement(AuthenticationManager authenticationManager, RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
-        this.authenticationManager = authenticationManager;
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
+//    public AuthServiceImplement(AuthenticationManager authenticationManager, RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+//        this.authenticationManager = authenticationManager;
+//        this.roleRepository = roleRepository;
+//        this.userRepository = userRepository;
+//        this.passwordEncoder = passwordEncoder;
+//        this.jwtService = jwtService;
+//    }
 
     @Override
     public AuthResponse login(AuthRequest loginDto) {
@@ -52,13 +57,14 @@ public class AuthServiceImplement  implements AuthService {
         AuthResponse authResponse = new AuthResponse("","");
         try {
             User newUser = new User();
+            System.out.println("test user service " + newUser.getEmail());
             newUser.setEmail(user.getEmail());
             newUser.setPassword(passwordEncoder.encode(user.getPassword()));
             newUser.setPoint(newUser.getPoint());
             newUser.setUserName(user.getUserName());
             newUser.setCreateDate(new Date());
             newUser.setUpdateDate(new Date());
-            Role role = roleRepository.findByRoleName("user").get();
+            Role role = roleRepository.findByRoleName("USER").get();
             Set<Role> roleList = new HashSet<>();
             roleList.add(role);
             newUser.setRoleList(roleList);
@@ -72,5 +78,17 @@ public class AuthServiceImplement  implements AuthService {
             System.out.print(err.toString());
         }
         return authResponse;
+    }
+    public void genaterRole(){
+        try {
+            Role newrole = new Role();
+            newrole.setRoleName("USER");
+            this.roleRepository.save(newrole);
+            Role newrole1 = new Role();
+            newrole1.setRoleName("ADMIN");
+            this.roleRepository.save(newrole1);
+        } catch (Exception err) {
+            System.out.println(err);
+        }
     }
 }
