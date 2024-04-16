@@ -1,0 +1,5 @@
+http.host: localhost
+log.level: info
+xpack.monitoring.elasticsearch.hosts:
+- http://localhost:9200
+xpack.monitoring.enabled: ${XPACK_MONITORING_ENABLED}
