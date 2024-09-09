@@ -1,0 +1,12 @@
+rootProject.name = 'core'
+include 'Microservices:product'
+findProject(':Microservices:product')?.name = 'product'
+include 'Microservices:product_composite'
+findProject(':Microservices:product_composite')?.name = 'product_composite'
+include 'Microservices:review'
+findProject(':Microservices:review')?.name = 'review'
+include 'api'
+include 'util'
+include 'Microservices:recommendation'
+findProject(':Microservices:recommendation')?.name = 'recommendation'
+

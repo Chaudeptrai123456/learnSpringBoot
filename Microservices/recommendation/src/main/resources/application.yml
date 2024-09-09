@@ -1,0 +1,14 @@
+
+server.port: 8082
+server.error.include-message: always
+spring:
+  data:
+    mongodb:
+      uri: mongodb://chau:123@localhost:27017/recommendation-db?authSource=admin&authMechanism=SCRAM-SHA-256
+---
+spring.config.activate.on-profile: docker
+server.port: 8080
+spring:
+  data:
+    mongodb:
+      uri: mongodb://chau:123@mongodb:27017/recommendation-db?authSource=admin&authMechanism=SCRAM-SHA-256

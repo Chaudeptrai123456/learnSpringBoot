@@ -1,0 +1,21 @@
+api:
+  product-composite:
+    get-product-composite:
+      description: get information of product
+      notes: test phase
+    create-composite-product:
+      description: create a product with review and recommendation
+      notes: test phase
+    delete-composite-product:
+      description: delete a product with review and recommendation
+      notes: test phase
+  responseCodes:
+    ok:
+      description: 200 ok response for get product-composite
+    badRequest:
+      description: bad request for get product-composite
+    notFound:
+      description: not found for get product-composite
+    unprocessableEntity:
+      description:  unprocessable for get product-composite
+

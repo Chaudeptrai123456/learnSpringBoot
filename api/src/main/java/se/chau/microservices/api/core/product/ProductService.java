@@ -1,0 +1,45 @@
+package se.chau.microservices.api.core.product;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+
+public interface ProductService {
+    @Operation(
+            summary = "${api.product-composite.get-product-composite.description}",
+            description = "${api.product-composite.get-product-composite.notes}"
+    )
+    @ApiResponses(
+            value={
+                    @ApiResponse(responseCode = "200",description = "${api.responseCodes.ok.description}"),
+                    @ApiResponse(responseCode = "400",description = "${api.responseCodes.badRequest.description}"),
+                    @ApiResponse(responseCode = "404",description = "${api.responseCodes.notFound.description}"),
+                    @ApiResponse(responseCode = "500",description = "${api.responseCodes.unprocessableEntity.description}")
+            }
+    )
+    @GetMapping(
+            value = "/product/{productId}",
+            produces = "application/json")
+    Product getProduct(@PathVariable int productId);
+    @Operation(
+            summary = "${api.product-composite.create-composite-product.description}",
+            description = "${api.product-composite.create-composite-product.notes}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
+            @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
+    })
+    @PostMapping(
+            value="/product/create",
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    Product createProduct(@RequestBody Product product) throws HttpClientErrorException;
+
+
+    @DeleteMapping(
+            value="/product/delete/{productId}"
+    )
+    void deleteProduct(@PathVariable int productId);
+}

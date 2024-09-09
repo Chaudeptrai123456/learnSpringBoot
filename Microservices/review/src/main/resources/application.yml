@@ -1,0 +1,28 @@
+
+server.port: 8083
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/review
+    username: chau
+    password: 123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update  # or `create-drop` for fresh schema creation during development
+    show-sql: true       # Show SQL queries in the console (optional)
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+---
+spring.config.activate.on-profile: docker
+server.port: 8080
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/review
+    username: chau
+    password: 123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update  # or `create-drop` for fresh schema creation during development
+    show-sql: true       # Show SQL queries in the console (optional)
+    database-platform: org.hibernate.dialect.MySQL8Dialect
