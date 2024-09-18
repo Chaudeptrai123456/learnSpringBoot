@@ -1,5 +1,8 @@
 package se.chau.microservices.api.core.product;
 
+import reactor.core.CoreSubscriber;
+import reactor.core.publisher.Mono;
+
 public class Product {
     private int productId;
     private String name;
@@ -14,6 +17,9 @@ public class Product {
         weight=0;
         this.serviceAddress=null;
     }
+
+
+
     public Product(int productId, String name, int weight, String serviceAddress) {
         this.productId = productId;
         this.name = name;

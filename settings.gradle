@@ -9,4 +9,6 @@ include 'api'
 include 'util'
 include 'Microservices:recommendation'
 findProject(':Microservices:recommendation')?.name = 'recommendation'
+include 'Microservices:inventory'
+findProject(':Microservices:inventory')?.name = 'inventory'
 

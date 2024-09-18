@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import reactor.core.publisher.Mono;
 
 public interface ProductService {
     @Operation(
@@ -22,7 +23,7 @@ public interface ProductService {
     @GetMapping(
             value = "/product/{productId}",
             produces = "application/json")
-    Product getProduct(@PathVariable int productId);
+    Mono<Product> getProduct(@PathVariable int productId);
     @Operation(
             summary = "${api.product-composite.create-composite-product.description}",
             description = "${api.product-composite.create-composite-product.notes}")
@@ -35,11 +36,11 @@ public interface ProductService {
             consumes = "application/json",
             produces = "application/json"
     )
-    Product createProduct(@RequestBody Product product) throws HttpClientErrorException;
+    Mono<Product> createProduct(@RequestBody Product product) throws HttpClientErrorException;
 
 
     @DeleteMapping(
             value="/product/delete/{productId}"
     )
-    void deleteProduct(@PathVariable int productId);
+    Mono<Void> deleteProduct(@PathVariable int productId);
 }

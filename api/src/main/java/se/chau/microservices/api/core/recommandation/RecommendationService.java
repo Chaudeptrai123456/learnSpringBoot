@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface RecommendationService {
     @Operation(
@@ -24,11 +23,11 @@ public interface RecommendationService {
     @GetMapping(
             value = "/recommendation",
             produces = "application/json")
-    List<Recommendation> getRecommendations( @RequestParam(value = "productId", required = true) int productId);
+    Flux<Recommendation> getRecommendations( @RequestParam(name = "productId", defaultValue = "0") int productId);
     @PostMapping(
             value="/recommendation",
             produces =  "application/json",
             consumes = "application/json"
     )
-    Recommendation createRecommendation(@RequestBody Recommendation recommendation,@RequestParam(value = "productId") int productId);
+    Mono<Recommendation> createRecommendation(@RequestBody Recommendation recommendation);
 }
