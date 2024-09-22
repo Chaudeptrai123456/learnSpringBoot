@@ -96,8 +96,14 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     public List<Product> getProductByFeature(List<FeatureForSearchPro> feature) {
         List<Product> result = new ArrayList<>();
          feature.forEach(index->{
-            result.add(integration.getProduct(integration.getProductByFeature(index).collectList().block().getLast().getProductId()).block()) ;
-        });
+            result.add(integration.getProduct(
+                    integration.getProductByFeature(index).collectList().block().getLast().getProductId()
+            ).block()) ;
+            integration.getProductByFeature(index).collectList().block().forEach(r->{
+                result.add(integration.getProduct(r.getProductId()).block());
+            });
+         });
+
          return result;
     }
 
