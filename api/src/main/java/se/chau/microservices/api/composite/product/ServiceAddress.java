@@ -5,18 +5,30 @@ public class ServiceAddress {
     private  String pro;
     private  String rev;
     private  String rec;
+
+    private String fea;
     public ServiceAddress() {
         this.cmp = null;
         this.pro = null;
         this.rev = null;
         this.rec = null;
+        this.fea = null;
     }
 
-    public ServiceAddress(String cmp, String pro, String rev, String rec) {
+    public ServiceAddress(String cmp, String pro, String rev, String rec,String fea) {
         this.cmp = cmp;
         this.pro = pro;
         this.rev = rev;
         this.rec = rec;
+        this.fea=fea;
+    }
+
+    public String getFea() {
+        return fea;
+    }
+
+    public void setFea(String fea) {
+        this.fea = fea;
     }
 
     public String getCmp() {

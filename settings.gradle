@@ -11,4 +11,7 @@ include 'Microservices:recommendation'
 findProject(':Microservices:recommendation')?.name = 'recommendation'
 include 'Microservices:inventory'
 findProject(':Microservices:inventory')?.name = 'inventory'
+include 'feature'
+include 'Microservices:feature'
+findProject(':Microservices:feature')?.name = 'feature'
 

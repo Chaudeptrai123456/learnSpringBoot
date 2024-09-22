@@ -1,5 +1,7 @@
 package se.chau.microservices.api.composite.product;
 
+import se.chau.microservices.api.core.Feature.Feature;
+
 import java.util.List;
 
 public class ProductAggregate {
@@ -9,6 +11,7 @@ public class ProductAggregate {
 
     private List<ReviewSummary> reviewSummaryList;
     private List<RecommendationSummary> recommendationSummaryList;
+    private List<FeatureSummary> featureSummaryList;
     public ProductAggregate() {
         this.productId = 1;
         this.name = "test";
@@ -17,13 +20,14 @@ public class ProductAggregate {
         this.recommendationSummaryList = null;
         this.serviceAddresses = null;
     }
-    public ProductAggregate(int productId, String name, int weight, List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList, ServiceAddress serviceAddresses) {
+    public ProductAggregate(int productId, String name, int weight, List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList ,ServiceAddress serviceAddresses) {
         this.productId = productId;
         this.name = name;
         this.weight = weight;
         this.reviewSummaryList = reviewSummaryList;
         this.recommendationSummaryList = recommendationSummaryList;
-        this.serviceAddresses = serviceAddresses;
+        this.serviceAddresses = serviceAddresses;;
+        this.featureSummaryList = featureSummaryList;
     }
 
     private ServiceAddress serviceAddresses;
@@ -68,11 +72,21 @@ public class ProductAggregate {
         this.recommendationSummaryList = recommendationSummaryList;
     }
 
+
+
     public ServiceAddress getServiceAddresses() {
         return serviceAddresses;
     }
 
     public void setServiceAddresses(ServiceAddress serviceAddresses) {
         this.serviceAddresses = serviceAddresses;
+    }
+
+    public List<FeatureSummary> getFeatureSummaryList() {
+        return featureSummaryList;
+    }
+
+    public void setFeatureSummaryList(List<FeatureSummary> featureSummaryList) {
+        this.featureSummaryList = featureSummaryList;
     }
 }

@@ -15,7 +15,6 @@ public class ProductEntity {
     private int productId;
     private String name;
     private int weight;
-
     public String getId() {
         return id;
     }

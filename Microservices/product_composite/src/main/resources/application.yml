@@ -52,6 +52,9 @@ app:
   recommendation-service:
     host: localhost
     port: 8082
+  feature-service:
+    host: localhost
+    port: 8085
   review-service:
     host: localhost
     port: 8083
@@ -74,6 +77,10 @@ spring.cloud.stream:
         required-groups: auditGroup
     reviews-out-0:
       destination: reviews
+      producer:
+        required-groups: auditGroup
+    features-out-0:
+      destination: features
       producer:
         required-groups: auditGroup
 spring.cloud.stream.bindings.products-out-0.producer:

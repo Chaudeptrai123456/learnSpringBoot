@@ -1,25 +1,26 @@
 package se.chau.microservices.core.product_composite.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.juli.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import se.chau.microservices.api.core.Feature.Feature;
+import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
+import se.chau.microservices.api.core.Feature.FeatureService;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
 import se.chau.microservices.api.core.recommandation.Recommendation;
@@ -38,7 +39,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import java.io.IOException;
 
 @Component
-public class ProductCompositeIntegration implements ProductService, ReviewService,RecommendationService {
+public class ProductCompositeIntegration implements ProductService, ReviewService,RecommendationService, FeatureService {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeIntegration.class);
     private final WebClient webClient;
     private final ObjectMapper mapper;
@@ -48,7 +49,9 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private final String reviewServiceUrl;
     private final StreamBridge streamBridge;
     private final Scheduler publishEventScheduler;
+    private final String featureServiceUrl;
 
+    private final String getProductByfeaUrl;
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
@@ -58,15 +61,19 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             @Value("${app.recommendation-service.port}") int recommendationServicePort,
             @Value("${app.review-service.host}") String reviewServiceHost,
             @Value("${app.review-service.port}") int reviewServicePort, WebClient.Builder webClient,
+            @Value("${app.feature-service.host}") String featureHost,
+            @Value("${app.feature-service.port}") String featurePort,
             ObjectMapper mapper,
             StreamBridge streamBridge) {
         this.publishEventScheduler = publishEventScheduler;
         this.webClient = webClient.build();
         this.mapper = mapper;
         this.streamBridge = streamBridge;
+        this.getProductByfeaUrl = "http://" + featureHost + ":" + featurePort + "/feature/product";
         productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
         recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation?productId=";
         reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review?productId=";
+        featureServiceUrl = "http://" + featureHost + ":" + featurePort + "/feature?productId=";
     }
     @Override
     public Mono<Product> createProduct(Product product) {
@@ -77,7 +84,6 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
     @Override
     public Mono<Product> getProduct(int productId) {
-        LOG.debug("test get product " + productId);
         String url = productServiceUrl + productId;
         return webClient.get().uri(url).retrieve()
                 .bodyToMono(Product.class)
@@ -121,6 +127,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         LOG.debug("Will call the getReviews API on URL: {}", url);
         return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
+
+
 
     @Override
     public Mono<Review> createReview(Review body) {
@@ -190,4 +198,26 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         }
     }
 
+    @Override
+    public Flux<Feature> getProductByFeature(FeatureForSearchPro feature) throws HttpClientErrorException {
+        return webClient.post().uri(getProductByfeaUrl).contentType(MediaType.APPLICATION_JSON).bodyValue(feature).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+    }
+
+
+    @Override
+    public Mono<Feature> createFeatureForProduct(Feature feature) throws HttpClientErrorException {
+        System.out.println("test create feature "  + feature.getFeatureId() +" " +feature.getProductId());
+        Mono<Feature> a =  Mono.fromCallable(() -> {
+            sendMessage("features-out-0", new Event(CREATE, feature.getFeatureId(), feature));
+            return feature;
+        }).subscribeOn(publishEventScheduler);
+        return a;
+    }
+
+    @Override
+    public Flux<Feature> getFeatureOfProduct(int productId) {
+        String url = featureServiceUrl + productId;
+        System.out.println("tes uri of feature " + url);
+        LOG.debug("Will call the getReviews API on URL: {}", url);
+        return webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());    }
 }
