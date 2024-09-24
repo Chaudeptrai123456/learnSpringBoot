@@ -206,18 +206,16 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
 
     @Override
     public Mono<Feature> createFeatureForProduct(Feature feature) throws HttpClientErrorException {
-        System.out.println("test create feature "  + feature.getFeatureId() +" " +feature.getProductId());
-        Mono<Feature> a =  Mono.fromCallable(() -> {
+        return Mono.fromCallable(() -> {
             sendMessage("features-out-0", new Event(CREATE, feature.getFeatureId(), feature));
             return feature;
         }).subscribeOn(publishEventScheduler);
-        return a;
     }
 
     @Override
     public Flux<Feature> getFeatureOfProduct(int productId) {
         String url = featureServiceUrl + productId;
-        System.out.println("tes uri of feature " + url);
         LOG.debug("Will call the getReviews API on URL: {}", url);
+        //        return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
         return webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());    }
 }

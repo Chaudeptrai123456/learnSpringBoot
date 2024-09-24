@@ -37,10 +37,6 @@ public class FeatureServiceImpl implements FeatureService {
             throw new InvalidInputException("Invalid productId: " + productId);
         }
         LOG.info("Will get feature for product with id={}", productId);
-        Flux<Feature> a = featureRepository.findByProductId(productId)
-                .log(LOG.getName(), FINE)
-                .map(mapper::entityToApi);
-        System.out.println(a.blockFirst());
         return featureRepository.findByProductId(productId)
                 .log(LOG.getName(), FINE)
                 .map(mapper::entityToApi)

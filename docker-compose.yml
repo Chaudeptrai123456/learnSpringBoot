@@ -44,7 +44,7 @@ services:
     build: Microservices/product
     mem_limit: 512m
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - SPRING_PROFILES_ACTIVE=docker
   product2:
     depends_on:
       - rabbitmq
@@ -64,20 +64,21 @@ services:
     build: Microservices/review
     mem_limit: 512m
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - mysql
   review2:
     build: Microservices/review
     mem_limit: 512m
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
     depends_on:
       - mysql
   recommendation:
     build: Microservices/recommendation
     depends_on:
       - mongodb
+      - rabbitmq
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
@@ -85,94 +86,26 @@ services:
     build: Microservices/recommendation
     depends_on:
       - mongodb
+      - rabbitmq
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+  feature:
+    build: Microservices/feature
+    depends_on:
+      - rabbitmq
+      - mongodb
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+  feature2:
+    build: Microservices/feature
+    depends_on:
+      - rabbitmq
+      - mongodb
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
 volumes:
   mongo_data: {}
   mysql_data: {}
-#version : '1.1'
-#services:
-#  rabbitmq:
-#    image: rabbitmq:3.11.8-management
-#    mem_limit: 512m
-#    ports:
-#      - 5672:5672
-#      - 15672:15672
-#    networks:
-#      - mynetwork
-#  mysql:
-#    image: mysql:8.0
-#    container_name: mysql
-#    environment:
-#      MYSQL_ROOT_PASSWORD: 123
-#      MYSQL_DATABASE: review
-#      MYSQL_USER: chau
-#      MYSQL_PASSWORD: 123
-#    ports:
-#      - "3306:3306"
-#    healthcheck:
-#      test: "mongo --eval 'db.stats().ok'"
-#      interval: 5s
-#      timeout: 2s
-#      retries: 60
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-#  mongodb:
-#    image: mongo:latest
-#    container_name: mongodb
-#    environment:
-#      MONGO_INITDB_ROOT_USERNAME: chau
-#      MONGO_INITDB_ROOT_PASSWORD: 123
-#    ports:
-#      - "27017:27017"
-#    healthcheck:
-#      test: "mongo --eval 'db.stats().ok'"
-#      interval: 5s
-#      timeout: 2s
-#      retries: 60
-#    volumes:
-#      - mongo_data:/data/db
-#  product:
-#    depends_on:
-#      - mongodb
-#    build: Microservices/product
-#    mem_limit: 512m
-#    environment:
-#      -  SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - mynetwork
-#
-#  product-composite:
-#    build: Microservices/product_composite
-#    mem_limit: 512m
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - mynetwork
-#  review:
-#    build: Microservices/review
-#    mem_limit: 512m
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    depends_on:
-#      - mysql
-#    networks:
-#      - mynetwork
-#  recommendation:
-#    build: Microservices/recommendation
-#    depends_on:
-#      - mongodb
-#    mem_limit: 512m
-#    environment:
-#      -  SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - mynetwork
-#volumes:
-#  mongo_data: {}
-#  mysql_data: {}
-#networks:
-#  mynetwork:
-#

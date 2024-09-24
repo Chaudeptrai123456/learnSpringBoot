@@ -5,12 +5,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
 import se.chau.microservices.api.core.product.Product;
 
 import java.util.List;
+import java.util.Set;
 
 @Tag(name="ProductComposite",description = "Restfull Api for product composite")
 public interface ProductCompositeService {
@@ -41,18 +41,18 @@ public interface ProductCompositeService {
     Mono<ProductAggregate> getProduct(@PathVariable int productId);
 
     @Operation(
-            summary = "${api.product-composite.get-composite-product.description}",
-            description = "${api.product-composite.get-composite-product.notes}")
+            summary = "get product by list of features",
+            description = "req is List of FeatureForSearchPro res is list of product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description}"),
             @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
             @ApiResponse(responseCode = "404", description = "${api.responseCodes.notFound.description}"),
             @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
     })
-    @GetMapping(
+    @PostMapping(
             value = "/product-composite/product/feature",
             produces = "application/json")
-    List<Product> getProductByFeature(@RequestBody List<FeatureForSearchPro> feature );
+    Set<Product> getProductByFeature(@RequestBody List<FeatureForSearchPro> feature );
 
     @Operation(
             summary = "${api.product-composite.delete-composite-product.description}",

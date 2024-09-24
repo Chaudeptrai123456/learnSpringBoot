@@ -86,6 +86,15 @@ spring.cloud.stream:
 spring.cloud.stream.bindings.products-out-0.producer:
   partition-key-expression: headers['partitionKey']
   partition-count: 2
+spring.cloud.stream.bindings.recommendations-out-0.producer:
+  partition-key-expression: headers['partitionKey']
+  partition-count: 2
+spring.cloud.stream.bindings.reviews-out-0.producer:
+  partition-key-expression: headers['partitionKey']
+  partition-count: 2
+spring.cloud.stream.bindings.features-out-0.producer:
+  partition-key-expression: headers['partitionKey']
+  partition-count: 2
 spring.cloud.stream.kafka.binder:
   brokers: 127.0.0.1
   defaultBrokerPort: 9092
@@ -109,6 +118,9 @@ app:
   review-service:
     host: review
     port: 8080
+  feature-service:
+    host: feature
+    port: 8080
 
 spring.rabbitmq.host: rabbitmq
 
@@ -126,6 +138,9 @@ spring.cloud.stream.bindings.recommendations-out-0.producer:
   partition-count: 2
 
 spring.cloud.stream.bindings.reviews-out-0.producer:
+  partition-key-expression: headers['partitionKey']
+  partition-count: 2
+spring.cloud.stream.bindings.features-out-0.producer:
   partition-key-expression: headers['partitionKey']
   partition-count: 2
 
