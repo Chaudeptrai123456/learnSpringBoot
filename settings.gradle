@@ -14,4 +14,7 @@ findProject(':Microservices:inventory')?.name = 'inventory'
 include 'feature'
 include 'Microservices:feature'
 findProject(':Microservices:feature')?.name = 'feature'
+include 'Microservices:SpringCloud:Eureka'
+include 'SpringCloud:EurekaServer'
+findProject(':SpringCloud:EurekaServer')?.name = 'EurekaServer'
 

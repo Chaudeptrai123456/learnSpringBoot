@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import se.chau.microservices.api.composite.product.*;
 import se.chau.microservices.api.core.Feature.Feature;
@@ -93,14 +92,16 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public Set<Product> getProductByFeature(@RequestBody List<FeatureForSearchPro> feature) throws EnumConstantNotPresentException {
-        Set<Product> result = new HashSet<>();
+    public List<Product> getProductByFeature(@RequestBody List<FeatureForSearchPro> feature) throws EnumConstantNotPresentException {
+        List<Product> result = new ArrayList<>();
         feature.forEach(index->{
-            Objects.requireNonNull(integration.getProductByFeature(index).collectList().block()).forEach(r->{
-                result.add(integration.getProduct(r.getProductId()).block());
-            });
+                integration.getProductByFeature(index).collectList().block().forEach(f->{
+                result.add(integration.getProduct(f.getProductId()).block());
+                });
+//            Objects.requireNonNull(integration.getProductByFeature(index).collectList().block()).forEach(r->{
+//                result.add(integration.getProduct(r.getProductId()).block());
+//            });
         });
-
         return result;
     }
 

@@ -18,21 +18,7 @@ import reactor.core.scheduler.Schedulers;
 
 @SpringBootApplication(scanBasePackages = {"se.chau.microservices.core.feature", "se.chau.microservices.util.http"})
 public class Main {
-    @Value("${api.common.appTitle}") String title;
-    @Value("${api.common.appDescription}") String description;
-    @Value("${api.common.apiVersion}") String version;
-    @Value("${api.common.apiContactName}") String contactName;
-    @Value("${api.common.appContactUrl}") String contactUrl;
-    @Value("${api.common.appContactEmail}") String contactEmail;
-    @Value("${api.common.apiTermOfService}") String termOfLicense;
 
-    @Value("${api.common.appLicense}") String license;
-
-    @Value("${api.common.apiLicenseUrl}") String licenseUrl;
-
-    @Value("${api.common.apiExternalDoc}") String externalDocs;
-
-    @Value("${api.common.apiExternalUrl}") String externalUrl;
 
     private final Integer threadPoolSize;
     private final Integer taskQueueSize;
@@ -48,26 +34,6 @@ public class Main {
         this.taskQueueSize = taskQueueSize;
     }
 
-    @Bean
-    public OpenAPI getOpenAPIDocumentation(){
-        return new OpenAPI()
-                .info(new Info().title(title)
-                        .description(description)
-                        .version(version)
-                        .contact(new Contact()
-                                .name(contactName)
-                                .url(contactUrl)
-                                .email(contactEmail)
-                        )
-                        .termsOfService(termOfLicense)
-                        .license(new License()
-                                .name(license)
-                                .url(licenseUrl)
-                        )
-                )
-                .externalDocs(new ExternalDocumentation().description(externalDocs).url(externalUrl))
-                ;
-    }
 
     @Bean
     public Scheduler publishEventScheduler() {

@@ -10,7 +10,6 @@ import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
 import se.chau.microservices.api.core.product.Product;
 
 import java.util.List;
-import java.util.Set;
 
 @Tag(name="ProductComposite",description = "Restfull Api for product composite")
 public interface ProductCompositeService {
@@ -52,7 +51,7 @@ public interface ProductCompositeService {
     @PostMapping(
             value = "/product-composite/product/feature",
             produces = "application/json")
-    Set<Product> getProductByFeature(@RequestBody List<FeatureForSearchPro> feature );
+    List<Product> getProductByFeature(@RequestBody List<FeatureForSearchPro> feature );
 
     @Operation(
             summary = "${api.product-composite.delete-composite-product.description}",

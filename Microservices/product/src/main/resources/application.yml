@@ -1,6 +1,12 @@
 server.port: 8081
+spring.application.name: product
+app.eureka-server: localhost
 server.error.include-message: always
+
 spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
   data:
     mongodb:
       uri: mongodb://chau:123@localhost:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
@@ -63,6 +69,18 @@ api:
     apiLicenseUrl: 23123
     apiExternalDoc: 123123
     apiExternalUrl: 123122
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+
 ---
 spring.config.activate.on-profile: docker
 server.port: 8080
@@ -76,6 +94,7 @@ spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
 
+eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
 ---
 spring.config.activate.on-profile: streaming_partitioned
 

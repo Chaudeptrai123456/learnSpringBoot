@@ -52,6 +52,11 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private final String featureServiceUrl;
 
     private final String getProductByfeaUrl;
+
+
+    private static final String PRODUCT_SERVICE_URL = "http://product:8080";
+    private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation:8080";
+    private static final String REVIEW_SERVICE_URL = "http://review:8080";
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
@@ -84,7 +89,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
     @Override
     public Mono<Product> getProduct(int productId) {
-        String url = productServiceUrl + productId;
+        String url = PRODUCT_SERVICE_URL + "/product/" + productId;
         return webClient.get().uri(url).retrieve()
                 .bodyToMono(Product.class)
                 .log(LOG.getName(), FINE)
@@ -114,7 +119,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
     @Override
     public Flux<Recommendation> getRecommendations(int productId) {
-        return webClient.get().uri(recommendationServiceUrl +  productId).retrieve()
+        String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
+        return webClient.get().uri(url).retrieve()
                 .bodyToFlux(Recommendation.class)
                 .log(LOG.getName(), FINE)
                 .onErrorResume(error -> empty());
@@ -123,7 +129,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
 
     @Override
     public Flux<Review> getReviews(int productId) {
-        String url = reviewServiceUrl   + productId;
+        String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
@@ -139,15 +145,15 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         }).subscribeOn(publishEventScheduler);
     }
     public Mono<Health> getProductHealth() {
-        return getHealth(productServiceUrl);
+        return getHealth(PRODUCT_SERVICE_URL);
     }
 
     public Mono<Health> getRecommendationHealth() {
-        return getHealth(recommendationServiceUrl);
+        return getHealth(RECOMMENDATION_SERVICE_URL);
     }
 
     public Mono<Health> getReviewHealth() {
-        return getHealth(reviewServiceUrl);
+        return getHealth(REVIEW_SERVICE_URL);
     }
 
     private Mono<Health> getHealth(String url) {
