@@ -7,8 +7,8 @@ spring:
       uri: mongodb://chau:123@localhost:27017/recommendation-db?authSource=admin&authMechanism=SCRAM-SHA-256
 spring.cloud.function.definition: messageProcessor
 spring.cloud:
-    compatibility-verifier:
-      enabled: false
+  compatibility-verifier:
+    enabled: false
 spring.cloud.stream:
   defaultBinder: rabbit
   default.contentType: application/json
@@ -53,7 +53,7 @@ app.eureka-server: localhost
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: "http://localhost:8761/eureka/"
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
@@ -61,8 +61,6 @@ eureka:
     leaseExpirationDurationInSeconds: 5
 ---
 spring.config.activate.on-profile: docker
-
-eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
 
 server.port: 8080
 spring:
@@ -75,6 +73,7 @@ spring:
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
+eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
 
 ---
 spring.config.activate.on-profile: streaming_partitioned

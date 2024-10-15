@@ -39,6 +39,7 @@ services:
     volumes:
       - mongo_data:/data/db
   eureka:
+    container_name: eureka
     build: SpringCloud/EurekaServer
     mem_limit: 512m
     ports:
@@ -111,6 +112,18 @@ services:
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+  gateway:
+     build: SpringCloud/Gateway
+     environment:
+       - SPRING_PROFILES_ACTIVE=docker
+     mem_limit: 512m
+  authentication:
+      build: SpringCloud/user
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      ports:
+        - "8086:8086"
+      mem_limit: 512m
 volumes:
   mongo_data: {}
   mysql_data: {}

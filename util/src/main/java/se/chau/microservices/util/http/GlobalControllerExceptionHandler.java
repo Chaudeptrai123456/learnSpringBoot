@@ -50,5 +50,4 @@ public class GlobalControllerExceptionHandler {
         return new HttpErrorInfo(httpStatus, path, message);
     }
 
-
 }

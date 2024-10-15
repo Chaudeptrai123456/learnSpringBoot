@@ -1,22 +1,30 @@
 server:
   port: 8761
 spring.main.allow-bean-definition-overriding: true
-spring:
-  cloud:
-    compatibility-verifier:
-      enabled: false
+
+app:
+  eureka-username: chau
+  eureka-password: 123
 eureka:
-  instance:
-    hostname: localhost
   client:
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: "http://localhost:8761/eureka/"
   # from: https://github.com/spring-cloud-samples/eureka/blob/master/src/main/resources/application.yml
   server:
     waitTimeInMsWhenSyncEmpty: 0
     response-cache-update-interval-ms: 5000
-    renewal-percent-threshold: 0.85
-
+spring:
+  application:
+    name: eureka
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  security:
+    user:
+      name: chau
+      password: 123
 management.endpoints.web.exposure.include: "*"
+#  spring.security.user.name
+# spring.security.user.password

@@ -30,6 +30,8 @@ dependencies {
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
@@ -39,6 +41,9 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
     testImplementation 'org.testcontainers:mongodb'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0'
@@ -47,6 +52,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka:4.1.3'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation('org.springframework.cloud:spring-cloud-commons:4.1.2')
-
-
+    implementation("org.springframework.security:spring-security-config:6.3.1")
+    implementation("org.springframework.security:spring-security-web:6.3.1")
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
 }

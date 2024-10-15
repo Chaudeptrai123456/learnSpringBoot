@@ -18,7 +18,7 @@ import se.chau.microservices.util.http.ServiceUtil;
 import static java.util.logging.Level.FINE;
 
 @RestController
-public class FeatureServiceImpl implements FeatureService {
+public class    FeatureServiceImpl implements FeatureService {
     private static final Logger LOG = LoggerFactory.getLogger(FeatureServiceImpl.class);
     private  final ServiceUtil serviceUtil;
     @Autowired

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
+import se.chau.microservices.api.core.User.User;
 import se.chau.microservices.api.core.product.Product;
 
 import java.util.List;
