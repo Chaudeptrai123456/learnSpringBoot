@@ -13,8 +13,8 @@ spring:
         registration:
           google-login:
             provider: google
-            client-id: 325019990890-qe5jj732uqji378c1ssv54ghh09dtoab.apps.googleusercontent.com
-            client-secret: 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
+            client-id:
+            client-secret:  
             redirectUri: "{baseUrl}/user/home/google/{registrationId}"
             scope:
               - profile
