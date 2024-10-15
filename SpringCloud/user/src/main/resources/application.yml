@@ -1,24 +1,11 @@
 server.port: 9999
 server.forward-headers-strategy: framework
 spring.application.name: AuthenticationServer
-jwtRefreshTokenEncoder : asdasdsadasdsaadsa
+jwtRefreshTokenEncoder :
 issuer-uri: localhost:9999/issuer
 spring:
   security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: "{issuer-uri}"
-      client:
-        registration:
-          google-login:
-            provider: google
-            client-id:
-            client-secret:  
-            redirectUri: "{baseUrl}/user/home/google/{registrationId}"
-            scope:
-              - profile
-              - email
+ 
 
   cloud:
     compatibility-verifier:
