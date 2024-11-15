@@ -22,10 +22,9 @@ jar {
 }
 ext {
     mapstructVersion = "1.5.5.Final"
-    springCloudVersion = "2022.0.1"
+    springCloudVersion = "2023.0.1"
 }
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
     implementation 'org.glassfish.jaxb:jaxb-runtime'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

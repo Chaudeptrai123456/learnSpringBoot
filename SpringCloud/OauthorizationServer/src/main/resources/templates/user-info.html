@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>User Info</title>
+</head>
+<body>
+<h1>Welcome, <span th:text="${user.fullName}">User</span>!</h1>
+<p>Email: <span th:text="${user.email}">Email</span></p>
+<p>Subject: <span th:text="${user.subject}">Subject</span></p>
+<a href="/logout">Logout</a>
+</body>
+</html>

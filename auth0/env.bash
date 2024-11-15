@@ -1,0 +1,6 @@
+
+TENANT=dev-bn6nrtak2226apoh.us.auth0.com
+MGM_CLIENT_ID=8njjmweVn1DSV7P2uw7xwPTiow11HQkd
+MGM_CLIENT_SECRET=ck1Vw4GL-AlvM_qBVEJHt81Pz0ds419ThnweE6y347mPS0tvOYqnP6C9Sm__42tw
+USER_EMAIL=phamchaugiatu1@gmail.com
+USER_PASSWORD=123

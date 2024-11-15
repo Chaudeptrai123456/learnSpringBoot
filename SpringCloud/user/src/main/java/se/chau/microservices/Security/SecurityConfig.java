@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -14,6 +13,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,13 +26,12 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import se.chau.microservices.Config.JWTtoUserConvertor;
 import se.chau.microservices.Service.UserAuthenticationProvider;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -46,8 +45,6 @@ public class SecurityConfig {
     private RefreshTokenFilter refreshTokenFilter;
     @Autowired
     private JWTtoUserConvertor jwtToUserConverter;
-
-
 
     // there are 3 methods for handling hashing password
     @Bean
@@ -70,7 +67,6 @@ public class SecurityConfig {
         return RoleHierarchyImpl.withDefaultRolePrefix()
                 .role("ADMIN").implies("STAFF")
                 .role("STAFF").implies("USER")
-                .role("USER").implies("GUEST")
                 .build();
     }
     @Bean
@@ -79,14 +75,13 @@ public class SecurityConfig {
         providerManager.setEraseCredentialsAfterAuthentication(false);
         return providerManager;
     }
-
     @Bean
+    @Order(1)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/user/register", "/user/login").permitAll();
-                    req.requestMatchers("/user/**").authenticated();
+                    req.requestMatchers("/user/**").permitAll();
                     req.requestMatchers("/test").authenticated();
                 })
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -96,6 +91,8 @@ public class SecurityConfig {
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+                .oauth2Login(Customizer.withDefaults())
                 .build();
     }
+
 }

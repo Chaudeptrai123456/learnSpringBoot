@@ -1,6 +1,4 @@
 package se.chau.microservices.core.product_composite.service;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +14,16 @@ import se.chau.microservices.api.core.recommandation.Recommendation;
 import se.chau.microservices.api.core.review.Review;
 import se.chau.microservices.util.http.ServiceUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static java.util.logging.Level.FINE;
 
 @RestController
 public class ProductCompositeServiceImpl implements ProductCompositeService {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeServiceImpl.class);
+
 
     private final ServiceUtil serviceUtil;
     private final ProductCompositeIntegration integration;
@@ -98,15 +101,13 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                 integration.getProductByFeature(index).collectList().block().forEach(f->{
                 result.add(integration.getProduct(f.getProductId()).block());
                 });
-//            Objects.requireNonNull(integration.getProductByFeature(index).collectList().block()).forEach(r->{
-//                result.add(integration.getProduct(r.getProductId()).block());
-//            });
+
         });
         return result;
     }
 
     @Override
-    public void deleteProduct(int productId) {
+    public  void deleteProduct(int productId) {
         integration.deleteProduct(productId);
     }
 
@@ -136,4 +137,5 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
         return new ProductAggregate(productId, name, weight, reviewSummaries, recommendationSummaries, featureList,serviceAddresses);
     }
+
 }

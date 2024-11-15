@@ -57,26 +57,9 @@ api:
 
 server.port: 8000
 server.error.include-message: always
-spring.application.name: product_composite
+spring.application.name: product-composite
 
 app.eureka-server: localhost
-
-app:
-  authserver: localhost
-  product-service:
-    host: localhost
-    port: 8081
-  recommendation-service:
-    host: localhost
-    port: 8082
-  feature-service:
-    host: localhost
-    port: 8085
-  review-service:
-    host: localhost
-    port: 8083
-
-  auth-server: localhost
 logging:
   level:
     root: INFO
@@ -133,25 +116,24 @@ eureka:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
 
-#spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.authserver}:9999
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+#dev-bn6nrtak2226apoh.us.auth0.com
+#spring.security.oauth2.resourceserver.jwt.issuer-uri: https://dev-bn6nrtak2226apoh.us.auth0.com
+
 ---
 spring.config.activate.on-profile: docker
 server.port: 8080
-app:
-  product-service:
-    host: product
-    port: 8080
-  recommendation-service:
-    host: recommendation
-    port: 8080
-  review-service:
-    host: review
-    port: 8080
-  feature-service:
-    host: feature
-    port: 8080
-eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "http://eureka:8761/eureka/"
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
 
 spring.rabbitmq.host: rabbitmq
 
@@ -175,7 +157,6 @@ spring.cloud.stream.bindings.features-out-0.producer:
   partition-key-expression: headers['partitionKey']
   partition-count: 2
 
----
 
 
 #    app:
@@ -188,3 +169,4 @@ spring.cloud.stream.bindings.features-out-0.producer:
 #      review-service:
 #        host: review
 #        port: 8083
+

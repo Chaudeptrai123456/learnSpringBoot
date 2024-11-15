@@ -12,7 +12,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import se.chau.microservices.Service.JpaUserDetailsService;
-import se.chau.microservices.jwt.JwtService;
+import se.chau.microservices.util.http.JwtService;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -49,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             // If JWT token is valid
             if (JwtService.validateToken(jwt)) {
+
                 // Create authentication token
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
@@ -61,6 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 // Update SecurityContext using authentication token
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                filterChain.doFilter(request, response);
             }
         }
         filterChain.doFilter(request, response);

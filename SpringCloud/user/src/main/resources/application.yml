@@ -5,7 +5,20 @@ jwtRefreshTokenEncoder :
 issuer-uri: localhost:9999/issuer
 spring:
   security:
- 
+    oauth2:
+      client:
+        resourceserver:
+          jwt:
+            issuer-uri: http://localhost:9999
+        registration:
+          google:
+            client-id: 325019990890-qe5jj732uqji378c1ssv54ghh09dtoab.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "http://localhost:9999/user/home/google"
 
   cloud:
     compatibility-verifier:
@@ -74,9 +87,13 @@ api:
     apiLicenseUrl: 23123
     apiExternalDoc: 123123
     apiExternalUrl: 123122
+app:
+  auth-server: localhost
+#spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9998
+
 ---
 spring.config.activate.on-profile: docker
-
+auth-server: auth-server
 eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
 
 server.port: 8086

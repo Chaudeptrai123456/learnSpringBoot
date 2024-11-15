@@ -3,9 +3,6 @@ package se.chau.microservices.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +20,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private JpaUserDetailsService userDetailsService;
-    @Autowired
+//    @Autowired
     private PlainTextPasswordEncoder plainTextPasswordEncoder;
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -48,13 +45,11 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Bad credentials");
         }
     }
-    @Bean
-    @Qualifier
+//    @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean
-    @Qualifier
+//    @Bean
     public SCryptPasswordEncoder sCryptPasswordEncoder() {
         int cpuCost = (int) Math.pow(2, 14); // N (CPU cost factor), nên là lũy thừa của 2
         int memoryCost = 8;  // r (Memory cost factor)

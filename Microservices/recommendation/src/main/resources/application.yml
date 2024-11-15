@@ -59,8 +59,11 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+
 ---
 spring.config.activate.on-profile: docker
+#spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
 
 server.port: 8080
 spring:

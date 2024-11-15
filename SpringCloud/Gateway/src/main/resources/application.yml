@@ -1,29 +1,30 @@
-
 server.ssl:
   key-store-type: PKCS12
   key-store: classpath:keystore/edge.p12
   key-store-password: 013234656798ntaA@
   key-alias: localhost
-server.port: 8443
-
+server:
+  error:
+    whitelabel:
+      enabled: false
+  port: 8443
 spring.application.name: gateway
 app:
-  eureka-username: chau
-  eureka-password: 123
+  eureka-username: u
+  eureka-password: p
   eureka-server: localhost
-spring:
-  cloud:
-    compatibility-verifier:
-      enabled: false
-eureka:
+  auth-server: localhost
+  auth:
+    host: localhost
   client:
     serviceUrl:
-      defaultZone: "http://${app.eureka-server}:8761/eureka/"
+      defaultZone: "http://localhost:8761/eureka/"
     initialInstanceInfoReplicationIntervalSeconds: 5
-    registryFetchIntervalSeconds: 30
+    registryFetchIntervalSeconds: 5
   instance:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
+
 spring.cloud.gateway.routes:
 
   - id: product-composite
@@ -31,10 +32,38 @@ spring.cloud.gateway.routes:
     predicates:
       - Path=/product-composite/**
 
+  - id: auth-server
+    uri: lb://auth-server
+    predicates:
+      - Path=/oauth2/**
+
+  - id: product
+    uri: lb://product
+    predicates:
+      - Path=/product/**
+  - id: feature
+    uri: lb://feature
+    predicates:
+      - Path=/feature/**
+  - id: recommendation
+    uri: lb://recommendation
+    predicates:
+      - Path=/recommendation/**
+  - id: review
+    uri: lb://review
+    predicates:
+      - Path=/review/**
+
+
   - id: product-composite-swagger-ui
     uri: lb://product-composite
     predicates:
       - Path=/openapi/**
+
+  - id: product-composite-swagger-ui-webjars
+    uri: lb://product-composite
+    predicates:
+      - Path=/webjars/**
 
   - id: eureka-api
     uri: http://${app.eureka-server}:8761
@@ -77,17 +106,43 @@ spring.cloud.gateway.routes:
       - Path=/headerrouting/**
     filters:
       - SetPath=/501
-
 management.endpoint.gateway.enabled: true
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
-spring.cloud.compatibility-verifier.enabled: false
+spring.cloud:
+    compatibility-verifier:
+      enabled: false
 logging:
   level:
     root: INFO
     org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: INFO
     org.springframework.cloud.gateway: TRACE
 
+app.auth-server: localhost
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc-client:
+            client-id: chau
+            client-secret: 123
+            scope: openid, profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+        provider:
+          oidc-provider:
+            authorization-uri: "http://${app.auth.host}:9999/oauth2/authorize"
+            token-uri: "http://${app.auth.host}:9999/oauth2/token"
+            user-info-uri: "http://${app.auth.host}:9999/userinfo"
+            jwk-set-uri: "http://${app.auth.host}:9999/.well-known/jwks.json"
+            issuer-uri: "http://${app.auth.host}:9999"
 ---
 spring.config.activate.on-profile: docker
-app.eureka-server: eureka
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
+
+app:
+  auth:
+    host: auth-server
+eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/

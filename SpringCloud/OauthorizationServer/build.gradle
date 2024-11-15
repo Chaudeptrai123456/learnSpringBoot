@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'se.chau.microservices'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+ext {
+    mapstructVersion = "1.5.5.Final"
+    springCloudVersion = "2023.0.1"
+}
+repositories {
+    mavenCentral()
+}
+jar {
+    enabled = false
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // Spring Data JPA
+    implementation 'com.mysql:mysql-connector-j'
+    implementation('mysql:mysql-connector-java:8.0.33')
+    implementation('org.hibernate.orm:hibernate-core:6.4.4.Final')
+    testImplementation 'org.testcontainers:mysql'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.8'
+    implementation 'org.springframework.security:spring-security-core:6.3.4'
+    implementation 'org.springframework.security:spring-security-jwt:1.1.1.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation project(path: ':util')
+    implementation project(":api")
+    implementation project(path: ':SpringCloud:user')
+
+}

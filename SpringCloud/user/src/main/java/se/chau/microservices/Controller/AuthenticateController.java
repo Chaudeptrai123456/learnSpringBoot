@@ -1,6 +1,5 @@
 package se.chau.microservices.Controller;
 
-import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +11,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import se.chau.microservices.Config.PlainTextPasswordEncoder;
 import se.chau.microservices.Entity.Authority;
@@ -28,21 +25,19 @@ import se.chau.microservices.api.core.User.Account;
 import se.chau.microservices.api.core.User.Token;
 import se.chau.microservices.api.core.User.User;
 import se.chau.microservices.api.core.User.UserService;
-import se.chau.microservices.jwt.JwtService;
+import se.chau.microservices.util.http.JwtService;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static se.chau.microservices.jwt.JwtService.generateAccessTokenFromRefreshToken;
 
 @RestController
 public class AuthenticateController implements UserService {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateController.class);
     private final AuthenticationManager authenticationManager;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SCryptPasswordEncoder sCryptPasswordEncoder;
     private final UserRepository userRepository;
     private final AuthorityRepository authorityRepository;
@@ -58,7 +53,12 @@ public class AuthenticateController implements UserService {
         this.authorityRepository = authorityRepository;
         this.encoder = encoder;
     }
-
+    @GetMapping(
+            value = "/user/test"
+    )
+    public ResponseEntity<String> test() {
+        return new ResponseEntity<>("test", HttpStatusCode.valueOf(200));
+    }
     @Override
     public ResponseEntity<String> Register(User temp) {
         System.out.println("test authentication register");
@@ -127,38 +127,6 @@ public class AuthenticateController implements UserService {
 
     @Override
     public ResponseEntity<String> getAccessToken(HttpServletRequest request)  {
-            String jwt = request.getHeader("Authorization").substring(7); // Get JWT
-        try {
-            return new ResponseEntity<String>(generateAccessTokenFromRefreshToken(jwt),HttpStatusCode.valueOf(200));
-        } catch (JOSEException | ParseException e) {
-            throw new RuntimeException(e);
-        }
-
+            return new ResponseEntity<String>(String.valueOf(request.getAttribute("refresh")),HttpStatusCode.valueOf(200));
     }
-
-//    @Override
-//    public ResponseEntity<String> testSecurity() {
-////        LOG.debug("test create authority");
-////        Authority authority = new Authority();
-////        authority.setName("USER");
-////        Authority authority1 = new Authority();
-////        authority.setName("ADMIN");
-////        authorityRepository.save(authority);
-////        authorityRepository.save(authority1);
-////        UserEntity user = new UserEntity();
-////        user.setAlgorithm(EncryptionAlgorithm.SCRYPT);
-////        user.setPassword(encoder.hashWithSHA512("123"));
-////        user.setUsername("chau");
-////        user.setRegistrationDate(LocalDateTime.now());
-////        Authority a = authorityRepository.findAuthorityByName("USER").orElseThrow();
-////        List<Authority> list = new ArrayList<>();
-////        list.add(a);
-////        user.setAuthorities(list);
-////        user.setEmail("test123@gmail.com");
-////        List<UserEntity> b = new ArrayList<>();
-////        b.add(user);
-////        a.setUser(b);
-////        userRepository.save(user);
-//        return new ResponseEntity<>("test authentication",HttpStatusCode.valueOf(200));
-//    }
 }

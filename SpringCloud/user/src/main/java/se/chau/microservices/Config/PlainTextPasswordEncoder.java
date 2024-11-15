@@ -1,14 +1,11 @@
 package se.chau.microservices.Config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-@Service
-@Qualifier("plainTextPasswordEncoder")
+//@Service
 public class PlainTextPasswordEncoder implements PasswordEncoder {
     @Override
     public String encode(CharSequence rawPassword) {
