@@ -29,4 +29,6 @@ include 'SpringCloud:OauthorizationServer'
 findProject(':SpringCloud:OauthorizationServer')?.name = 'OauthorizationServer'
 include 'SpringCloud:Oauth2Service'
 findProject(':SpringCloud:Oauth2Service')?.name = 'Oauth2Service'
+include 'SpringCloud:config-service'
+findProject(':SpringCloud:config-service')?.name = 'config-service'
 

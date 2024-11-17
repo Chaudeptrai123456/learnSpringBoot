@@ -25,7 +25,11 @@ ext {
     mapstructVersion = "1.5.5.Final"
     springCloudVersion = "2022.0.1"
 }
-
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
 dependencies {
         implementation project(":api")
         implementation project(":util")
@@ -33,6 +37,7 @@ dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-webflux' // Use webflux for reactive programming
         implementation 'org.springframework.boot:spring-boot-starter-security'
         implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
         // Spring Cloud dependencies
         implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit:4.1.3'
