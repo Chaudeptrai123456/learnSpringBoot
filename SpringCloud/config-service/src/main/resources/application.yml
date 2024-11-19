@@ -13,7 +13,7 @@ spring:
       enabled: false
     config:
       server.native.searchLocations: file:C:/Users/LENOVO/Desktop/core/config-repo/
-
+#C:\Users\LENOVO\Desktop\core\config-repo
 eureka-server: localhost
 eureka:
   client:
@@ -37,4 +37,9 @@ logging:
 
 ---
 spring.config.activate.on-profile: docker
-spring.cloud.config.server.native.searchLocations: file:C:/Users/LENOVO/Desktop/core/config-repo/
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "http://eureka:8761/eureka/"
+    initialInstanceInfoReplicationIntervalSeconds: 5
+spring.cloud.config.server.native.searchLocations: file:/config-repo

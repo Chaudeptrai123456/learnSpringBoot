@@ -1,6 +1,9 @@
 package se.chau.microservices.core.product_composite.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
 import se.chau.microservices.util.http.HttpErrorInfo;
+import se.chau.microservices.util.http.ServiceUtil;
 
 import java.io.IOException;
 
@@ -45,13 +49,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private final ObjectMapper mapper;
     private final StreamBridge streamBridge;
     private final Scheduler publishEventScheduler;
-
-
-//    private final String productServiceUrl;
-//    private final String recommendationServiceUrl;
-//    private final String reviewServiceUrl;
-//
-
+    private final ServiceUtil serviceUtil;
     private static String PRODUCT_SERVICE_URL = "http://product" ;
     private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
     private static final String REVIEW_SERVICE_URL = "http://review";
@@ -63,8 +61,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
             WebClient.Builder webClientBuilder,
             ObjectMapper mapper,
-            StreamBridge streamBridge
-    ) {
+            StreamBridge streamBridge,
+            ServiceUtil serviceUtil) {
 
 
         this.webClient = webClientBuilder.build();
@@ -72,8 +70,11 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         this.publishEventScheduler = publishEventScheduler;
         this.mapper = mapper;
         this.streamBridge = streamBridge;
+        this.serviceUtil = serviceUtil;
     }
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Mono<Product> createProduct(Product product) {
         return Mono.fromCallable(() -> {
             sendMessage("products-out-0",new Event(CREATE, product.getProductId(), product));
@@ -81,6 +82,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         }).subscribeOn(publishEventScheduler);
     }
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Mono<Product> getProduct(int productId) {
         LOG.debug("test get product " + PRODUCT_SERVICE_URL);
         String url = PRODUCT_SERVICE_URL + "/product/" + productId;
@@ -91,7 +94,22 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
                         this::handleException
                 );
     }
+    private Mono<Product> getProductFallbackValue(int productId) {
+
+        LOG.warn("Creating a fail-fast fallback product for productId = {}, delay = {}, faultPercent = {} and exception = {} ",
+                productId, 5, 50,"test cgoi cho vui");
+
+        if (productId == 13) {
+            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+            LOG.warn(errMsg);
+            throw new NotFoundException(errMsg);
+        }
+
+        return Mono.just(new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress()));
+    }
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Mono<Recommendation> createRecommendation(Recommendation recommendation) {
         return Mono.fromCallable(() -> {
             sendMessage("recommendations-out-0",new Event(CREATE, recommendation.getRecommendationId(), recommendation));
@@ -112,6 +130,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         }
     }
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Flux<Recommendation> getRecommendations(int productId) {
         String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
@@ -121,12 +141,17 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
                 .onErrorResume(error -> empty());
     }
     @Override
+    @CircuitBreaker(name = "product-composite")
+    @Bulkhead(name = "product-composite")
+    @Retry(name = "product-composite")
     public Flux<Review> getReviews(int productId) {
         String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Mono<Review> createReview(Review body) {
         LOG.debug("test create review " + body.getReviewId());
         return Mono.fromCallable(() -> {
@@ -197,6 +222,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Flux<Feature> getProductByFeature(FeatureForSearchPro feature) throws HttpClientErrorException {
         String url = FEATURE_SERVICE_URL +"/feature/product";
         return webClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).bodyValue(feature).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
@@ -204,6 +231,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
 
 
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Mono<Feature> createFeatureForProduct(Feature feature) throws HttpClientErrorException {
         return Mono.fromCallable(() -> {
             sendMessage("features-out-0", new Event(CREATE, feature.getFeatureId(), feature));
@@ -212,9 +241,17 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
     public Flux<Feature> getFeatureOfProduct(int productId) {
         String url = FEATURE_SERVICE_URL+"/feature?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         //        return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
         return webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());    }
+    public String fallback(Exception e) {
+        return "Fallback response: Service is unavailable." + e.getMessage();
+    }
+
+
+
 }

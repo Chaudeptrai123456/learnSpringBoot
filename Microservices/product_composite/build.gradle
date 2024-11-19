@@ -13,24 +13,30 @@ java {
     }
 }
 
+ext {
+    mapstructVersion = "1.5.5.Final"
+    springCloudVersion = "2022.0.1"
+}
 repositories {
     mavenCentral()
 }
-
 jar {
-    enabled = false // Disable the default jar task if you plan to create a different type of artifact
+    enabled = false
 }
-
 ext {
-    mapstructVersion = "1.5.5.Final"
+    resilience4jVersion = "2.0.2"
     springCloudVersion = "2022.0.1"
 }
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.github.resilience4j:resilience4j-bom:${resilience4jVersion}"
     }
 }
 dependencies {
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"
+    implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
         implementation project(":api")
         implementation project(":util")
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -49,10 +55,12 @@ dependencies {
 
         implementation 'org.springframework.security:spring-security-oauth2-resource-server'
         implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     // Add this if you are using Spring Security 6.1.x or later
         implementation 'org.springframework.security:spring-security-config'
     implementation 'org.testng:testng:7.1.0'
+    implementation project(path: ':Microservices:product')
     // Test dependencies
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

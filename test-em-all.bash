@@ -268,9 +268,11 @@
 #  -d "redirect_uri=https://localhost:8443/oauth2/code"
 # http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 
-curl -X POST "http://localhost:9999/oauth2/token" \
-  -H "Authorization: Basic Y2hhdTp7bm9vcH0xMjM=" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=authorization_code" \
-  -d "code=eyJraWQiOiJkYWExYWU5Mi01ZGYzLTQwMWItYWUyMC02ODk3NjYzNzI5NzkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJjaGF1MiIsImF1ZCI6ImNoYXUiLCJuYmYiOjE3MzE2NTE1NDYsInNjb3BlIjpbInByb2R1Y3Q6d3JpdGUiLCJvcGVuaWQiLCJwcm9kdWN0OnJlYWQiXSwicm9sZXMiOlsiVVNFUiJdLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0Ojk5OTkiLCJleHAiOjE3MzE2NTUxNDYsImlhdCI6MTczMTY1MTU0NiwianRpIjoiZjcwYWZmMmUtMDNmMy00NThkLWI0NTYtM2Q5NTIyODEyNmVhIiwiZW1haWwiOiJ0ZXN0QGdtYWlsLmNvbSJ9.VvVuWj5M9Muk4dZV06YxTNWH1OL0F4wMDdZESy9AdFjxVUK3136wZiqKWwmZN5bS8N1xnGxpznCWfQpeD736mlEpelP9Akn21-vxSbXTRZp0kUC0xe38-7_jw6C7B0TgN8k-af8AUjnGlSHhZyYqRtAK0tkA5tcIrjxq1tD0yLLZwh8dlw5Dr4-lQ0F_hqlzVIkTTrhyJ1YvYruRrWOwnKMEqWwEuADd0niBWpeY8wpMRAPPVwpDfeoK9UzI1HEScty4M7LyfyRXBicHaOFb3kVTI9P6zixnl424vxyopd4uN12Zqz_XpNypeiw2pV9jOcCs_jPoER5pXpODPonzBQ" \
-  -d "redirect_uri=https://localhost:8443/oauth2/code"
+#curl -X POST "http://localhost:9999/oauth2/token" \
+#  -H "Authorization: Basic Y2hhdTp7bm9vcH0xMjM=" \
+#  -H "Content-Type: application/x-www-form-urlencoded" \
+#  -d "grant_type=authorization_code" \
+#  -d "code=eyJraWQiOiJkYWExYWU5Mi01ZGYzLTQwMWItYWUyMC02ODk3NjYzNzI5NzkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJjaGF1MiIsImF1ZCI6ImNoYXUiLCJuYmYiOjE3MzE2NTE1NDYsInNjb3BlIjpbInByb2R1Y3Q6d3JpdGUiLCJvcGVuaWQiLCJwcm9kdWN0OnJlYWQiXSwicm9sZXMiOlsiVVNFUiJdLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0Ojk5OTkiLCJleHAiOjE3MzE2NTUxNDYsImlhdCI6MTczMTY1MTU0NiwianRpIjoiZjcwYWZmMmUtMDNmMy00NThkLWI0NTYtM2Q5NTIyODEyNmVhIiwiZW1haWwiOiJ0ZXN0QGdtYWlsLmNvbSJ9.VvVuWj5M9Muk4dZV06YxTNWH1OL0F4wMDdZESy9AdFjxVUK3136wZiqKWwmZN5bS8N1xnGxpznCWfQpeD736mlEpelP9Akn21-vxSbXTRZp0kUC0xe38-7_jw6C7B0TgN8k-af8AUjnGlSHhZyYqRtAK0tkA5tcIrjxq1tD0yLLZwh8dlw5Dr4-lQ0F_hqlzVIkTTrhyJ1YvYruRrWOwnKMEqWwEuADd0niBWpeY8wpMRAPPVwpDfeoK9UzI1HEScty4M7LyfyRXBicHaOFb3kVTI9P6zixnl424vxyopd4uN12Zqz_XpNypeiw2pV9jOcCs_jPoER5pXpODPonzBQ" \
+#  -d "redirect_uri=https://localhost:8443/oauth2/code"
+
+assertEqual "HALF_OPEN" "$(docker-compose exec -T product-composite curl -s http://product-composite:8080/actuator/health | jq -r .components.circuitBreakers.details.product.details.state)"

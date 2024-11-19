@@ -115,16 +115,39 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
+resilience4j.timelimiter:
+  instances:
+    product:
+      timeoutDuration: 2s
+resilience4j.retry:
+  instances:
+    product:
+      maxAttempts: 3
+      waitDuration: 1000
+      retryExceptions:
+        - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+
+management.health.circuitbreakers.enabled: true
+
+resilience4j.circuitbreaker:
+  instances:
+    product:
+      allowHealthIndicatorToFail: false
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 5
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+#      ignoreExceptions:
+#        - se.chau.microservices.api.exceptions.InvalidInputException
+#        - se.chau.microservices.api.exceptions.NotFoundException
 
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
-#dev-bn6nrtak2226apoh.us.auth0.com
-#spring.security.oauth2.resourceserver.jwt.issuer-uri: https://dev-bn6nrtak2226apoh.us.auth0.com
-
 ---
 spring.config.activate.on-profile: docker
 server.port: 8080
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
-
 eureka:
   client:
     serviceUrl:
@@ -134,9 +157,8 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
-
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
 spring.rabbitmq.host: rabbitmq
-
 spring.cloud.stream.kafka.binder.brokers: kafka
 
 ---
@@ -156,17 +178,3 @@ spring.cloud.stream.bindings.reviews-out-0.producer:
 spring.cloud.stream.bindings.features-out-0.producer:
   partition-key-expression: headers['partitionKey']
   partition-count: 2
-
-
-
-#    app:
-#      product-service:
-#        host: product
-#        port: 8081
-#      recommendation-service:
-#        host: recommendation
-#        port: 8082
-#      review-service:
-#        host: review
-#        port: 8083
-
