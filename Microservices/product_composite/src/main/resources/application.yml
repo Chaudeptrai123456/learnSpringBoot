@@ -163,6 +163,9 @@ resilience4j.circuitbreaker:
         - se.chau.microservices.api.exception.InvalidInputException
         - se.chau.microservices.api.exception.NotFoundException
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+management.tracing.sampling.probability: 1.0
+logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 ---
 spring.config.activate.on-profile: docker
 server.port: 8080

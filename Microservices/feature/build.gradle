@@ -33,6 +33,8 @@ ext {
 dependencies {
     implementation project(":api")
     implementation project(":util")
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-actuator'

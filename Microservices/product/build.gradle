@@ -37,6 +37,8 @@ dependencyManagement {
 dependencies {
     implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"
     implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     implementation project(":api")
     implementation project(":util")
     implementation 'org.springframework.cloud:spring-cloud-starter-config'

@@ -155,6 +155,14 @@ services:
     mem_limit: 512m
     ports:
       - "9999:9999"
+  zipkin-server:
+    image: openzipkin/zipkin:2.24.0
+    restart: always
+    mem_limit: 1024m
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - 9411:9411
 volumes:
   mongo_data: {}
   mysql_data: {}

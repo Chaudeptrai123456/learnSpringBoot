@@ -1,5 +1,5 @@
 server:
-                                                port: 8761
+  port: 8761
 
 app:
   eureka-username: chau
@@ -23,5 +23,4 @@ eureka:
   server:
     waitTimeInMsWhenSyncEmpty: 0
     response-cache-update-interval-ms: 5000
-
 management.endpoints.web.exposure.include: "*"

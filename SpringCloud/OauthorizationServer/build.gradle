@@ -28,6 +28,8 @@ dependencyManagement {
     }
 }
 dependencies {
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // Spring Data JPA
     implementation 'com.mysql:mysql-connector-j'
     implementation('mysql:mysql-connector-java:8.0.33')
