@@ -33,6 +33,7 @@ import se.chau.microservices.api.core.review.ReviewService;
 import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
+import se.chau.microservices.core.product_composite.service.Cache.RedisService;
 import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
@@ -54,23 +55,20 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
     private static final String REVIEW_SERVICE_URL = "http://review";
     private static final String FEATURE_SERVICE_URL = "http://feature";
-
-
+    private final RedisService redisService;
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
             WebClient webClient,
             ObjectMapper mapper,
             StreamBridge streamBridge,
-            ServiceUtil serviceUtil) {
-
-
+            ServiceUtil serviceUtil, RedisService redisService) {
         this.webClient = webClient;
-
         this.publishEventScheduler = publishEventScheduler;
         this.mapper = mapper;
         this.streamBridge = streamBridge;
         this.serviceUtil = serviceUtil;
+        this.redisService = redisService;
     }
     @Override
     @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
@@ -81,20 +79,41 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             return product;
         }).subscribeOn(publishEventScheduler);
     }
+
+    @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @Retry(name = "product")
+    public Flux<Product> getProductPage(int page) {
+        LOG.debug("get product page");
+        String url  = PRODUCT_SERVICE_URL +"/product/page/"+page;
+        return webClient.get().uri(url).retrieve()
+                .bodyToFlux(Product.class)
+                .log(LOG.getName(),FINE)
+                .onErrorMap(WebClientResponseException.class,
+                this::handleException
+                );
+    }
+
     @Override
     @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
     @Retry(name = "product")
     public Mono<Product> getProduct(int productId) {
         LOG.debug("test get product " + PRODUCT_SERVICE_URL);
         String url = PRODUCT_SERVICE_URL + "/product/" + productId;
-        return webClient.get().uri(url).retrieve()
-                .bodyToMono(Product.class)
-                .log(LOG.getName(), FINE)
-                .onErrorMap(WebClientResponseException.class,
-                        this::handleException
-                );
+        var key = "product:"+productId;
+        return redisService.get(key,Product.class).switchIfEmpty(
+                webClient.get().uri(url).retrieve()
+                        .bodyToMono(Product.class)
+                        .log(LOG.getName(), FINE)
+                        .onErrorMap(WebClientResponseException.class,
+                                this::handleException
+                        )
+                        .doOnSuccess(product -> {
+                            redisService.set(key,product,3600L);
+                        })
+        );
     }
-    private Mono<Product> getProductFallbackValue(int productId) {
+    private Mono<Product> getProductFallbackValue(int   productId) {
 
         LOG.warn("Creating a fail-fast fallback product for productId = {}, delay = {}, faultPercent = {} and exception = {} ",
                 productId, 5, 50,"test cgoi cho vui");
@@ -105,7 +124,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             throw new NotFoundException(errMsg);
         }
 
-        return Mono.just(new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress()));
+        return Mono.just(new Product(productId, "Fallback product" + productId, productId,0.0,serviceUtil.getServiceAddress()));
     }
     @Override
     @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
@@ -135,10 +154,18 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     public Flux<Recommendation> getRecommendations(int productId) {
         String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
-        return webClient.get().uri(url).retrieve()
-                .bodyToFlux(Recommendation.class)
-                .log(LOG.getName(), FINE)
-                .onErrorResume(error -> empty());
+        var key = "recommendation:" + productId;
+        return redisService.getFlux(key, Recommendation.class)
+                .switchIfEmpty(
+                        webClient.get()
+                                .uri(url)
+                                .retrieve()
+                                .bodyToFlux(Recommendation.class)
+                                .log(LOG.getName(), FINE)
+                                .doOnError(error -> LOG.error("Error while fetching recommendations: {}", error.getMessage()))
+                                .onErrorResume(error -> Flux.empty())
+                                .doOnNext(recommendation -> redisService.set(key, recommendation, 3600L))
+                );
     }
     @Override
     @CircuitBreaker(name = "product-composite")
@@ -147,7 +174,12 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     public Flux<Review> getReviews(int productId) {
         String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
-        return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+        var key ="review:"+productId;
+        return redisService.getFlux(key, Review.class).switchIfEmpty(
+                webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty())
+                        .doOnNext(review -> redisService.set(key, review, 3600L))
+        );
+
     }
     @Override
     @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
@@ -247,7 +279,12 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         String url = FEATURE_SERVICE_URL+"/feature?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         //        return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
-        return webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());    }
+        var key = "featureofProduct:"+productId;
+        return redisService.getFlux(key, Feature.class).switchIfEmpty(
+                webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty())
+                        .doOnNext(result -> redisService.set(key, result, 3600L))
+        );
+    }
     public String fallback(Exception e) {
         return "Fallback response: Service is unavailable." + e.getMessage();
     }

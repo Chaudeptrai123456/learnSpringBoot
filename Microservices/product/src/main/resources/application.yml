@@ -12,6 +12,12 @@ eureka:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
 spring:
+  redis:
+    host: localhost
+    port: 6379
+    password: 123
+    username: default
+    database: 0
   application.name: product
   cloud:
     compatibility-verifier:

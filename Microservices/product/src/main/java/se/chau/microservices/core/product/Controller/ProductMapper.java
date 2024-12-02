@@ -9,7 +9,8 @@ import se.chau.microservices.core.product.Persistence.ProductEntity;
 @Mapper(componentModel = "spring")
 public interface  ProductMapper {
     @Mappings({
-            @Mapping(target = "serviceAddress", ignore = true)
+            @Mapping(target = "serviceAddress", ignore = true),
+            @Mapping(target = "quantity", ignore = true)
     })
     Product entityToApi(ProductEntity entity);
 

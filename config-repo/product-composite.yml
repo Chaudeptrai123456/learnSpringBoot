@@ -115,19 +115,6 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
-resilience4j.timelimiter:
-  instances:
-    product:
-      timeoutDuration: 2s
-resilience4j.retry:
-  instances:
-    product:
-      maxAttempts: 3
-      waitDuration: 1000
-      retryExceptions:
-        - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
-
-management.health.circuitbreakers.enabled: true
 
 resilience4j.circuitbreaker:
   instances:
@@ -140,9 +127,12 @@ resilience4j.circuitbreaker:
       waitDurationInOpenState: 10000
       permittedNumberOfCallsInHalfOpenState: 3
       automaticTransitionFromOpenToHalfOpenEnabled: true
-#      ignoreExceptions:
-#        - se.chau.microservices.api.exceptions.InvalidInputException
-#        - se.chau.microservices.api.exceptions.NotFoundException
+      ignoreExceptions:
+        - se.chau.microservices.api.exception.InvalidInputException
+        - se.chau.microservices.api.exception.NotFoundException
+management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+management.tracing.sampling.probability: 1.0
+
 
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 ---

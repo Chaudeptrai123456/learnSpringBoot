@@ -2,10 +2,24 @@ server.port: 8081
 spring.application.name: product
 app.eureka-server: localhost
 server.error.include-message: always
+resilience4j.circuitbreaker:
+  instances:
+    product:
+      allowHealthIndicatorToFail: false
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 5
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      ignoreExceptions:
+        - se.chau.microservices.api.exception.InvalidInputException
+        - se.chau.microservices.api.exception.NotFoundException
+management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+management.tracing.sampling.probability: 1.0
+spring.cloud.compatibility-verifier.enabled: false
 spring:
-  cloud:
-    compatibility-verifier:
-      enabled: false
   data:
     mongodb:
       uri: mongodb://chau:123@localhost:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
@@ -51,13 +65,12 @@ app.auth-server: localhost
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 
 ---
-
+spring.config.activate.on-profile: docker
 eureka:
   client:
     serviceUrl:
       defaultZone: "http://localhost:8761/eureka/"
 app.auth-server: auth-server
-spring.config.activate.on-profile: docker
 server.port: 8080
 spring:
   data:

@@ -12,10 +12,6 @@ import static org.springframework.http.HttpMethod.*;
 public class SecurityConfig {
 
     private SecurityWebFiltersOrder JwtAuthenticationToken;
-
-
-
-
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http

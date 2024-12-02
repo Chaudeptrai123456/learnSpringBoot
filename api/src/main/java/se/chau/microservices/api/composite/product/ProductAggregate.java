@@ -1,33 +1,41 @@
 package se.chau.microservices.api.composite.product;
 
-import se.chau.microservices.api.core.Feature.Feature;
-
 import java.util.List;
 
 public class ProductAggregate {
     private int productId;
     private String name;
-    private int weight;
-
+    private int quantity;
+    private double cost;
     private List<ReviewSummary> reviewSummaryList;
     private List<RecommendationSummary> recommendationSummaryList;
     private List<FeatureSummary> featureSummaryList;
     public ProductAggregate() {
         this.productId = 1;
         this.name = "test";
-        this.weight = 123;
+        this.quantity = 123;
         this.reviewSummaryList = null;
         this.recommendationSummaryList = null;
         this.serviceAddresses = null;
+        this.cost = 0.0;
     }
-    public ProductAggregate(int productId, String name, int weight, List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList ,ServiceAddress serviceAddresses) {
+    public ProductAggregate(int productId, String name, int quantity, double cost,List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList ,ServiceAddress serviceAddresses) {
         this.productId = productId;
         this.name = name;
-        this.weight = weight;
+        this.quantity = quantity;
         this.reviewSummaryList = reviewSummaryList;
         this.recommendationSummaryList = recommendationSummaryList;
         this.serviceAddresses = serviceAddresses;;
         this.featureSummaryList = featureSummaryList;
+        this.cost = cost;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 
     private ServiceAddress serviceAddresses;
@@ -48,12 +56,12 @@ public class ProductAggregate {
         this.name = name;
     }
 
-    public int getWeight() {
-        return weight;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public List<ReviewSummary> getReviewSummaryList() {

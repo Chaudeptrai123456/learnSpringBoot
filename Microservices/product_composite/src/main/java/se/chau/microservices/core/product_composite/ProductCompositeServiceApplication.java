@@ -14,18 +14,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Hooks;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-
 @SpringBootApplication
 @ComponentScan("se.chau")
 public class ProductCompositeServiceApplication {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeServiceApplication.class);
 
-
-    /**
-     * Will exposed on $HOST:$PORT/swagger-ui.html
-     *
-     * @return the common OpenAPI documentation
-     */
     @Bean
     public OpenAPI getOpenApiDocumentation() {
         return new OpenAPI();

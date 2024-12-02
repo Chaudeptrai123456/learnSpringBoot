@@ -6,7 +6,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "products")
-public class ProductEntity {
+public class ProductEntity  {
+
     @Id
     private String id;
     @Version
@@ -14,7 +15,17 @@ public class ProductEntity {
     @Indexed(unique = true)
     private int productId;
     private String name;
-    private int weight;
+    private int quantity;
+    private double cost;
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
     public String getId() {
         return id;
     }
@@ -47,11 +58,11 @@ public class ProductEntity {
         this.name = name;
     }
 
-    public int getWeight() {
-        return weight;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

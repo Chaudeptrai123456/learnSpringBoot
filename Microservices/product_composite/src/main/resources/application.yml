@@ -1,15 +1,12 @@
 spring.config.import: "optional:configserver:"
 server:
   port: 8000
-
-
 springdoc:
   swagger-ui.path: /openapi/swagger-ui.html
   api-docs.path: /openapi/v3/api-docs
   packagesToScan: se.magnus.microservices.composite.product
   pathsToMatch: /**
   cache.disabled: true
-
   swagger-ui:
     oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
     oauth:
@@ -19,12 +16,24 @@ springdoc:
   oAuthFlow:
     authorizationUrl: https://localhost:8443/oauth2/authorize
     tokenUrl: https://localhost:8443/oauth2/token
+#spring:
+#  redis:
+#    host: redis
+#    username: default
+#    port: 6379
+#    timeout: 3000
+#    password: 123
 spring:
+  redis:
+    host: redis
+    port: 6379
+    password: 123
+    username: default
+    database: 0
   cloud:
     compatibility-verifier:
       enabled: false
   application.name: product-composite
-
   config:
     failFast: true
     retry:
@@ -168,7 +177,13 @@ management.tracing.sampling.probability: 1.0
 logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 ---
 spring.config.activate.on-profile: docker
-server.port: 8080
+spring:
+  redis:
+    host: redis
+    username: default
+    port: 6379
+    timeout: 3000
+    password: 123
 eureka:
   client:
     serviceUrl:

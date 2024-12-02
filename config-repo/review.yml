@@ -15,7 +15,22 @@ spring:
     show-sql: true       # Show SQL queries in the console (optional)
     database-platform: org.hibernate.dialect.MySQL8Dialect
 spring.cloud.function.definition: messageProcessor
-
+resilience4j.circuitbreaker:
+  instances:
+    product:
+      allowHealthIndicatorToFail: false
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 5
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      ignoreExceptions:
+        - se.chau.microservices.api.exception.InvalidInputException
+        - se.chau.microservices.api.exception.NotFoundException
+management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+management.tracing.sampling.probability: 1.0
 spring.cloud.stream:
   defaultBinder: rabbit
   default.contentType: application/json

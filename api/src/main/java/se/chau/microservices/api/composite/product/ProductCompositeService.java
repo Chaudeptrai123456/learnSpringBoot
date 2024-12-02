@@ -1,14 +1,16 @@
 package se.chau.microservices.api.composite.product;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
-import se.chau.microservices.api.core.User.User;
 import se.chau.microservices.api.core.product.Product;
+import se.chau.microservices.api.core.product.ProductFeature;
 
 import java.util.List;
 
@@ -63,4 +65,9 @@ public interface ProductCompositeService {
     })
     @DeleteMapping(value = "/product-composite/{productId}")
     void deleteProduct(@PathVariable int productId);
+    @GetMapping(
+            value="product-composite/page/{page}",
+            produces = "application/json"
+    )
+    Flux<ProductFeature> getProductFeaturePage(@PathVariable int page) throws JsonProcessingException;
 }
