@@ -177,6 +177,7 @@ management.tracing.sampling.probability: 1.0
 logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 ---
 spring.config.activate.on-profile: docker
+server.port: 80
 spring:
   redis:
     host: redis
@@ -214,3 +215,11 @@ spring.cloud.stream.bindings.reviews-out-0.producer:
 spring.cloud.stream.bindings.features-out-0.producer:
   partition-key-expression: headers['partitionKey']
   partition-count: 2
+---
+spring.config.activate.on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    se.magnus: WARN
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: WARN

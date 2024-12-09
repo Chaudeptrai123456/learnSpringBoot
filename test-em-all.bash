@@ -274,12 +274,38 @@
 #  -d "grant_type=authorization_code" \
 #  -d "code=eyJraWQiOiJkYWExYWU5Mi01ZGYzLTQwMWItYWUyMC02ODk3NjYzNzI5NzkiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJjaGF1MiIsImF1ZCI6ImNoYXUiLCJuYmYiOjE3MzE2NTE1NDYsInNjb3BlIjpbInByb2R1Y3Q6d3JpdGUiLCJvcGVuaWQiLCJwcm9kdWN0OnJlYWQiXSwicm9sZXMiOlsiVVNFUiJdLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0Ojk5OTkiLCJleHAiOjE3MzE2NTUxNDYsImlhdCI6MTczMTY1MTU0NiwianRpIjoiZjcwYWZmMmUtMDNmMy00NThkLWI0NTYtM2Q5NTIyODEyNmVhIiwiZW1haWwiOiJ0ZXN0QGdtYWlsLmNvbSJ9.VvVuWj5M9Muk4dZV06YxTNWH1OL0F4wMDdZESy9AdFjxVUK3136wZiqKWwmZN5bS8N1xnGxpznCWfQpeD736mlEpelP9Akn21-vxSbXTRZp0kUC0xe38-7_jw6C7B0TgN8k-af8AUjnGlSHhZyYqRtAK0tkA5tcIrjxq1tD0yLLZwh8dlw5Dr4-lQ0F_hqlzVIkTTrhyJ1YvYruRrWOwnKMEqWwEuADd0niBWpeY8wpMRAPPVwpDfeoK9UzI1HEScty4M7LyfyRXBicHaOFb3kVTI9P6zixnl424vxyopd4uN12Zqz_XpNypeiw2pV9jOcCs_jPoER5pXpODPonzBQ" \
 #  -d "redirect_uri=https://localhost:8443/oauth2/code"
-
 #assertEqual "HALF_OPEN" "$(docker-compose exec -T product-composite curl -s http://product-composite:8080/actuator/health | jq -r .components.circuitBreakers.details.product.details.state)"
+#
+#
+#
+#unset ACCESS_TOKEN
+#ACCESS_TOKEN=$(curl -k http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write  | jq -r .access_token)
+#echo $ACCESS_TOKEN
 
+unset KUBECONFIG
+minikube start \
+--profile=chau \
+--memory=10240 \
+--cpus=4 \
+--disk-size=30g \
+--kubernetes-version=v1.26.1 \
+--driver=docker \
+--ports=8080:80 --ports=8443:443 \
+--ports=30080:30080 --ports=30443:30443
+minikube delete -p chau
+minikube start -p chau --kubernetes-version=v1.26.1
+minikube profile chau
+minikube addons enable ingress
+minikube addons enable metrics-server
+# set up namespace
+kubectl create namespace first-attempts
+#kubectl config set-context $(kubectl config current-context) --namespace=firstattempts
+kubectl config set-context $(kubectl config current-context) --namespace=handson
+#set up nginx for port 80 1 for deploy and 1 for server
+kubectl apply -f ks8/first-attempts/nginx-deployment.yaml
+kubectl apply -f ks8/first-attempts/nginx-service.yaml
+kubectl run -i --rm --restart=Never curl-client --image=curlimages/curl --command -- curl -s 'http://nginx-service:80'
 
-
-
-unset ACCESS_TOKEN
-ACCESS_TOKEN=$(curl -k http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write  | jq -r .access_token)
-echo $ACCESS_TOKEN
+for f in components/*; do helm dependency update $f; done
+helm dependency update environments/dev-env
+helm template environments/dev-env -s templates/secrets.yaml

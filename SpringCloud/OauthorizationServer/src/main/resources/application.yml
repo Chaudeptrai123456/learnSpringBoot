@@ -71,6 +71,7 @@ management.tracing.sampling.probability: 1.0
 
 ---
 spring.config.activate.on-profile: docker
+port : 80
 app:
   auth:
     host: auth-server
@@ -90,3 +91,7 @@ spring:
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
+---
+spring.config.activate.on-profile: prod
+
+logging.level.root: WARN

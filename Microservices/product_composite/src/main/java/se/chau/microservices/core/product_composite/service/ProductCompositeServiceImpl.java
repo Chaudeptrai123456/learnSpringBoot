@@ -221,7 +221,6 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                 Object subject = jwt.getClaims().get("sub");
                 Object scopes = jwt.getClaims().get("scope");
                 Object expires = jwt.getClaims().get("exp");
-
                 LOG.debug("Authorization info: Subject: {}, scopes: {}, expires {}: issuer: {}, audience: {}", subject, scopes, expires, issuer, audience);
             }
         }

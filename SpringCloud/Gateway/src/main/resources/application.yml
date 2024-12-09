@@ -34,40 +34,40 @@ spring.cloud.gateway.routes:
     filters:
       - RewritePath=/config/(?<segment>.*), /$\{segment}
   - id: product-composite
-    uri: lb://product-composite
+    uri: http://product-composite
     predicates:
       - Path=/product-composite/**
 
   - id: auth-server
-    uri: lb://auth-server
+    uri: http://auth-server
     predicates:
       - Path=/oauth2/**
 
   - id: product
-    uri: lb://product
+    uri: http://product
     predicates:
       - Path=/product/**
   - id: feature
-    uri: lb://feature
+    uri: http://feature
     predicates:
       - Path=/feature/**
   - id: recommendation
-    uri: lb://recommendation
+    uri: http://recommendation
     predicates:
       - Path=/recommendation/**
   - id: review
-    uri: lb://review
+    uri: http://review
     predicates:
       - Path=/review/**
 
 
   - id: product-composite-swagger-ui
-    uri: lb://product-composite
+    uri: http://product-composite
     predicates:
       - Path=/openapi/**
 
   - id: product-composite-swagger-ui-webjars
-    uri: lb://product-composite
+    uri: http://product-composite
     predicates:
       - Path=/webjars/**
 
@@ -171,3 +171,11 @@ app:
     host: auth-server
   config-server: config-server
 eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+---
+spring.config.activate.on-profile: prod
+logging:
+  level:
+    root: WARN
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: WARN
+    org.springframework.cloud.gateway: WARN
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: WARN
