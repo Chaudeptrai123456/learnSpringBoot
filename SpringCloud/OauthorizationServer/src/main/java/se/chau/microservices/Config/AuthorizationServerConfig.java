@@ -167,10 +167,12 @@ public class AuthorizationServerConfig
             }
         };
     }
+    @Value("${server.port}")
+    private String port;
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://"+host+":9999")
+                .issuer("http://"+host+":"+port)
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")
                 .jwkSetEndpoint("/oauth2/jwks")

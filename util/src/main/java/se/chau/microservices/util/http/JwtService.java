@@ -1,34 +1,30 @@
 package se.chau.microservices.util.http;
 
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
-import java.security.KeyPair;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.UUID;
-import javax.crypto.SecretKey;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
+import java.security.KeyPair;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.UUID;
 @Component
 public class JwtService implements ReactiveJwtDecoder {
 
@@ -116,20 +112,16 @@ public class JwtService implements ReactiveJwtDecoder {
         return new OctetSequenceKey.Builder(secretKey)
                 .keyID(UUID.randomUUID().toString())
                 .build();
-        // @formatter:on
     }
     public static String generateAccessTokenFromRefreshToken(String refreshToken) throws JOSEException, ParseException {
         if (validateToken(refreshToken)) {
             SignedJWT signedJWT = SignedJWT.parse(refreshToken);
             String username = signedJWT.getJWTClaimsSet().getSubject();
-            // Bạn có thể lấy thêm các thông tin khác từ claims nếu cần
-
-            // Sử dụng thông tin từ Refresh Token để tạo Access Token mới
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
                     .subject(username)
-                    .issuer("YourIssuer") // Issuer có thể giữ nguyên hoặc thay đổi tùy vào yêu cầu
-                    .expirationTime(new Date(new Date().getTime() + 60 * 1000)) // Ví dụ: Access Token có thời hạn 1 phút
-                    .claim("authority", signedJWT.getJWTClaimsSet().getClaim("authority")) // Lấy authority từ Refresh Token
+                    .issuer("YourIssuer")
+                    .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                    .claim("authority", signedJWT.getJWTClaimsSet().getClaim("authority"))
                     .claim("username", username)
                     .build();
 

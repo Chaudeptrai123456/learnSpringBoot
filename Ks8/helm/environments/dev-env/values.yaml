@@ -43,3 +43,7 @@ review:
 product-composite:
   envFromSecretRefs:
     - config-client-credentials
+
+rabbitmq:
+  envFromSecretRefs:
+    - rabbitmq-credentials

@@ -1,42 +1,18 @@
-spring.config.import: "optional:configserver:"
-app.eureka: localhost
-server:
-  port: 8084
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: "http://${app.eureka}:8761/eureka/"
-    initialInstanceInfoReplicationIntervalSeconds: 5
-    registryFetchIntervalSeconds: 5
-  instance:
-    leaseRenewalIntervalInSeconds: 5
-    leaseExpirationDurationInSeconds: 5
+spring.config.import: "configserver:"
+spring.cloud.config.enabled: true
 spring:
   application.name: feature
-  cloud:
-    compatibility-verifier:
-      enabled: false
-    config:
-      failFast: true
-      retry:
-        initialInterval: 3000
-        multiplier: 1.3
-        maxInterval: 10000
-        maxAttempts: 20
-      uri: http://localhost:8888
-      username: user
-      password: 123
+  cloud.config:
+    failFast: true
+    retry:
+      initialInterval: 3000
+      multiplier: 1.3
+      maxInterval: 10000
+      maxAttempts: 20
+    uri: http://localhost:8888
+    username: ${CONFIG_SERVER_USR}
+    password: ${CONFIG_SERVER_PWD} # Password for authentication
 ---
 spring.config.activate.on-profile: docker
 
 spring.cloud.config.uri: http://config-server:8888
----
-spring.config.activate.on-profile: prod
-
-spring.data.mongodb.host: 172.20.0.8
-
-logging:
-  level:
-    root: WARN
-    se.magnus: WARN
-    org.springframework.data.mongodb.core.MongoTemplate: WARN

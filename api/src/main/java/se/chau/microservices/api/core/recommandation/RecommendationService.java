@@ -23,7 +23,7 @@ public interface RecommendationService {
     @GetMapping(
             value = "/recommendation",
             produces = "application/json")
-    Flux<Recommendation> getRecommendations( @RequestParam(name = "productId", defaultValue = "0") int productId);
+    Flux<Recommendation> getRecommendations( @RequestParam(name = "productId", defaultValue = "1") int productId);
     @PostMapping(
             value="/recommendation",
             produces =  "application/json",

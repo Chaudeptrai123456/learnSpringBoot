@@ -1,13 +1,13 @@
 package se.chau.microservices.core.product_composite.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,6 @@ import se.chau.microservices.api.core.review.ReviewService;
 import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
-import se.chau.microservices.core.product_composite.service.Cache.RedisService;
 import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
@@ -51,28 +50,28 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private final StreamBridge streamBridge;
     private final Scheduler publishEventScheduler;
     private final ServiceUtil serviceUtil;
-    private static String PRODUCT_SERVICE_URL = "http://product" ;
-    private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
-    private static final String REVIEW_SERVICE_URL = "http://review";
-    private static final String FEATURE_SERVICE_URL = "http://feature";
-    private final RedisService redisService;
+    @Value("${uri.service.product}")
+    private  String PRODUCT_SERVICE_URL ;
+    @Value("${uri.service.recommendation}")
+    private  String RECOMMENDATION_SERVICE_URL  ;
+    @Value("${uri.service.review}")
+    private  String REVIEW_SERVICE_URL ;
+    @Value("${uri.service.feature}")
+    private  String FEATURE_SERVICE_URL;
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
             WebClient webClient,
             ObjectMapper mapper,
             StreamBridge streamBridge,
-            ServiceUtil serviceUtil, RedisService redisService) {
+            ServiceUtil serviceUtil ) {
         this.webClient = webClient;
         this.publishEventScheduler = publishEventScheduler;
         this.mapper = mapper;
         this.streamBridge = streamBridge;
         this.serviceUtil = serviceUtil;
-        this.redisService = redisService;
     }
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    @Retry(name = "product")
     public Mono<Product> createProduct(Product product) {
         return Mono.fromCallable(() -> {
             sendMessage("products-out-0",new Event(CREATE, product.getProductId(), product));
@@ -81,8 +80,6 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    @Retry(name = "product")
     public Flux<Product> getProductPage(int page) {
         LOG.debug("get product page");
         String url  = PRODUCT_SERVICE_URL +"/product/page/"+page;
@@ -90,7 +87,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
                 .bodyToFlux(Product.class)
                 .log(LOG.getName(),FINE)
                 .onErrorMap(WebClientResponseException.class,
-                this::handleException
+                        this::handleException
                 );
     }
 
@@ -100,18 +97,12 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     public Mono<Product> getProduct(int productId) {
         LOG.debug("test get product " + PRODUCT_SERVICE_URL);
         String url = PRODUCT_SERVICE_URL + "/product/" + productId;
-        var key = "product:"+productId;
-        return redisService.get(key,Product.class).switchIfEmpty(
-                webClient.get().uri(url).retrieve()
+        return        webClient.get().uri(url).retrieve()
                         .bodyToMono(Product.class)
                         .log(LOG.getName(), FINE)
-                        .onErrorMap(WebClientResponseException.class,
-                                this::handleException
-                        )
-                        .doOnSuccess(product -> {
-                            redisService.set(key,product,3600L);
-                        })
-        );
+                .doOnError(err-> LOG.error(err.getMessage()))
+                ;
+
     }
     private Mono<Product> getProductFallbackValue(int   productId) {
 
@@ -127,8 +118,6 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         return Mono.just(new Product(productId, "Fallback product" + productId, productId,0.0,serviceUtil.getServiceAddress()));
     }
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    @Retry(name = "product")
     public Mono<Recommendation> createRecommendation(Recommendation recommendation) {
         return Mono.fromCallable(() -> {
             sendMessage("recommendations-out-0",new Event(CREATE, recommendation.getRecommendationId(), recommendation));
@@ -149,41 +138,24 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         }
     }
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    @Retry(name = "product")
     public Flux<Recommendation> getRecommendations(int productId) {
         String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
-        var key = "recommendation:" + productId;
-        return redisService.getFlux(key, Recommendation.class)
-                .switchIfEmpty(
-                        webClient.get()
+        return webClient.get()
                                 .uri(url)
                                 .retrieve()
                                 .bodyToFlux(Recommendation.class)
                                 .log(LOG.getName(), FINE)
                                 .doOnError(error -> LOG.error("Error while fetching recommendations: {}", error.getMessage()))
-                                .onErrorResume(error -> Flux.empty())
-                                .doOnNext(recommendation -> redisService.set(key, recommendation, 3600L))
-                );
+                                .onErrorResume(error -> Flux.empty());
     }
     @Override
-    @CircuitBreaker(name = "product-composite")
-    @Bulkhead(name = "product-composite")
-    @Retry(name = "product-composite")
     public Flux<Review> getReviews(int productId) {
         String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
-        var key ="review:"+productId;
-        return redisService.getFlux(key, Review.class).switchIfEmpty(
-                webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty())
-                        .doOnNext(review -> redisService.set(key, review, 3600L))
-        );
-
+        return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    @Retry(name = "product")
     public Mono<Review> createReview(Review body) {
         LOG.debug("test create review " + body.getReviewId());
         return Mono.fromCallable(() -> {
@@ -263,8 +235,6 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
 
 
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    @Retry(name = "product")
     public Mono<Feature> createFeatureForProduct(Feature feature) throws HttpClientErrorException {
         return Mono.fromCallable(() -> {
             sendMessage("features-out-0", new Event(CREATE, feature.getFeatureId(), feature));
@@ -278,12 +248,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     public Flux<Feature> getFeatureOfProduct(int productId) {
         String url = FEATURE_SERVICE_URL+"/feature?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
-        //        return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
-        var key = "featureofProduct:"+productId;
-        return redisService.getFlux(key, Feature.class).switchIfEmpty(
-                webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty())
-                        .doOnNext(result -> redisService.set(key, result, 3600L))
-        );
+        return
+                webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
     public String fallback(Exception e) {
         return "Fallback response: Service is unavailable." + e.getMessage();

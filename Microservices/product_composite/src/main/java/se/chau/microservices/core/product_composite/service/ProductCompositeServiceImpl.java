@@ -99,31 +99,30 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     @Override
     public Mono<ProductAggregate> getProduct(int productId) {
         var key = "productAggregate:"+productId;
-        return redisService.get(key,ProductAggregate.class).switchIfEmpty(
-            observationWithProductInfo(productId, () -> getProductInternal(productId)).doOnSuccess(productAggregate -> redisService.set(key,ProductAggregate.class,3600L))
-        );
+        return  observationWithProductInfo(productId, () -> getProductInternal(productId));
+//                .doOnSuccess(productAggregate -> redisService.set(key,ProductAggregate.class,3600L))
     }
     private Mono<ProductAggregate> getProductInternal(int productId) {
         return observationWithProductInfo(productId, () -> {
-            LOG.info("Will get composite product info for product.id={}", productId);
-            return  Mono.zip(
-                            values -> createProductAggregate(
-                                    (SecurityContext) values[0],
-                                    (Product) values[1],
-                                    (List<Recommendation>) values[2],
-                                    (List<Review>) values[3],
-                                    (List<Feature>) values[4],
-                                    serviceUtil.getServiceAddress()),
-                            getSecurityContextMono(),
-                            integration.getProduct(productId),
-                            integration.getRecommendations(productId).collectList(),
-                            integration.getReviews(productId).collectList(),
-                            integration.getFeatureOfProduct(productId).collectList())
-                    .doOnError(ex ->
-                            LOG.warn("getCompositeProduct failed: {}",
-                                    ex.toString()))
-                    .log(LOG.getName(), FINE);
-            }
+                    LOG.info("Will get composite product info for product.id={}", productId);
+                    return  Mono.zip(
+                                    values -> createProductAggregate(
+                                            (SecurityContext) values[0],
+                                            (Product) values[1],
+                                            (List<Recommendation>) values[2],
+                                            (List<Review>) values[3],
+                                            (List<Feature>) values[4],
+                                            serviceUtil.getServiceAddress()),
+                                    getSecurityContextMono(),
+                                    integration.getProduct(productId),
+                                    integration.getRecommendations(productId).collectList(),
+                                    integration.getReviews(productId).collectList(),
+                                    integration.getFeatureOfProduct(productId).collectList())
+                            .doOnError(ex ->
+                                    LOG.warn("getCompositeProduct failed: {}",
+                                            ex.toString()))
+                            .log(LOG.getName(), FINE);
+                }
         );
 
     }
@@ -147,9 +146,8 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     @Override
     public Flux<ProductFeature> getProductFeaturePage(int page) throws JsonProcessingException {
         var key = "page:"+page;
-        return redisService.getFlux(key, ProductFeature.class).switchIfEmpty(
-                observationWithProductInfo(page, () -> getProductFeaturePageInternal(page))
-        );
+        return
+                observationWithProductInfo(page, () -> getProductFeaturePageInternal(page));
     }
     private Flux<ProductFeature> getProductFeaturePageInternal(int page){
         Flux<Product> list = integration.getProductPage(page);  // Get the Flux of products
@@ -162,7 +160,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                                     .map(r -> new FeatureSummary(r.getFeatureId(), r.getName(), r.getDescription(), r.getProductId()))
                                     .toList();
                             return new ProductFeature(product.getProductId(), product.getName(), product.getQuantity(), product.getCost(),featureList);
-                        }).doOnSuccess(result -> redisService.set(key,ProductFeature.class,3600L))
+                        })
         );
     }
 

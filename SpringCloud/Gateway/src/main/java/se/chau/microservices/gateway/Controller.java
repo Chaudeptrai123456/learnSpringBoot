@@ -18,36 +18,24 @@ import java.util.Base64;
 
 @RestController
 public class Controller {
-    // http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
     // https://localhost:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
+    // http://localhost:80/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 
-    /*
-    *
-    *
-    * .
-    *
-    * db3415538ba9:auth-server:9999
-    http://chau:{noop}123@localhost:9999/oauth2/authorize?response_type=code&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
+    // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
+    // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 
-curl -X POST http://chau:{noop}123@localhost:9999/oauth2/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=authorization_code" \
-  -d "code=T6g1srJlwkB4Eiwaopx2fMh05khPFZ8AFen4hoHtLD22OhpSLfYvcDJlsbs5aI6vtGeDr_Om9CRC5qrCBAEah1vmVKcBnT_5wI4MM0tSfNIfOqZORta2YhDvvZuOUr3y"\
-  -d "redirect_uri=https://localhost:8443/oauth2/code"
-
-    *
-    *
-    * */
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
-    @Value("${app.auth.host}")
+    @Value("${host.auth}")
     private String authohost;
-
+    @Value("${port.auth}")
+    private String authport;
     @GetMapping(value = "/oauth2/code")
     public OAuth2TokenResponse exchangeCodeForToken(
             @RequestParam(name = "code", required = false) String code) throws Exception {
         ///"http://" + authohost + ":9999/oauth2/token"
-        logger.debug("test oauth " + "http://" + authohost + ":9999/oauth2/token");
+        logger.debug("test oauth " + "http://" + authohost + ":"+authport+"/oauth2/token");
+        String uri =  "http://" + authohost + ":"+authport+"/oauth2/token";
         if (code == null || code.isEmpty()) {
             logger.error("Authorization code is missing or empty");
             throw new IllegalArgumentException("Authorization code is required");
@@ -60,7 +48,7 @@ curl -X POST http://chau:{noop}123@localhost:9999/oauth2/token \
         logger.info("Sending OAuth2 token request to {}", authohost);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://" + authohost + ":9999/oauth2/token"))
+                .uri(URI.create(uri))
                 .POST(HttpRequest.BodyPublishers.ofString("grant_type=authorization_code&code=" + code + "&redirect_uri=https://localhost:8443/oauth2/code"))
                 .setHeader("Content-Type", "application/x-www-form-urlencoded")
                 .setHeader("Authorization", auth)

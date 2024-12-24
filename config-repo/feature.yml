@@ -21,7 +21,7 @@ resilience4j.circuitbreaker:
       ignoreExceptions:
         - se.chau.microservices.api.exception.InvalidInputException
         - se.chau.microservices.api.exception.NotFoundException
-management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+
 management.tracing.sampling.probability: 1.0
 
 spring.cloud.stream:
@@ -44,16 +44,6 @@ spring.cloud.stream.rabbit.bindings.messageProcessor-in-0.consumer:
 spring.cloud.stream.kafka.bindings.messageProcessor-in-0.consumer:
   enableDlq: true
 
-spring.cloud.stream.kafka.binder:
-  brokers: 127.0.0.1
-  defaultBrokerPort: 9092
-
-spring.rabbitmq:
-  host: 127.0.0.1
-  port: 5672
-  username: guest
-  password: guest
-
 logging:
   level:
     root: INFO
@@ -64,27 +54,16 @@ management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
 spring.application.name: feature
 spring.cloud.compatibility-verifier.enabled: false
-app.eureka-server: localhost
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-    initialInstanceInfoReplicationIntervalSeconds: 5
-    registryFetchIntervalSeconds: 5
-  instance:
-    leaseRenewalIntervalInSeconds: 5
-    leaseExpirationDurationInSeconds: 5
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 ---
 spring.config.activate.on-profile: docker
-eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
-
-server.port: 8080
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
+server.port: 80
 spring:
   data:
     mongodb:
       host: mongodb
-      uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+      uri: mongodb://${CONFIG_SERVER_USR}:${CONFIG_SERVER_PWD}@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
@@ -105,3 +84,13 @@ spring.cloud.stream.bindings.messageProcessor-in-0.consumer.instanceIndex: 0
 spring.config.activate.on-profile: streaming_instance_1
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer.instanceIndex: 1
+---
+spring.config.activate.on-profile: prod
+
+spring.data.mongodb.host: 172.20.0.8
+
+logging:
+  level:
+    root: WARN
+    se.magnus: WARN
+    org.springframework.data.mongodb.core.MongoTemplate: WARN

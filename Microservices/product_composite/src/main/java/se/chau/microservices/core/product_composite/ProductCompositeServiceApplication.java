@@ -24,15 +24,14 @@ public class ProductCompositeServiceApplication {
         return new OpenAPI();
 
     }
-
     private final Integer threadPoolSize;
     private final Integer taskQueueSize;
 
     @Autowired
     public ProductCompositeServiceApplication(
             @Value("${app.threadPoolSize:10}") Integer threadPoolSize,
-            @Value("${app.taskQueueSize:100}") Integer taskQueueSize
-    ) {
+            @Value("${app.taskQueueSize:100}") Integer taskQueueSize,
+            ReactorLoadBalancerExchangeFilterFunction lbFunction) {
         this.threadPoolSize = threadPoolSize;
         this.taskQueueSize = taskQueueSize;
     }
@@ -43,14 +42,10 @@ public class ProductCompositeServiceApplication {
         return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-pool");
     }
 
-    @Autowired
-    private ReactorLoadBalancerExchangeFilterFunction lbFunction;
-
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
-        return builder.filter(lbFunction).build();
+        return builder.build();
     }
-
     public static void main(String[] args) {
         Hooks.enableAutomaticContextPropagation();
         SpringApplication.run(ProductCompositeServiceApplication.class, args);

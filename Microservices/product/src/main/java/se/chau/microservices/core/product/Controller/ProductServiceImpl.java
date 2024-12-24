@@ -12,7 +12,6 @@ import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
-import se.chau.microservices.core.product.Cache.RedisService;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
 import se.chau.microservices.core.product.Persistence.ProductRepository;
 import se.chau.microservices.util.http.ServiceUtil;
@@ -26,13 +25,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository repository;
     private final ProductMapper mapper;
     private static final int sizePage = 5;
-    private final RedisService redisService;
     @Autowired
-    public ProductServiceImpl(ProductMapper mapper, ServiceUtil serviceUtil, ProductRepository repository, RedisService redisService) {
+    public ProductServiceImpl(ProductMapper mapper, ServiceUtil serviceUtil, ProductRepository repository) {
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
         this.repository = repository;
-        this.redisService = redisService;
     }
 
     @Override
@@ -48,9 +45,6 @@ public class ProductServiceImpl implements ProductService {
                         ex -> new InvalidInputException
                                 ("Duplicate key, Product Id: " + body.getProductId()))
                 .map(mapper::entityToApi)
-                .doOnSuccess(product->{
-                    redisService.set("product:"+product.getProductId(),product,3600L);
-                })
                 ;
     }
 
@@ -71,23 +65,18 @@ public class ProductServiceImpl implements ProductService {
         }
         LOG.info("Will get product info for id={}", productId);
         var key = "product:"+productId;
-        return redisService.get(key,Product.class)
-                .switchIfEmpty(
+        return
                         this.repository.findByProductId(productId)
                                 .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
                                 .log(LOG.getName(), FINE)
                                 .map(mapper::entityToApi)
                                 .map(this::setServiceAddress)
                                 .doOnSuccess(result -> {
-                                    redisService.set(key, result, 3600L); // Lưu vào Redis sau khi lấy từ DB
                                     LOG.info("Saved to Redis: Product ID " + result.getProductId());
                                 })
                                 .doOnError(error->{
                                     LOG.debug("redis " + error.getMessage());
-                                })
-                )
-                .doOnNext(product -> LOG.info("Fetched from Redis: Product ID " + product.getProductId()));
-
+                                });
     }
 
     @Override

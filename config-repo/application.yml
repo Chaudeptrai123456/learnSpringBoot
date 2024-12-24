@@ -1,69 +1,77 @@
 app:
-  eureka-server: localhost
   auth-server: localhost
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: "http://${eureka-server}:8761/eureka/"
-    initialInstanceInfoReplicationIntervalSeconds: 5
-    registryFetchIntervalSeconds: 5
-  instance:
-    leaseRenewalIntervalInSeconds: 5
-    leaseExpirationDurationInSeconds: 5
+#
+#spring.cloud.stream.kafka.binder:
+#  brokers: 127.0.0.1
+#  defaultBrokerPort: 9092
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+spring.cloud.stream.defaultBinder: rabbit
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: true
+    stream:
+      default-binder: rabbit
+    function:
+      definition:
+    datasource:
+    url: jdbc:mysql://172.20.0.6:3306/review
+    username: chau
+    password: 123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    mongodb:
+      uri: mongodb://chau:123@localhost:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
 
 spring.rabbitmq:
-  host: 127.0.0.1
+  host: localhost
   port: 5672
   username: guest
   password: guest
-
-spring.cloud.stream.kafka.binder:
-  brokers: 127.0.0.1
-  defaultBrokerPort: 9092
-
-spring.cloud.stream.defaultBinder: rabbit
-
 # WARNING: Exposing all management endpoints over http should only be used during development, must be locked down in production!
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
+management.endpoint.health.probes.enabled: true
+management.health.rabbit.enabled: true
+management.health.kafka.enabled: false
 
-management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
 management.tracing.sampling.probability: 1.0
 logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-#ks8
-server.shutdown: graceful
-spring.lifecycle.timeout-per-shutdown-phase: 10s
-management.endpoint.health.probes.enabled: true
-management.endpoint.health.group.readiness.include: readinessState, rabbit, db, mongo
+
+
 ---
 spring.config.activate.on-profile: docker
-
-spring.rabbitmq.host: rabbitmq
-
-spring.cloud.stream.kafka.binder.brokers: kafka
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
+management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
+zipkin:
+  baseUrl: http://zipkin-server:9411 # Zipkin server URL (replace with your Zipkin server URL)
+  sender:
+    type: web
+spring.rabbitmq:
+  host: rabbitmq
+  port: 5672
+  username: guest
+  password: guest
+#spring.cloud.stream.kafka.binder.brokers: kafka
 
 app:
-  eureka-server: eureka
   auth-server: auth-server
 
 ---
 spring.config.activate.on-profile: kafka
 
-management.health.rabbit.enabled: false
 spring.cloud.stream.defaultBinder: kafka
 spring.kafka.bootstrap-servers: kafka:9092
 spring.cloud.stream.kafka.binder.replication-factor: 1
-#172.20.0.8 mongo
----
-spring.config.activate.on-profile: prod
-spring.rabbitmq.host: 172.20.0.5
 
-# Only allow management endpoints over http in production for info, health and circuitbreakerevents
-management.endpoints.web.exposure.include: health,info,circuitbreakerevents
+management.health.rabbit.enabled: false
+management.health.kafka.enabled: true
+
 ---
 spring.config.activate.on-profile: prod
 spring.rabbitmq.host: 172.17.0.1
-
+management.endpoint.health.group.readiness.include: readinessState, rabbit, db, mongo
 # Only allow management endpoints over http in production for info, health and circuitbreakerevents
 management.endpoints.web.exposure.include: health,info,circuitbreakerevents
+server.shutdown: graceful
+spring.lifecycle.timeout-per-shutdown-phase: 10s

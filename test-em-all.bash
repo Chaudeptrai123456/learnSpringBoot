@@ -307,5 +307,33 @@ kubectl apply -f ks8/first-attempts/nginx-service.yaml
 kubectl run -i --rm --restart=Never curl-client --image=curlimages/curl --command -- curl -s 'http://nginx-service:80'
 
 for f in components/*; do helm dependency update $f; done
+#clone cofig-repo in dicrect
+ln -s ../../../../config-repo config-repo
+helm dep ls Ks8/helm/environments/dev-env/
+
 helm dependency update environments/dev-env
 helm template environments/dev-env -s templates/secrets.yaml
+
+eval $(minikube docker-env)
+docker pull mysql:8.0.32
+docker pull mongo:6.0.4
+docker pull rabbitmq:3.11.8-management
+docker pull openzipkin/zipkin:2.24.0
+helm template Ks8/helm/environments/dev-env
+#check result before installing chars in Ks8
+helm install --dry-run --debug hands-on-dev-env \
+Ks8/helm/environments/dev-env
+helm dep ls Ks8/helm/environments/dev-env/
+#install
+helm install hands-on \
+Ks8/helm/environments/dev-env \
+-n hands-on \
+--create-namespace
+
+helm install --debug hands-on-dev-env \
+Ks8/helm/environments/dev-env
+
+helm install hands-on-dev-env \
+Ks8/helm/environments/dev-env \
+-n hands-on \
+--create-namespace
