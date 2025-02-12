@@ -15,7 +15,7 @@ public class Product implements Serializable {
     public Product(){
         this.name=null;
         this.productId=0;
-        quantity=0;
+        this.quantity=0;
         this.serviceAddress=null;
         this.cost = 0.0;
     }

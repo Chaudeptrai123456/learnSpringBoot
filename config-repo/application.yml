@@ -1,6 +1,4 @@
-app:
-  auth-server: localhost
-#
+  #
 #spring.cloud.stream.kafka.binder:
 #  brokers: 127.0.0.1
 #  defaultBrokerPort: 9092

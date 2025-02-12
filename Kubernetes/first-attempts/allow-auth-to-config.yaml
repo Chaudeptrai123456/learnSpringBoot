@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-auth-to-config
+  namespace: hands-on
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: auth-server
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: config-server
+      ports:
+        - protocol: TCP
+          port: 8888

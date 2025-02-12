@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductFeature;
+import se.chau.microservices.api.core.product.ProductUpdate;
 
 import java.util.List;
 
@@ -70,4 +71,9 @@ public interface ProductCompositeService {
             produces = "application/json"
     )
     Flux<ProductFeature> getProductFeaturePage(@PathVariable int page) throws JsonProcessingException;
+    @PatchMapping(
+            value = "/product-composite/update/{productId}",
+            produces = "application/json"
+    )
+    Mono<Product> updateProductComposite(@RequestBody ProductUpdate productUpdate,@PathVariable int productId);
 }

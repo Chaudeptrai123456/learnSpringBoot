@@ -18,6 +18,7 @@ import se.chau.microservices.api.core.Feature.Feature;
 import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductFeature;
+import se.chau.microservices.api.core.product.ProductUpdate;
 import se.chau.microservices.api.core.recommandation.Recommendation;
 import se.chau.microservices.api.core.review.Review;
 import se.chau.microservices.core.product_composite.service.Cache.RedisService;
@@ -149,6 +150,12 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         return
                 observationWithProductInfo(page, () -> getProductFeaturePageInternal(page));
     }
+
+    @Override
+    public Mono<Product> updateProductComposite(ProductUpdate productUpdate, int productId) {
+        return integration.updateProduct(productUpdate,productId);
+    }
+
     private Flux<ProductFeature> getProductFeaturePageInternal(int page){
         Flux<Product> list = integration.getProductPage(page);  // Get the Flux of products
         var key = "page:"+page;

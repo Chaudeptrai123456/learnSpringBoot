@@ -21,7 +21,6 @@ spring:
       ddl-auto: update  # or `create-drop` for fresh schema creation during development
     show-sql: true       # Show SQL queries in the console (optional)
     database-platform: org.hibernate.dialect.MySQL8Dialect
-host: localhost
 
 resilience4j.circuitbreaker:
   instances:
@@ -41,15 +40,9 @@ management.tracing.sampling.probability: 1.0
 
 ---
 spring.config.activate.on-profile: docker
-server.port : 80
+server.port: 80
 app.auth.host: auth-server
-
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://auth-server:80
   datasource:
     url: jdbc:mysql://mysql:3306/review
     username: chau

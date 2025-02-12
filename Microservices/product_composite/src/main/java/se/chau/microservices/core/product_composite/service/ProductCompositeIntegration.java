@@ -26,6 +26,7 @@ import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
 import se.chau.microservices.api.core.Feature.FeatureService;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
+import se.chau.microservices.api.core.product.ProductUpdate;
 import se.chau.microservices.api.core.recommandation.Recommendation;
 import se.chau.microservices.api.core.recommandation.RecommendationService;
 import se.chau.microservices.api.core.review.Review;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import static java.util.logging.Level.FINE;
 import static reactor.core.publisher.Flux.empty;
 import static se.chau.microservices.api.event.Event.Type.CREATE;
+import static se.chau.microservices.api.event.Event.Type.UPDATE;
 
 @Component
 public class ProductCompositeIntegration implements ProductService, ReviewService,RecommendationService, FeatureService {
@@ -115,7 +117,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             throw new NotFoundException(errMsg);
         }
 
-        return Mono.just(new Product(productId, "Fallback product" + productId, productId,0.0,serviceUtil.getServiceAddress()));
+        return Mono.just(new Product(productId, "Fallback product" + productId, productId,13.0,serviceUtil.getServiceAddress()));
     }
     @Override
     public Mono<Recommendation> createRecommendation(Recommendation recommendation) {
@@ -130,6 +132,20 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
 
         return null;
     }
+
+    @Override
+    public Mono<Product> updateProduct(ProductUpdate product, int productId) throws HttpClientErrorException {
+        if (productId == 13) {
+            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+            LOG.warn(errMsg);
+            throw new NotFoundException(errMsg);
+        }
+        return Mono.fromCallable(() -> {
+             sendMessage("products-out-0", new Event(UPDATE, productId, product));
+             return this.getProduct(productId);
+            }).subscribeOn(publishEventScheduler).block();
+        }
+
     private String getErrorMessage(HttpClientErrorException ex) {
         try {
             return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();

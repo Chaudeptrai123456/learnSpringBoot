@@ -8,6 +8,8 @@ import java.time.ZonedDateTime;
 import static java.time.ZonedDateTime.now;
 public class Event<K, T> {
     public enum Type {
+
+        UPDATE,
         CREATE,
         DELETE
     }

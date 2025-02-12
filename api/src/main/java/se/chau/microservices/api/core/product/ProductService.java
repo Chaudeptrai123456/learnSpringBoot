@@ -47,4 +47,11 @@ public interface ProductService {
             value="/product/delete/{productId}"
     )
     Mono<Void> deleteProduct(@PathVariable int productId);
+
+    @PatchMapping(
+            value="product/update/{productId}",
+            produces = "application/json"
+    )
+    Mono<Product> updateProduct(@RequestBody ProductUpdate product,@PathVariable int productId) throws  HttpClientErrorException;
+
 }

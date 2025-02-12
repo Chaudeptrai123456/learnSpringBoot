@@ -6,10 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
+import se.chau.microservices.api.core.product.ProductUpdate;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
@@ -31,7 +33,6 @@ public class ProductServiceImpl implements ProductService {
         this.serviceUtil = serviceUtil;
         this.repository = repository;
     }
-
     @Override
     public Mono<Product> createProduct(Product body) {
         if (body.getProductId() < 1) {
@@ -47,7 +48,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(mapper::entityToApi)
                 ;
     }
-
     @Override
     public Flux<Product> getProductPage(int page) {
         return this.repository.findAllBy(PageRequest.of(page,sizePage))
@@ -57,7 +57,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(this::setServiceAddress)
                 ;
     }
-
     @Override
     public Mono<Product> getProduct(int productId) {
         if (productId < 1) {
@@ -72,13 +71,13 @@ public class ProductServiceImpl implements ProductService {
                                 .map(mapper::entityToApi)
                                 .map(this::setServiceAddress)
                                 .doOnSuccess(result -> {
+                                    LOG.info("quantity " + result.getQuantity());
                                     LOG.info("Saved to Redis: Product ID " + result.getProductId());
                                 })
                                 .doOnError(error->{
                                     LOG.debug("redis " + error.getMessage());
                                 });
     }
-
     @Override
     public Mono<Void> deleteProduct(int productId) {
 
@@ -89,7 +88,30 @@ public class ProductServiceImpl implements ProductService {
         LOG.debug("deleteProduct: tries to delete an entity with productId: {}", productId);
         return this.repository.findByProductId(productId).log(LOG.getName(), FINE).map(this.repository::delete).flatMap(e -> e);
     }
-
+    @Override
+    public Mono<Product> updateProduct(ProductUpdate product, int productId) throws HttpClientErrorException {
+        return repository.findByProductId(productId)
+                .flatMap(entity -> {
+                    if (entity != null) {
+                        LOG.info("quantity before update: " + entity.getQuantity());
+                        entity.setQuantity(entity.getQuantity() + product.getQuantity());
+                        entity.setCost(entity.getCost() + product.getCost());
+                        LOG.info("quantity after update: " + entity.getQuantity());
+                        return repository.save(entity)
+                                .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
+                                .map(mapper::entityToApi)
+                                .map(this::setServiceAddress)
+                                .doOnSuccess(result -> {
+                                    LOG.info("Saved to Redis: Product ID " + result.getProductId());
+                                })
+                                .doOnError(error -> {
+                                    LOG.debug("redis " + error.getMessage());
+                                });
+                    } else {
+                        return Mono.error(new NotFoundException("No product found for productId: " + productId));
+                    }
+                });
+    }
     private Product setServiceAddress(Product e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;

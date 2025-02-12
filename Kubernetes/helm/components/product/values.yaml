@@ -1,0 +1,11 @@
+fullnameOverride: product
+
+image:
+  name: product
+env:
+  SPRING_PROFILES_ACTIVE: "docker,prod"
+
+livenessProbe_enabled: true
+
+readinessProbe_enabled: true
+

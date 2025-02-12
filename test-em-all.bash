@@ -255,8 +255,8 @@
 #fi
 #
 #echo "End, all tests OK:" `date`
-
-
+#
+#
 #curl -X Get http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 #
 #
@@ -267,7 +267,7 @@
 #  -d "code=T6g1srJlwkB4Eiwaopx2fMh05khPFZ8AFen4hoHtLD22OhpSLfYvcDJlsbs5aI6vtGeDr_Om9CRC5qrCBAEah1vmVKcBnT_5wI4MM0tSfNIfOqZORta2YhDvvZuOUr3y"\
 #  -d "redirect_uri=https://localhost:8443/oauth2/code"
 # http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
-
+#
 #curl -X POST "http://localhost:9999/oauth2/token" \
 #  -H "Authorization: Basic Y2hhdTp7bm9vcH0xMjM=" \
 #  -H "Content-Type: application/x-www-form-urlencoded" \
@@ -281,59 +281,174 @@
 #unset ACCESS_TOKEN
 #ACCESS_TOKEN=$(curl -k http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write  | jq -r .access_token)
 #echo $ACCESS_TOKEN
-
-unset KUBECONFIG
-minikube start \
---profile=chau \
---memory=10240 \
---cpus=4 \
---disk-size=30g \
---kubernetes-version=v1.26.1 \
---driver=docker \
---ports=8080:80 --ports=8443:443 \
---ports=30080:30080 --ports=30443:30443
+#
+  unset KUBECONFIG
+  minikube start \
+  --profile=chau \
+  --memory=2000 \
+  --cpus=4 \
+  --disk-size=30g \
+  --kubernetes-version=v1.26.1 \
+  --driver=docker \
+  --ports=8080:80 --ports=8443:443 \
+  --ports=30080:30080 --ports=30443:30443
 minikube delete -p chau
 minikube start -p chau --kubernetes-version=v1.26.1
 minikube profile chau
 minikube addons enable ingress
 minikube addons enable metrics-server
-# set up namespace
-kubectl create namespace first-attempts
-#kubectl config set-context $(kubectl config current-context) --namespace=firstattempts
-kubectl config set-context $(kubectl config current-context) --namespace=handson
-#set up nginx for port 80 1 for deploy and 1 for server
-kubectl apply -f ks8/first-attempts/nginx-deployment.yaml
-kubectl apply -f ks8/first-attempts/nginx-service.yaml
-kubectl run -i --rm --restart=Never curl-client --image=curlimages/curl --command -- curl -s 'http://nginx-service:80'
+ set up namespace
+kubectl create namespace hands-on
+##kubectl config set-context $(kubectl config current-context) --namespace=firstattempts
+#kubectl config set-context $(kubectl config current-context) --namespace=handson
+##set up nginx for port 80 1 for deploy and 1 for server
+#kubectl apply -f Kubernetes/first-attempts/nginx-deployment.yaml
+#kubectl apply -f Kubernetes/first-attempts/nginx-service.yaml
+#kubectl run -i --rm --restart=Never curl-client --image=curlimages/curl --command -- curl -s 'http://nginx-service:80'
+#
+#for f in components/*; do helm dependency update $f; done
+##clone cofig-repo in dicrect
+#ln -s ../../../../config-repo config-repo
+#helm dep ls Kubernetes/helm/environments/dev-env/
+#
+#helm dependency update environments/dev-env
+# helm template Kubernetes/helm/components/product -s templates/deployment.yaml
+#
+#eval $(minikube docker-env)
+#docker pull mysql:8.0.32
+#docker pull mongo:6.0.4
+#docker pull rabbitmq:3.11.8-management
+#docker pull openzipkin/zipkin:2.24.0
+#helm template Kubernetes/helm/environments/dev-env
+##check result before installing chars in Kubernetes
+#helm install --dry-run --debug hands-on-dev-env \
+#Kubernetes/helm/environments/dev-env
+#helm dep ls Kubernetes/helm/environments/dev-env/
+##install
+#helm install hands-on \
+#Kubernetes/helm/environments/dev-env \
+#-n hands-on \
+#--create-namespace
+#
+#helm install --debug hands-on-dev-env \
+#Kubernetes/helm/environments/dev-env
+#
+#helm install hands-on-dev-env \
+#Kubernetes/helm/environments/dev-env \
+#-n hands-on \
+#--create-namespace
 
-for f in components/*; do helm dependency update $f; done
-#clone cofig-repo in dicrect
-ln -s ../../../../config-repo config-repo
-helm dep ls Ks8/helm/environments/dev-env/
-
-helm dependency update environments/dev-env
-helm template environments/dev-env -s templates/secrets.yaml
-
+docker containers
 eval $(minikube docker-env)
+docker-compose up -d --build
 docker pull mysql:8.0.32
 docker pull mongo:6.0.4
 docker pull rabbitmq:3.11.8-management
 docker pull openzipkin/zipkin:2.24.0
-helm template Ks8/helm/environments/dev-env
-#check result before installing chars in Ks8
-helm install --dry-run --debug hands-on-dev-env \
-Ks8/helm/environments/dev-env
-helm dep ls Ks8/helm/environments/dev-env/
-#install
-helm install hands-on \
-Ks8/helm/environments/dev-env \
--n hands-on \
---create-namespace
 
-helm install --debug hands-on-dev-env \
-Ks8/helm/environments/dev-env
+helm template Kubernetes/helm/environments/dev-env -s templates/deployment.yaml
+helm template Kubernetes/helm/components/mongodb -s templates/service.yaml
 
-helm install hands-on-dev-env \
-Ks8/helm/environments/dev-env \
--n hands-on \
---create-namespace
+helm template Kubernetes/helm/environments/dev-env
+
+minikube start
+minikube -p chau docker-env
+docker-compose build
+
+eval $(minikube docker-env)
+
+for f in components/*; do helm dependency update $f; done
+for f in Kubernetes/helm/components/*; do helm dep up $f; done
+for f in Kubernetes/helm/environments/*; do helm dep up $f; done
+helm upgrade hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on
+
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+kubectl get pods -n hands-on
+docker-compose build
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+
+helm upgrade hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on
+
+docker-compose build
+
+eval $(minikube docker-env)
+kubectl delete namespace hands-on
+for f in Kubernetes/helm/components/*; do helm dep up $f; done
+for f in Kubernetes/helm/environments/*; do helm dep up $f; done
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+kubectl get pods -n hands-on
+
+docker push hands-on/auth-server:latest
+
+docker-compose build
+kubectl delete namespace hands-on
+for f in Kubernetes/helm/components/*; do helm dep up $f; done
+for f in Kubernetes/helm/environments/*; do helm dep up $f; done
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on  --create-namespace
+
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+
+helm create hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --creat-namespace
+
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on
+helm upgrade hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+
+helm dep ls Kubernetes/helm/environments/dev-env/
+
+helm install --dry-run --debug hands-on-dev-env Kubernetes/helm/environments/dev-env
+helm upgrade hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+
+helm install hands-on-dev-env Kubernetes/helm/environmen ts/dev-env -n hands-on
+kubectl config set-context $(kubectl config current-context) --namespace=hands-on
+kubectl get pods -n hands-on --watch
+kubectl get pods -n hands-on
+
+#chau has a default namespace is default`
+kubectl delete pods --all -n hands-on
+kubectl delete pod auth-server-5bc6786b4f-xwdxc-n hands-on
+
+# phai them minikube
+kubectl wait --timeout=600s --for=condition=ready pod --all
+# check status of current podkubectl describe pod auth-server-67b9658567-k99rp
+helm uninstall hands-on-dev-env -n hands-on
+kubectl logs product-composite-7848c5bcd-kvjfk  -c product-composite -n hands-on
+kubectl logs auth-server-64d6bb88cc-6tcbt  -c auth-service -n hands-on
+#config-server-5b49876ff5-9b2qn
+kubectl edit deployment auth-server -n hands-on
+
+kubectl set image deployment/gateway gateway=<new-image> -n hands-on
+
+helm install hands-on-dev-env Kubernetes/helm/environments/dev-env -n hands-on --create-namespace
+kubectl config set-context $(kubectl config current-context) --namespace=hands-on
+
+kubectl set image deployment/my-deployment my-container=my-image:v2
+
+kubectl run -i --rm --restart=Never curl-client --image=curlimages/curl --command -- curl -s 'http://nginx-service:80'
+
+helm template Kubernetes/helm/components/config-server -s templates/deployment.yaml
+
+
+
+helm upgrade auth-server Kubernetes/helm/components/auth-server --namespace hands-on
+helm upgrade hands-on-dev-env ./auth-server
+
+kubectl describe pod auth-server-64d6bb88cc-6tcbt  -n hands-on
+
+kubectl logs  pod config-server-6bcbf9fc9b-59rdv  -n hands-on
+
+helm upgrade hands-on-dev-env -n hands-on Kubernetes/helm/environments/dev-env --wait
+
+#check network giua auth-server va config-server
+kubectl exec -it auth-server-5bc6786b4f-dsjnq   -n hands-on -- ping config-server.hands-on.svc.cluster.local
+
+kubectl exec -it auth-server-5bc6786b4f-dsjnq -n hands-on -- curl http://config-server.hands-on.svc.cluster.local:8888
+
+
+kubectl port-forward <config-server-pod-name> 8888:8888 -n hands-on
+
+
+

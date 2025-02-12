@@ -11,7 +11,7 @@ spring:
       maxAttempts: 20
     uri: http://localhost:8888
     username: ${CONFIG_SERVER_USR}
-    password: ${CONFIG_SERVER_PWD} # Password for authentication
+    password: ${CONFIG_SERVER_PWD}
 ---
 spring.config.activate.on-profile: docker
 
