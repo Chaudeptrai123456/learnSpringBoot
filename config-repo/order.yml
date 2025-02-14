@@ -1,4 +1,4 @@
-server.port: 8085
+server.port: 8090
 server.error.include-message: always
 spring:
   data:
@@ -57,7 +57,7 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 ---
 spring.config.activate.on-profile: docker
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
-server.port: 80
+server.port: 8090
 spring:
   data:
     mongodb:

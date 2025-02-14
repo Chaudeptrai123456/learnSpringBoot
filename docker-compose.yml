@@ -110,6 +110,18 @@ services:
       - SPRING_SECURITY_USER_PASSWORD=123
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+  order:
+    build: Microservices/order
+    image: hands-on/order
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - SPRING_SECURITY_USER_NAME=user
+      - SPRING_SECURITY_USER_PASSWORD=123
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+    depends_on:
+      - config-server
   review:
     build: Microservices/review
     image: hands-on/review

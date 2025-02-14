@@ -1,5 +1,6 @@
 package se.chau.microservices.api.core.order;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +16,7 @@ public interface OrderService {
             value="/order/user/{userId}"
     )
     Flux<Order> findOrderByUserId(@PathVariable int userId);
-    @PostMapping(
+    @GetMapping(
             value="/order/confirm"
     )
     Flux<Order> confirmOrder(@RequestBody int orderId);
