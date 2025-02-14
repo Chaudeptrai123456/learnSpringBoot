@@ -85,6 +85,7 @@ public class AuthenticateController implements UserService {
             Authentication a=  this.authenticationManager.authenticate(authenticationRequest);
             authentication = a;
             String accessToken = JwtService.generateAccessToken(a);
+            LOG.info("User login userId: " + account.getUsername());
             Token token = new Token();
             token.setAccess(accessToken);
             token.setRefresh(JwtService.generateRefreshToken(a));

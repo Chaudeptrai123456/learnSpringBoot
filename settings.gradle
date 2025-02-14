@@ -25,4 +25,6 @@ include 'SpringCloud:OauthorizationServer'
 findProject(':SpringCloud:OauthorizationServer')?.name = 'OauthorizationServer'
 include 'SpringCloud:config-service'
 findProject(':SpringCloud:config-service')?.name = 'config-service'
+include 'Microservices:order'
+findProject(':Microservices:order')?.name = 'order'
 

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface UserService {
     @PostMapping(
-            value    = "/user/register",
+            value    = "/oauth2/user/register",
             produces = "application/json"
     )
     ResponseEntity<String>  Register(@RequestBody  User user);

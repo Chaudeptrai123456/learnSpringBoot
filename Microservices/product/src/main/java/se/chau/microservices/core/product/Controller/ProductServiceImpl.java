@@ -63,7 +63,6 @@ public class ProductServiceImpl implements ProductService {
             throw new InvalidInputException("Invalid productId: " + productId);
         }
         LOG.info("Will get product info for id={}", productId);
-        var key = "product:"+productId;
         return
                         this.repository.findByProductId(productId)
                                 .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
