@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import se.chau.microservices.api.core.order.ProductOrder;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
 import se.chau.microservices.api.core.product.ProductUpdate;
@@ -17,6 +18,9 @@ import se.chau.microservices.api.exception.NotFoundException;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
 import se.chau.microservices.core.product.Persistence.ProductRepository;
 import se.chau.microservices.util.http.ServiceUtil;
+
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.logging.Level.FINE;
 
@@ -114,5 +118,24 @@ public class ProductServiceImpl implements ProductService {
     private Product setServiceAddress(Product e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;
+    }
+    @Override
+    public Mono<Double> sumCost(List<ProductOrder> list) throws HttpClientErrorException{
+        try {
+            LOG.info("call from order service");
+            return Mono.fromCallable(()->{
+                return list.stream()
+                        .map(index -> {
+                            return Objects.requireNonNull(this.repository.findByProductId(index.getProductId()).block()).getCost() * index.getQuantity();
+                        })   // Map to the price of each product
+                        .reduce(0.0, Double::sum);
+            });
+        } catch (Error error) {
+            throw new InvalidInputException(error.getMessage());
+        }
+
+    }
+    private Boolean checkQuantity(int quantity, int productQuantity){
+        return quantity > productQuantity;
     }
 }

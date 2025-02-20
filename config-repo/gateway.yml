@@ -16,6 +16,7 @@ app:
   auth-server: localhost
   auth:
     host: localhost
+
 port:
   config: 8888
   composite: 8000
@@ -25,7 +26,9 @@ port:
   review: 8083
   feature: 8084
   order: 8090
+  order-composite: 8091
 host:
+  order-composite: localhost
   product: localhost
   composite: localhost
   auth: localhost
@@ -48,7 +51,10 @@ spring.cloud.gateway.routes:
     uri: http://${host.order}:${port.order}
     predicates:
       - Path=/order/**
-
+  - id: order-composite
+    uri: http://${host.order-composite}:${port.order-composite}
+    predicates:
+      - Path=/order-composite/**
   - id: auth-server
     uri: http://${host.auth}:${port.auth}
     predicates:

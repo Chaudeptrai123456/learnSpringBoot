@@ -19,6 +19,8 @@ public class OrderEntity {
     private int userId;
     private LocalDate orderDate;
 
+    private Double cost;
+
     private List<ProductOrder> products;
 
     public OrderEntity(LocalDate orderDate,List<ProductOrder> productOrderList) {
@@ -27,9 +29,17 @@ public class OrderEntity {
         this.products = productOrderList==null ? new ArrayList<>() : productOrderList ;
     }
 
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
     public OrderEntity() {
         this.status = OrderStatus.CREATE;
         this.products = new ArrayList<>();
+    }
+
+    public Double getCost() {
+        return cost;
     }
 
     public void setId(String id) {

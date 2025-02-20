@@ -1,7 +1,7 @@
 spring.config.import: "configserver:"
 spring.cloud.config.enabled: true
 spring:
-  application.name: order
+  application.name: feature
   cloud.config:
     failFast: true
     retry:
@@ -12,7 +12,6 @@ spring:
     uri: http://localhost:8888
     username: ${CONFIG_SERVER_USR}
     password: ${CONFIG_SERVER_PWD} # Password for authentication
-
 ---
 spring.config.activate.on-profile: docker
 

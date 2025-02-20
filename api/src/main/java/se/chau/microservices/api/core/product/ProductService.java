@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import se.chau.microservices.api.core.order.ProductOrder;
+
+import java.util.List;
 
 public interface ProductService {
     @Operation(
@@ -53,5 +56,10 @@ public interface ProductService {
             produces = "application/json"
     )
     Mono<Product> updateProduct(@RequestBody ProductUpdate product,@PathVariable int productId) throws  HttpClientErrorException;
+    @PostMapping(
+            value = "/product/sumcost"
+    )
+    Mono<Double> sumCost(@RequestBody List<ProductOrder> list) throws HttpClientErrorException;
+
 
 }

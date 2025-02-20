@@ -18,6 +18,13 @@ resilience4j.circuitbreaker:
 management.tracing.sampling.probability: 1.0
 spring.cloud.compatibility-verifier.enabled: false
 
+spring.cloud.stream:
+  defaultBinder: rabbit
+  default.contentType: application/json
+  bindings.messageProcessor-in-0:
+    destination: products
+    group: productsGroup
+
 spring:
   cloud:
     stream:
@@ -34,13 +41,6 @@ springdoc:
   pathsToMatch: /**
 
 spring.cloud.function.definition: messageProcessor
-
-spring.cloud.stream:
-  defaultBinder: rabbit
-  default.contentType: application/json
-  bindings.messageProcessor-in-0:
-    destination: products
-    group: productsGroup
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer:
   maxAttempts: 3

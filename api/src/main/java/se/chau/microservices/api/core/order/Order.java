@@ -7,6 +7,8 @@ public class Order {
 
     private int userId;
     private int orderId;
+    private Double cost;
+
 
     private String status;
     private LocalDate orderDate;
@@ -26,6 +28,14 @@ public class Order {
         this.orderDate = LocalDate.now();
         this.products = products;
         this.serviceAddress = serviceAddress;
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
     }
 
     public String getServiceAddress() {

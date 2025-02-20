@@ -5,7 +5,7 @@ spring:
     mongodb:
       uri: mongodb://chau:123@localhost:27017/order-db?authSource=admin&authMechanism=SCRAM-SHA-256
 spring.cloud.function.definition: messageProcessor
-
+product.url: localhost:8081/product/
 resilience4j.circuitbreaker:
   instances:
     product:
@@ -23,25 +23,16 @@ resilience4j.circuitbreaker:
 
 management.tracing.sampling.probability: 1.0
 
-spring.cloud.stream:
-  defaultBinder: rabbit
-  default.contentType: application/json
-  bindings.messageProcessor-in-0:
-    destination: features
-    group: featuresGroup
-
-spring.cloud.stream.bindings.messageProcessor-in-0.consumer:
-  maxAttempts: 3
-  backOffInitialInterval: 500
-  backOffMaxInterval: 1000
-  backOffMultiplier: 2.0
-
-spring.cloud.stream.rabbit.bindings.messageProcessor-in-0.consumer:
-  autoBindDlq: true
-  republishToDlq: true
-
-spring.cloud.stream.kafka.bindings.messageProcessor-in-0.consumer:
-  enableDlq: true
+#rabbit message queue
+springcloud:
+  stream:
+    default-binder: rabbit
+    default.contentType: application/json
+    bindings:
+      products-out-0:
+        destination: orders
+        producer:
+          required-groups: auditGroup
 
 logging:
   level:
@@ -54,6 +45,8 @@ management.endpoints.web.exposure.include: "*"
 spring.application.name: order
 spring.cloud.compatibility-verifier.enabled: false
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+
+
 ---
 spring.config.activate.on-profile: docker
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
@@ -66,6 +59,15 @@ spring:
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
+
+spring.mail.username: phamchaugiatu123@gmail.com
+spring.mail.properties.mail.smtp.starttls.required: true
+spring.mail.host: smtp.gmail.com
+spring.mail.port: 587
+spring.mail.password: pdyw cdmz npfw qsmt
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.properties.mail.transport.protocol: smtp
+spring.mail.properties.mail.smtp.starttls.enable: true
 
 ---
 spring.config.activate.on-profile: streaming_partitioned

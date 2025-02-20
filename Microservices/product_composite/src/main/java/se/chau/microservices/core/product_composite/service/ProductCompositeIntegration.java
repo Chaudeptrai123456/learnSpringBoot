@@ -24,6 +24,7 @@ import reactor.core.scheduler.Scheduler;
 import se.chau.microservices.api.core.Feature.Feature;
 import se.chau.microservices.api.core.Feature.FeatureForSearchPro;
 import se.chau.microservices.api.core.Feature.FeatureService;
+import se.chau.microservices.api.core.order.ProductOrder;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
 import se.chau.microservices.api.core.product.ProductUpdate;
@@ -38,6 +39,7 @@ import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
 import java.io.IOException;
+import java.util.List;
 
 import static java.util.logging.Level.FINE;
 import static reactor.core.publisher.Flux.empty;
@@ -122,7 +124,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     @Override
     public Mono<Recommendation> createRecommendation(Recommendation recommendation) {
         return Mono.fromCallable(() -> {
-            sendMessage("recommendations-out-0",new Event(CREATE, recommendation.getRecommendationId(), recommendation));
+                sendMessage("recommendations-out-0",new Event(CREATE, recommendation.getRecommendationId(), recommendation));
             return recommendation;
         }).subscribeOn(publishEventScheduler);
     }
@@ -145,6 +147,12 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
              return this.getProduct(productId);
             }).subscribeOn(publishEventScheduler).block();
         }
+
+    @Override
+    public Mono<Double> sumCost(List<ProductOrder> list) {
+        return this.sumCost(list);
+    }
+
 
     private String getErrorMessage(HttpClientErrorException ex) {
         try {

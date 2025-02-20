@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import se.chau.microservices.api.core.order.Order;
 import se.chau.microservices.order.Persistence.OrderEntity;
+import se.chau.microservices.util.http.HttpErrorInfo;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
@@ -18,4 +19,5 @@ public interface OrderMapper {
     })
     OrderEntity apiToEntity(Order api);
 
+    HttpErrorInfo readValue(String responseBodyAsString, Class<HttpErrorInfo> httpErrorInfoClass);
 }
