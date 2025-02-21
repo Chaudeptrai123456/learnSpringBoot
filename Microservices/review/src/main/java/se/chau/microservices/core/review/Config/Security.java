@@ -1,0 +1,28 @@
+//package se.chau.microservices.core.review.Config;
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+//import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+//import org.springframework.security.config.web.server.ServerHttpSecurity;
+//import org.springframework.security.web.server.SecurityWebFilterChain;
+//
+//import static org.springframework.http.HttpMethod.*;
+//
+//@EnableWebFluxSecurity
+//public class Security {
+//
+//    private SecurityWebFiltersOrder JwtAuthenticationToken;
+//    @Bean
+//    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+//        http
+//                .authorizeExchange()
+//                .pathMatchers("/actuator/**").permitAll()
+//                .pathMatchers("/public/**").permitAll()
+//                .pathMatchers(POST, "/review/**").authenticated()
+//                .pathMatchers(DELETE, "/review/**").authenticated()
+//                .pathMatchers(GET, "/review/**").authenticated()
+//                .anyExchange().authenticated()
+//                .and()
+//                .oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::jwt);
+//        return http.build();
+//    }
+//}

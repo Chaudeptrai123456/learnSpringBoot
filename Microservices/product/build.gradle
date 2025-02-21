@@ -65,7 +65,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'io.projectreactor:reactor-core'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
 }
 
 

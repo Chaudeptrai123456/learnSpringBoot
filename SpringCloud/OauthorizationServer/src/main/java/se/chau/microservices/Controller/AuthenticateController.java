@@ -18,10 +18,7 @@ import se.chau.microservices.Entity.Authority;
 import se.chau.microservices.Entity.UserEntity;
 import se.chau.microservices.Service.AuthorityRepository;
 import se.chau.microservices.Service.UserRepository;
-import se.chau.microservices.api.core.User.Account;
-import se.chau.microservices.api.core.User.Token;
-import se.chau.microservices.api.core.User.User;
-import se.chau.microservices.api.core.User.UserService;
+import se.chau.microservices.api.core.User.*;
 import se.chau.microservices.util.http.JwtService;
 
 import java.time.LocalDateTime;
@@ -110,5 +107,11 @@ public class AuthenticateController implements UserService {
     @Override
     public ResponseEntity<String> getAccessToken(HttpServletRequest request)  {
             return new ResponseEntity<String>(String.valueOf(request.getAttribute("refresh")),HttpStatusCode.valueOf(200));
+    }
+
+    @Override
+    public User getInfo(UserReqInfo user) {
+        UserEntity temp = this.userRepository.findById(user.getUserId()).get();
+        return new User(temp.getUsername(),"",temp.getEmail());
     }
 }

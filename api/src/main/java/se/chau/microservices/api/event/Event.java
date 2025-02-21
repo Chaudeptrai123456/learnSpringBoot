@@ -9,7 +9,7 @@ import static java.time.ZonedDateTime.now;
 public class Event<K, T> {
     public enum Type {
 
-        SUMCOST,
+        MAKING_ORDER,
         UPDATE,
         CREATE,
         DELETE

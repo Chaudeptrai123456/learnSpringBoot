@@ -23,16 +23,15 @@ resilience4j.circuitbreaker:
 
 management.tracing.sampling.probability: 1.0
 
-#rabbit message queue
-springcloud:
-  stream:
-    default-binder: rabbit
-    default.contentType: application/json
-    bindings:
-      products-out-0:
-        destination: orders
-        producer:
-          required-groups: auditGroup
+spring.cloud.stream:
+  default.contentType: application/json
+  bindings:
+    orders-out-0:
+      destination: orders
+      producer:
+        required-groups: auditGroup
+        configuration:
+          x-dead-letter-exchange: DLX
 
 logging:
   level:
@@ -46,7 +45,9 @@ spring.application.name: order
 spring.cloud.compatibility-verifier.enabled: false
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 
+url-product-sumcost: http://localhost:8081/product/sumcost
 
+url-userInfo: http://localhost:9999/user/getInfo
 ---
 spring.config.activate.on-profile: docker
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
@@ -68,7 +69,9 @@ spring.mail.password: pdyw cdmz npfw qsmt
 spring.mail.properties.mail.smtp.auth: true
 spring.mail.properties.mail.transport.protocol: smtp
 spring.mail.properties.mail.smtp.starttls.enable: true
+url-product-sumcost: http://product:80/product/sumcost
 
+url-userInfo: http://auth-server:80/user/getInfo
 ---
 spring.config.activate.on-profile: streaming_partitioned
 

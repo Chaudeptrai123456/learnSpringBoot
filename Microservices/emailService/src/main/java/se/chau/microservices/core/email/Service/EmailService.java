@@ -25,7 +25,7 @@ public class EmailService  {
     private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
     @Value("${spring.mail.username}")
-    private String usernameEmail;
+    private  String usernameEmail;
     @Value("${spring.mail.password}")
     private String password;
 
@@ -41,10 +41,7 @@ public class EmailService  {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
-
-//        mailSender.setUsername("phamchaugiatu123@gmail.com");
-//        mailSender.setPassword("doeu iubp eyrj zvqa");
-        mailSender.setUsername(usernameEmail);
+        mailSender.setUsername(this.usernameEmail);
         mailSender.setPassword(password);
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

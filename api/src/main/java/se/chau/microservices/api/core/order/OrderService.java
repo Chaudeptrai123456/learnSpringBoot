@@ -1,9 +1,6 @@
 package se.chau.microservices.api.core.order;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -11,7 +8,7 @@ public interface OrderService {
     @PostMapping(
             value="/order/make"
     )
-    Mono<Order> makingOrder(@RequestBody Order body);
+    Mono<Order> makingOrder(@RequestHeader("Authorization")  String token, @RequestBody Order body);
     @PostMapping(
             value="/order/user/{userId}"
     )

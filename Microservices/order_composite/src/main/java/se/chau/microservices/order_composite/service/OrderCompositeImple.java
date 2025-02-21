@@ -41,7 +41,7 @@ public class OrderCompositeImple implements OrderService {
     }
 
     @Override
-    public Mono<Order> makingOrder(Order body) {
+    public Mono<Order> makingOrder(String token,Order body) {
         //check all product in productList
         return Mono.fromCallable(() -> {
             sendMessage("products-out-0",new Event(SUMCOST, "test",body));
