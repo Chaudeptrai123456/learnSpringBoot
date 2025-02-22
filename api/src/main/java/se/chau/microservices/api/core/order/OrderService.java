@@ -9,7 +9,7 @@ public interface OrderService {
             value="/order/make"
     )
     Mono<Order> makingOrder(@RequestHeader("Authorization")  String token, @RequestBody Order body);
-    @PostMapping(
+    @GetMapping(
             value="/order/user/{userId}"
     )
     Flux<Order> findOrderByUserId(@PathVariable int userId);
@@ -17,5 +17,9 @@ public interface OrderService {
             value="/order/confirm"
     )
     Flux<Order> confirmOrder(@RequestBody int orderId);
+    @GetMapping(
+            value="/order/confirm{orderId}"
+    )
+    Flux<Order> getOrderInfo(@PathVariable int orderId);
 
 }

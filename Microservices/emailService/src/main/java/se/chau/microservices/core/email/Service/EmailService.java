@@ -36,6 +36,9 @@ public class EmailService  {
     public void setTemplateMessage(SimpleMailMessage templateMessage) {
         this.templateMessage = templateMessage;
     }
+
+    @Value("${url-orderInfo}")
+    private String url_orderInfo;
     @Bean
     public JavaMailSender mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -62,16 +65,5 @@ public class EmailService  {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-//        msg.setTo(email.getEmail());
-//        msg.setSubject("Confirm Order");
-//        msg.setText(new TemplateEmail(email).getContent());
-//        try {
-//
-//            this.mailSender.send(msg);
-//        }
-//        catch (MailException ex) {
-//            // simply log it and go on...
-//            LOG.debug(ex.getMessage());
-//        }
     }
 }

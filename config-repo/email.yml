@@ -4,6 +4,7 @@ spring:
     compatibility-verifier:
       enabled: false
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+url-orderInfo: http://localhost:8090/order/user
 
 spring.mail.username: phamchaugiatu123@gmail.com
 spring.mail.properties.mail.smtp.starttls.required: true
@@ -20,7 +21,6 @@ spring.cloud.stream:
   bindings.messageProcessor-in-0:
     destination: orders
     group: auditGroup
-
 spring.cloud.function.definition: messageProcessor
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer:

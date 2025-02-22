@@ -38,7 +38,8 @@ public class OrderServiceImpl implements se.chau.microservices.api.core.order.Or
 
     @Value("${url-product-sumcost}")
     private String url_product_sumcost;
-
+    @Value("${url-order}")
+    private String url_orderInfo;
     @Value("${url-userInfo}")
     private String url_userInfo;
 
@@ -75,7 +76,13 @@ public class OrderServiceImpl implements se.chau.microservices.api.core.order.Or
 //                                    this::handleException
 //                            )
 //                            .doOnError(error -> LOG.debug("ERROR get info from oauth2 server: " + error.getMessage())).block();
-                    sendMessage("orders-out-0",new Event(Event.Type.MAKING_ORDER,1,new Email(body.getUserId(),"nguyentienanh2001.dev@gmail.com","Chau", entity.getCost(),entity.getOrderId())));
+//                    body.getProducts().forEach(index->{
+//                        ProductUpdate temp  = new ProductUpdate();
+//                        temp.setCost(body.getCost());
+//                        temp.setQuantity(-index.getQuantity());
+//                        sendMessage("orders-out-0",new Event(Event.Type.UPDATE, index.getProductId(),temp));
+//                    });
+                    sendMessage("orders-out-0",new Event(Event.Type.MAKING_ORDER,1,new Email(body.getUserId(),"nguyentienanh2001.dev@gmail.com","Chau", entity.getCost(),token,entity.getOrderId(),url_orderInfo+entity.getUserId())));
                 })
                 .log(LOG.getName(), FINE)
                 .onErrorMap(
@@ -120,6 +127,11 @@ public class OrderServiceImpl implements se.chau.microservices.api.core.order.Or
                         return Mono.error(new NotFoundException("No product found for productId: "));
                     }
                 });
+    }
+
+    @Override
+    public Flux<Order> getOrderInfo(int orderId) {
+        return null;
     }
 
     private Order setServiceAddress(Order e) {

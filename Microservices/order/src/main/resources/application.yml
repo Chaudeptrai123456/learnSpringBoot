@@ -12,7 +12,7 @@ spring:
     uri: http://localhost:8888
     username: ${CONFIG_SERVER_USR}
     password: ${CONFIG_SERVER_PWD} # Password for authentication
-
+url-order: https://localhost:8443/order/user/
 ---
 spring.config.activate.on-profile: docker
 

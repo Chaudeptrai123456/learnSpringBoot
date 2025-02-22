@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import reactor.core.publisher.Flux;
@@ -20,7 +22,6 @@ import se.chau.microservices.core.product.Persistence.ProductRepository;
 import se.chau.microservices.util.http.ServiceUtil;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.logging.Level.FINE;
 
@@ -97,8 +98,15 @@ public class ProductServiceImpl implements ProductService {
                 .flatMap(entity -> {
                     if (entity != null) {
                         LOG.info("quantity before update: " + entity.getQuantity());
-                        entity.setQuantity(entity.getQuantity() + product.getQuantity());
-                        entity.setCost(entity.getCost() + product.getCost());
+                        if (entity.getQuantity() + product.getQuantity() >= 0) {
+                            entity.setQuantity(entity.getQuantity() + product.getQuantity());
+                        } else {
+                            throw HttpClientErrorException.create(HttpStatusCode.valueOf(400),"Quantity is not enough", HttpHeaders.EMPTY,null,null);
+                        }
+                        LOG.info("cost of product " + entity.getProductId());
+                        if (entity.getCost()!=0){
+                            entity.setCost(entity.getCost() + product.getCost());
+                        }
                         LOG.info("quantity after update: " + entity.getQuantity());
                         return repository.save(entity)
                                 .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
@@ -126,7 +134,12 @@ public class ProductServiceImpl implements ProductService {
             return Mono.fromCallable(()->{
                 return list.stream()
                         .map(index -> {
-                            return Objects.requireNonNull(this.repository.findByProductId(index.getProductId()).block()).getCost() * index.getQuantity();
+                            LOG.info("test update product " + index.getProductId());
+                            ProductUpdate productUpdate = new ProductUpdate();
+                            productUpdate.setQuantity(-index.getQuantity());
+                            productUpdate.setCost(0);
+                            Product product = this.updateProduct(productUpdate, index.getProductId()).block();
+                            return product != null ? product.getCost() * index.getQuantity() : 0.0;
                         })   // Map to the price of each product
                         .reduce(0.0, Double::sum);
             });

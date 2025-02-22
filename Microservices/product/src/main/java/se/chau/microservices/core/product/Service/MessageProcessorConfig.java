@@ -1,18 +1,18 @@
 package se.chau.microservices.core.product.Service;
 
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
+import se.chau.microservices.api.core.product.ProductUpdate;
 import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.EventProcessingException;
-import se.chau.microservices.core.product.*;
 import se.chau.microservices.core.product.Controller.ProductServiceImpl;
+
+import java.util.function.Consumer;
  
 
 @Configuration
@@ -45,15 +45,37 @@ public class MessageProcessorConfig {
           LOG.info("Delete product with ProductID: {}", productId);
           productService.deleteProduct(productId).block();
           break;
-
+//        case UPDATE:
+//          ProductUpdate productUpdate = event.getData();
+//          productService.updateProduct().block();
+//          break;
         default:
           String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";
           LOG.warn(errorMessage);
           throw new EventProcessingException(errorMessage);
       }
-
       LOG.info("Message processing done!");
+    };
+  }
+  @Bean
+  public Consumer<Event<Integer, ProductUpdate>> messageProcessor1() {
+    return event -> {
+      LOG.info("Process message created at {}...", event.getEventCreatedAt());
 
+      switch (event.getEventType()) {
+
+        case UPDATE:
+          ProductUpdate product = event.getData();
+          int id = event.getKey();
+          LOG.info("Create product with ID: {} ", id);
+          productService.updateProduct(product,id).block();
+          break;
+        default:
+          String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";
+          LOG.warn(errorMessage);
+          throw new EventProcessingException(errorMessage);
+      }
+      LOG.info("Message processing done!");
     };
   }
 }

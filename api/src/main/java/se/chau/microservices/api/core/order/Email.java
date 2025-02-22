@@ -7,8 +7,11 @@ public class Email {
 
     private Double totalCost;
 
+    private String token;
+
     private int orderId;
 
+    private String link;
 
     public Email() {
         this.userId = 0;
@@ -17,15 +20,33 @@ public class Email {
         this.totalCost = 0.0;
         this.orderId = 0;
     }
-    public Email(int userId, String email, String username, Double totalCost, int orderId) {
+
+
+    public Email(int userId, String email, String username, Double totalCost, String token, int orderId, String link) {
         this.userId = userId;
         this.email = email;
         this.username = username;
         this.totalCost = totalCost;
+        this.token = token;
         this.orderId = orderId;
+        this.link = link;
     }
 
+    public String getLink() {
+        return link;
+    }
 
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public Double getTotalCost() {
         return totalCost;

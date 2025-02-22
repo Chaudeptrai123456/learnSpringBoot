@@ -1,8 +1,12 @@
 package se.chau.microservices.api.core.order;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.time.LocalDate;
 
 public class TemplateEmail {
+    @Value("${url-order}")
+    private String linkOrder;
 
     private String content;
 
@@ -80,6 +84,37 @@ public class TemplateEmail {
                 "</head>\n" +
                 "<body>\n" +
                 "\n" +
+                " <script>\n" +
+                "        // Sample Authorization token (You would typically get this from login/session or other methods)\n" +
+                "        const token = 'your_authorization_token_here';\n" +
+                "        const orderTrackingLink = '"+email.getLink()+"'; // Replace with your actual order tracking endpoint\n" +
+                "\n" +
+                "        // Track Order Button Click Event\n" +
+                "        document.getElementById('trackOrderButton').addEventListener('click', function(event) {\n" +
+                "            event.preventDefault(); // Prevent default behavior (if any)\n" +
+                "\n" +
+                "            // Send a GET request to track the order with the Authorization token in the headers\n" +
+                "            fetch(orderTrackingLink, {\n" +
+                "                method: 'GET',\n" +
+                "                headers: {\n" +
+                "                    'Authorization': `"+email.getToken()+"`,  // Adding the Authorization header with the token\n" +
+                "                    'Content-Type': 'application/json'   // Optional, depending on the API\n" +
+                "                }\n" +
+                "            })\n" +
+                "            .then(response => response.json()) // Assuming the API returns JSON data\n" +
+                "            .then(data => {\n" +
+                "                console.log('Order Tracking Info:', data);  // Handle the response here\n" +
+                "                alert('Order Tracking Info: ' + JSON.stringify(data));\n" +
+                "            })\n" +
+                "            .catch(error => {\n" +
+                "                console.error('Error:', error);\n" +
+                "                alert('Failed to track the order. Please try again.');\n" +
+                "            });\n" +
+                "        });\n" +
+                "    </script>"
+                +
+                "    </div>\n" +
+                "\n" +
                 "    <div class=\"container\">\n" +
                 "        <h1>Order Confirmation</h1>\n" +
                 "        <p>Hello "+ email.getUsername() +",</p>\n" +
@@ -94,9 +129,9 @@ public class TemplateEmail {
                 "\n" +
                 "        <p class=\"thank-you\">Thank you for shopping with us. We will notify you once your order has been shipped.</p>\n" +
                 "\n" +
-                "        <a href=\"[OrderTrackingLink]\" class=\"button\">Track Your Order</a>\n" +
-                "    </div>\n" +
-                "\n" +
+                "        <Button id=\"trackOrderButton\">Track Your Order</Button>\n" +
+
+
                 "</body>\n" +
                 "</html>";
 

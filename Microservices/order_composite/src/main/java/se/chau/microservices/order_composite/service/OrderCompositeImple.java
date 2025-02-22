@@ -23,8 +23,6 @@ import se.chau.microservices.util.http.ServiceUtil;
 
 import java.io.IOException;
 
-import static se.chau.microservices.api.event.Event.Type.SUMCOST;
-
 @Service
 public class OrderCompositeImple implements OrderService {
     private static final Logger LOG = LoggerFactory.getLogger(OrderCompositeImple.class);
@@ -43,10 +41,7 @@ public class OrderCompositeImple implements OrderService {
     @Override
     public Mono<Order> makingOrder(String token,Order body) {
         //check all product in productList
-        return Mono.fromCallable(() -> {
-            sendMessage("products-out-0",new Event(SUMCOST, "test",body));
-            return new Order();
-        }).subscribeOn(publishEventScheduler);
+        return null;
 
         // create order
     }
@@ -61,6 +56,11 @@ public class OrderCompositeImple implements OrderService {
 
     @Override
     public Flux<Order> confirmOrder(int orderId) {
+        return null;
+    }
+
+    @Override
+    public Flux<Order> getOrderInfo(int orderId) {
         return null;
     }
 

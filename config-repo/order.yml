@@ -30,9 +30,10 @@ spring.cloud.stream:
       destination: orders
       producer:
         required-groups: auditGroup
-        configuration:
-          x-dead-letter-exchange: DLX
-
+    products-out-0:
+      destination: products
+      producer:
+        required-groups: auditGroup
 logging:
   level:
     root: INFO
@@ -48,6 +49,7 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 url-product-sumcost: http://localhost:8081/product/sumcost
 
 url-userInfo: http://localhost:9999/user/getInfo
+
 ---
 spring.config.activate.on-profile: docker
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
