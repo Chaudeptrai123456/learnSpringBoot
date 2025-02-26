@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import se.chau.microservices.api.core.Feature.Feature;
-import se.chau.microservices.api.core.product.Product;
-import se.chau.microservices.api.core.product.ProductService;
 import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.EventProcessingException;
 

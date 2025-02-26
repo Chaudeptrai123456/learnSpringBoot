@@ -20,7 +20,7 @@ spring.cloud.stream:
   default.contentType: application/json
   bindings.messageProcessor-in-0:
     destination: orders
-    group: auditGroup
+    group: orderGroup
 spring.cloud.function.definition: messageProcessor
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer:

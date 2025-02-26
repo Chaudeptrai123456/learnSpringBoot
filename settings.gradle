@@ -29,4 +29,6 @@ include 'Microservices:order_composite'
 findProject(':Microservices:order_composite')?.name = 'order_composite'
 include 'Microservices:emailService'
 findProject(':Microservices:emailService')?.name = 'emailService'
+include 'Microservices:Discount'
+findProject(':Microservices:Discount')?.name = 'Discount'
 

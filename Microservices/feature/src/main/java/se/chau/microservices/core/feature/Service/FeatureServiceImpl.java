@@ -1,4 +1,5 @@
 package se.chau.microservices.core.feature.Service;
+
 import com.mongodb.DuplicateKeyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,12 @@ public class    FeatureServiceImpl implements FeatureService {
                 .map(mapper::entityToApi)
                 .map(this::setServiceAddress);
     }
+
+    @Override
+    public Mono<Feature> getFeatureByName(String name) {
+        return featureRepository.findByName(name).log(LOG.getName(),FINE).map(mapper::entityToApi).map(this::setServiceAddress);
+    }
+
     @Override
     public Flux<Feature> getProductByFeature(FeatureForSearchPro featureList) {
         LOG.debug("feature server get product by features {}",featureList.getName());
@@ -50,7 +57,6 @@ public class    FeatureServiceImpl implements FeatureService {
                 .map(mapper::entityToApi)
                 .map(this::setServiceAddress);
     }
-
     @Override
     public Mono<Feature> createFeatureForProduct(Feature body) {
         if (body.getFeatureId() < 1) {

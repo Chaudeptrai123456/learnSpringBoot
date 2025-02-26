@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
+import se.chau.microservices.util.http.HttpErrorInfo;
 
 @Mapper(componentModel = "spring")
 public interface  ProductMapper {
@@ -18,4 +19,6 @@ public interface  ProductMapper {
             @Mapping(target = "version", ignore = true)
     })
     ProductEntity apiToEntity(Product api);
+    HttpErrorInfo readValue(String responseBodyAsString, Class<HttpErrorInfo> httpErrorInfoClass);
+
 }

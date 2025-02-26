@@ -1,6 +1,5 @@
 package se.chau.microservices.core.product;
 
-import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexRes
 import org.springframework.data.mongodb.core.index.ReactiveIndexOperations;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentProperty;
-import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
@@ -57,6 +56,11 @@ public class Main {
     public Scheduler jdbcScheduler() {
         LOG.info("Creates a jdbcScheduler with thread pool size = {}", threadPoolSize);
         return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "jdbc-pool");
+    }
+
+    @Bean
+    public WebClient webClient(WebClient.Builder builder) {
+        return builder.build();
     }
     public static void main(String[] args) {
 

@@ -38,4 +38,9 @@ public interface FeatureService {
             value = "/feature",
             produces = "application/json")
     Flux<Feature>getFeatureOfProduct(@RequestParam(name = "productId", defaultValue = "0") int productId);
+    @GetMapping(
+            value = "/feature/find",
+            produces = "application/json")
+    Mono<Feature> getFeatureByName(@RequestBody String name);
+
 }

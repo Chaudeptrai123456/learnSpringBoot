@@ -4,24 +4,32 @@ import com.mongodb.DuplicateKeyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import se.chau.microservices.api.core.order.Order;
 import se.chau.microservices.api.core.order.ProductOrder;
 import se.chau.microservices.api.core.product.Product;
 import se.chau.microservices.api.core.product.ProductService;
 import se.chau.microservices.api.core.product.ProductUpdate;
+import se.chau.microservices.api.discount.Discount;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
 import se.chau.microservices.core.product.Persistence.ProductRepository;
+import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.logging.Level.FINE;
 
@@ -32,11 +40,17 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository repository;
     private final ProductMapper mapper;
     private static final int sizePage = 5;
+
+    private final WebClient webClient;
+    @Value("${url-discount}")
+    private String urlDiscount;
+
     @Autowired
-    public ProductServiceImpl(ProductMapper mapper, ServiceUtil serviceUtil, ProductRepository repository) {
+    public ProductServiceImpl(ProductMapper mapper, ServiceUtil serviceUtil, ProductRepository repository, WebClient webClient) {
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
         this.repository = repository;
+        this.webClient = webClient;
     }
     @Override
     public Mono<Product> createProduct(Product body) {
@@ -139,7 +153,7 @@ public class ProductServiceImpl implements ProductService {
                             productUpdate.setQuantity(-index.getQuantity());
                             productUpdate.setCost(0);
                             Product product = this.updateProduct(productUpdate, index.getProductId()).block();
-                            return product != null ? product.getCost() * index.getQuantity() : 0.0;
+                            return product != null ? product.getCost() * index.getQuantity()*getSaleOff(index.getProductId()) : 0.0;
                         })   // Map to the price of each product
                         .reduce(0.0, Double::sum);
             });
@@ -148,6 +162,49 @@ public class ProductServiceImpl implements ProductService {
         }
 
     }
+    private Double getSaleOff(int productId){
+        var discounts =  webClient.get().uri(urlDiscount+productId).retrieve()
+                .bodyToFlux(Discount.class)
+                .log(LOG.getName(),FINE)
+                .doOnError(error -> LOG.debug("ERROR get info from product service: " + error.getMessage())).collectList().block();
+        AtomicReference<Double> resutl = new AtomicReference<>(0.0);
+        discounts.forEach(index->{
+            resutl.updateAndGet(v -> v + index.getValue());
+        });
+        return resutl.get()/100;
+    }
+    private Order setServiceAddress(Order e) {
+        e.setServiceAddress(serviceUtil.getServiceAddress());
+        return e;
+    }
+    private Throwable handleException(Throwable ex) {
+
+        if (!(ex instanceof WebClientResponseException wcre)) {
+            LOG.warn("Got a unexpected error: {}, will rethrow it", ex.toString());
+            return ex;
+        }
+
+        switch (HttpStatus.resolve(wcre.getStatusCode().value())) {
+
+            case NOT_FOUND:
+                return new NotFoundException(getErrorMessage(wcre));
+
+            case UNPROCESSABLE_ENTITY:
+                return new InvalidInputException(getErrorMessage(wcre));
+
+            case null:
+                break;
+            default:
+                LOG.warn("Got an unexpected HTTP error: {}, will rethrow it", wcre.getStatusCode());
+                LOG.warn("Error body: {}", wcre.getResponseBodyAsString());
+                return ex;
+        }
+        return ex;
+    }
+    private String getErrorMessage(WebClientResponseException ex) {
+        return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
+    }
+
     private Boolean checkQuantity(int quantity, int productQuantity){
         return quantity > productQuantity;
     }

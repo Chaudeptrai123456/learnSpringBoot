@@ -275,6 +275,12 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         return
                 webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
+
+    @Override
+    public Mono<Feature> getFeatureByName(String name) {
+        return null;
+    }
+
     public String fallback(Exception e) {
         return "Fallback response: Service is unavailable." + e.getMessage();
     }

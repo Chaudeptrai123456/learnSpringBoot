@@ -17,7 +17,6 @@ public class ProductEntity  {
     private String name;
     private int quantity;
     private double cost;
-
     public double getCost() {
         return cost;
     }

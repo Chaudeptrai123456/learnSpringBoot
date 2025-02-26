@@ -42,7 +42,7 @@ springdoc:
   packagesToScan: se.chau.microservices.core.product_composite
   pathsToMatch: /**
 
-spring.cloud.function.definition: messageProcessor,messageProcessor1
+spring.cloud.function.definition: messageProcessor
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer:
   maxAttempts: 3
@@ -73,6 +73,8 @@ app:
   auth-server: localhost
 app.auth-server: localhost
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+
+url-discount: http://localhost:8093/discount/product/
 ---
 spring.config.activate.on-profile: docker
 server.port: 80
@@ -86,6 +88,7 @@ spring:
     mongodb:
       host: mongodb
       uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+url-discount: http://discount:80/discount/product/
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
 ---
 spring.config.activate.on-profile: streaming_partitioned

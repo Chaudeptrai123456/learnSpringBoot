@@ -200,6 +200,19 @@ services:
       - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+  discount:
+    build: Microservices/Discount
+    image: hands-on/feature
+    depends_on:
+      - mongodb
+      - config-server
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
+      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   feature2:
     build: Microservices/feature
     image: hands-on/feature

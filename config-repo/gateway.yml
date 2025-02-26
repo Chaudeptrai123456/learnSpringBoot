@@ -19,6 +19,7 @@ app:
 
 port:
   config: 8888
+  discount: 8093
   composite: 8000
   auth: 9999
   product: 8081
@@ -28,6 +29,7 @@ port:
   order: 8090
   order-composite: 8091
 host:
+  discount: localhost
   order-composite: localhost
   product: localhost
   composite: localhost
@@ -51,6 +53,11 @@ spring.cloud.gateway.routes:
     uri: http://${host.order}:${port.order}
     predicates:
       - Path=/order/**
+  - id: discount
+    uri: http://${host.discount}:${port.discount}
+    predicates:
+      - Path=/discount/**
+
   - id: order-composite
     uri: http://${host.order-composite}:${port.order-composite}
     predicates:
@@ -157,6 +164,7 @@ zipkin:
   sender:
     type: web
 port:
+  discount: 80
   config: 8888
   composite: 80
   auth: 80
@@ -166,6 +174,7 @@ port:
   feature: 80
   order: 8090
 host:
+  discount: discount
   product: product
   composite: product-composite
   auth: auth-server
