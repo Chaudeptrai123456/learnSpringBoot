@@ -3,14 +3,19 @@ package se.chau.microservices.core.discount.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import se.chau.microservices.api.core.recommandation.Recommendation;
+import se.chau.microservices.api.core.order.DiscountEmail;
 import se.chau.microservices.api.discount.Discount;
 import se.chau.microservices.api.discount.DiscountService;
+import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
 import se.chau.microservices.core.discount.Persistence.DiscountEntity;
@@ -18,20 +23,23 @@ import se.chau.microservices.core.discount.Persistence.DiscountRepository;
 import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.List;
 
 import static java.util.logging.Level.FINE;
 
 @RestController
 public class DiscountServiceImple implements DiscountService {
     private static final Logger LOG = LoggerFactory.getLogger(DiscountServiceImple.class);
+    private final StreamBridge streamBridge;
 
     private final DiscountRepository repository;
     private final DiscountMapper mapper;
     private final ServiceUtil serviceUtil;
 
     @Autowired
-    public DiscountServiceImple(DiscountRepository repository, DiscountMapper mapper, ServiceUtil serviceUtil) {
+    public DiscountServiceImple(StreamBridge streamBridge, DiscountRepository repository, DiscountMapper mapper, ServiceUtil serviceUtil) {
+        this.streamBridge = streamBridge;
         this.repository = repository;
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
@@ -39,16 +47,14 @@ public class DiscountServiceImple implements DiscountService {
 
     @Override
     public Mono<Discount> createDiscount(Discount discount) {
-        DiscountEntity entity = new DiscountEntity();
-        entity.setId(UUID.randomUUID().toString());
-        entity.setDiscountId(UUID.randomUUID().toString());
-        entity.setValue(discount.getValue());
-        entity.setStartDate(discount.getStart());
-        entity.setEndDate(discount.getEnd());
-        entity.setProductId(discount.getProductId());
-        entity.setDescription(discount.getDescription());
-        return  this.repository.save(entity)
+        LOG.info("test create discount " + discount.getStartDate());
+        DiscountEntity discountEntity = mapper.apiToEntity(discount);
+        LOG.info("test create discount " + discountEntity.getStartDate());
+        return  this.repository.save(discountEntity)
                         .log(LOG.getName(), FINE)
+                        .doOnSuccess(r->{
+                            sendMessage("orders-out-0",new Event(Event.Type.DISCOUNT_NOTIFICATION,1,new DiscountEmail("chau","nguyentienanh2001.dev@gmail.com")));
+                        })
                         .map(mapper::entityToApi)
                         .onErrorMap(WebClientResponseException.class,
                                 this::handleException
@@ -58,9 +64,24 @@ public class DiscountServiceImple implements DiscountService {
 
     @Override
     public Flux<Discount> getDiscountOfPro(int productId) {
+        LOG.info("get discount of product id: " + productId);
         return this.repository.findByProductId(productId)
                 .log(LOG.getName(), FINE)
-                .map(mapper::entityToApi);
+                .map(mapper::entityToApi)
+                .map(this::setServiceAddress);
+    }
+
+    // Method to delete expired discounts
+    @Scheduled(cron = "0 0 0 * * ?") // Cron expression for midnight every day
+    public void deleteExpiredDiscounts() {
+        LocalDate now = LocalDate.now();
+        List<DiscountEntity> expiredDiscounts = repository.findByEndDateBefore(now);
+
+        // Delete each expired discount
+        for (DiscountEntity discount : expiredDiscounts) {
+            repository.delete(discount);
+        }
+        LOG.info(expiredDiscounts.size() + " expired discounts deleted.");
     }
 
     private Boolean checkDiscountActive(int id) {
@@ -91,11 +112,16 @@ public class DiscountServiceImple implements DiscountService {
         }
         return ex;
     }
-    private Recommendation setServiceAddress(Recommendation e) {
+    private Discount setServiceAddress(Discount e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;
     }
     private String getErrorMessage(WebClientResponseException ex) {
         return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
+    }
+    private void sendMessage(String bindingName, Event event) {
+        LOG.debug("Sending a {} message to {}", event.getEventType(), bindingName);
+        Message<Event> message = MessageBuilder.withPayload(event).setHeader("partitionKey", event.getKey()).build();
+        streamBridge.send(bindingName, message);
     }
 }

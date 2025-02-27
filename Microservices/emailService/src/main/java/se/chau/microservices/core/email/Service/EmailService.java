@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import se.chau.microservices.api.core.order.DiscountEmail;
 import se.chau.microservices.api.core.order.Email;
 import se.chau.microservices.api.core.order.TemplateEmail;
 
@@ -61,6 +62,18 @@ public class EmailService  {
             helper.setTo(email.getEmail());
             helper.setSubject("Confirm Order");
             helper.setText(new TemplateEmail(email).getContent(),true);
+            mailSender().send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void notificationDiscount(DiscountEmail discountEmail) {
+        MimeMessage message = this.mailSender().createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(discountEmail.getEmail());
+            helper.setSubject("Confirm Order");
+            helper.setText(discountEmail.setDiscountEmail(null),true);
             mailSender().send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);

@@ -32,6 +32,8 @@ import se.chau.microservices.api.core.recommandation.Recommendation;
 import se.chau.microservices.api.core.recommandation.RecommendationService;
 import se.chau.microservices.api.core.review.Review;
 import se.chau.microservices.api.core.review.ReviewService;
+import se.chau.microservices.api.discount.Discount;
+import se.chau.microservices.api.discount.DiscountService;
 import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
@@ -47,7 +49,7 @@ import static se.chau.microservices.api.event.Event.Type.CREATE;
 import static se.chau.microservices.api.event.Event.Type.UPDATE;
 
 @Component
-public class ProductCompositeIntegration implements ProductService, ReviewService,RecommendationService, FeatureService {
+public class ProductCompositeIntegration implements ProductService, ReviewService,RecommendationService, FeatureService , DiscountService {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeIntegration.class);
     private final WebClient webClient;
     private final ObjectMapper mapper;
@@ -62,6 +64,8 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private  String REVIEW_SERVICE_URL ;
     @Value("${uri.service.feature}")
     private  String FEATURE_SERVICE_URL;
+    @Value("${uri.service.discount}")
+    private String DISCOUNT_SERVICE_URL;
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
@@ -286,5 +290,16 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
 
+    @Override
+    public Mono<Discount> createDiscount(Discount discount) {
+        return null;
+    }
 
+    @Override
+    public Flux<Discount> getDiscountOfPro(int productId) {
+        String url = DISCOUNT_SERVICE_URL+"/discount/product/" + productId;
+        LOG.debug("Will call the getReviews API on URL: {}", url);
+        return
+                webClient.get().uri(url).retrieve().bodyToFlux(Discount.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+    }
 }

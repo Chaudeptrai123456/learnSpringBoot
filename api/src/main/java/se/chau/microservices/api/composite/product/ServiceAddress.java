@@ -6,6 +6,7 @@ public class ServiceAddress {
     private  String rev;
     private  String rec;
 
+    private String dis;
     private String fea;
     public ServiceAddress() {
         this.cmp = null;
@@ -15,12 +16,21 @@ public class ServiceAddress {
         this.fea = null;
     }
 
-    public ServiceAddress(String cmp, String pro, String rev, String rec,String fea) {
+    public ServiceAddress(String cmp, String pro, String rev, String rec,String dis,String fea) {
         this.cmp = cmp;
         this.pro = pro;
         this.rev = rev;
         this.rec = rec;
         this.fea=fea;
+        this.dis=dis;
+    }
+
+    public String getDis() {
+        return dis;
+    }
+
+    public void setDis(String dis) {
+        this.dis = dis;
     }
 
     public String getFea() {

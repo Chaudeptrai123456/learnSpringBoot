@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 import static java.time.ZonedDateTime.now;
 public class Event<K, T> {
     public enum Type {
-
+        DISCOUNT_NOTIFICATION,
         MAKING_ORDER,
         UPDATE,
         CREATE,

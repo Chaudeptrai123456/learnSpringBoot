@@ -1,37 +1,25 @@
-package se.chau.microservices.api.discount;
+package se.chau.microservices.api.composite.product;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
-public class Discount {
-    private int productId;
+public class DisCountSummary {
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     private Double value;
     private String description;
-    private String serviceAddress;
 
-    public Discount() {
-    }
+    public DisCountSummary(){}
 
-    public Discount(int productId, LocalDate startDate, LocalDate endDate, Double value, String serviceAddress, String description) {
-        this.productId = productId;
+    public DisCountSummary(LocalDate startDate, LocalDate endDate, Double value, String description) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.value = value;
-        this.serviceAddress = serviceAddress;
         this.description = description;
-    }
-
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
     }
 
     public LocalDate getStartDate() {
@@ -64,13 +52,5 @@ public class Discount {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getServiceAddress() {
-        return serviceAddress;
-    }
-
-    public void setServiceAddress(String serviceAddress) {
-        this.serviceAddress = serviceAddress;
     }
 }

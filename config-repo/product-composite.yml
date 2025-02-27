@@ -2,6 +2,7 @@ server:
   port: 8000
 uri:
   service:
+    discount: http://localhost:8093
     product: http://localhost:8081
     recommendation: http://localhost:8082
     review: http://localhost:8083
@@ -144,6 +145,7 @@ zipkin:
     type: web
 uri:
   service:
+    discount: http://discount:80
     product: http://product:80
     recommendation: http://recommendation:80
     review: http://review:80

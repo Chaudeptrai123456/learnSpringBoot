@@ -21,6 +21,7 @@ import se.chau.microservices.api.core.product.ProductFeature;
 import se.chau.microservices.api.core.product.ProductUpdate;
 import se.chau.microservices.api.core.recommandation.Recommendation;
 import se.chau.microservices.api.core.review.Review;
+import se.chau.microservices.api.discount.Discount;
 import se.chau.microservices.core.product_composite.service.Cache.RedisService;
 import se.chau.microservices.core.product_composite.tracing.ObservationUtil;
 import se.chau.microservices.util.http.ServiceUtil;
@@ -113,12 +114,15 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                                             (List<Recommendation>) values[2],
                                             (List<Review>) values[3],
                                             (List<Feature>) values[4],
+                                            (List<Discount>) values[5],
                                             serviceUtil.getServiceAddress()),
                                     getSecurityContextMono(),
                                     integration.getProduct(productId),
                                     integration.getRecommendations(productId).collectList(),
                                     integration.getReviews(productId).collectList(),
-                                    integration.getFeatureOfProduct(productId).collectList())
+                                    integration.getFeatureOfProduct(productId).collectList(),
+                                    integration.getDiscountOfPro(productId).collectList()
+                            )
                             .doOnError(ex ->
                                     LOG.warn("getCompositeProduct failed: {}",
                                             ex.toString()))
@@ -177,6 +181,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             List<Recommendation> recommendations,
             List<Review> reviews,
             List<Feature> features,
+            List<Discount> discounts,
             String serviceAddress) {
         logAuthorizationInfo(sc);
         int productId = product.getProductId();
@@ -191,13 +196,18 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         List<FeatureSummary> featureList = (reviews == null) ? null : features.stream()
                 .map(r -> new FeatureSummary(r.getFeatureId(), r.getName(), r.getDescription(),r.getProductId()))
                 .toList();
+        List<DisCountSummary> disCountSummaries = (discounts == null) ? null : discounts.stream()
+                .map(r -> new DisCountSummary(r.getStartDate(),r.getEndDate(),r.getValue(),r.getDescription()))
+                .toList();
         String productAddress = product.getServiceAddress();
         String reviewAddress = (reviews != null && !reviews.isEmpty()) ? reviews.get(0).getServiceAddress() : "";
         String recommendationAddress = (recommendations != null && !recommendations.isEmpty()) ? recommendations.get(0).getServiceAddress() : "";
         String featureAddress = (features != null && !features.isEmpty()) ?features.get(0).getServiceAddress() : "";
-        ServiceAddress serviceAddresses = new ServiceAddress(serviceAddress, productAddress, reviewAddress, recommendationAddress,featureAddress);
+        String disAddress = (discounts != null && !discounts.isEmpty()) ?discounts.get(0).getServiceAddress() : "";
 
-        return new ProductAggregate(productId, name, quantity, product.getCost(),reviewSummaries, recommendationSummaries, featureList,serviceAddresses);
+        ServiceAddress serviceAddresses = new ServiceAddress(serviceAddress, productAddress, reviewAddress, recommendationAddress,disAddress,featureAddress);
+
+        return new ProductAggregate(productId, name, quantity, product.getCost(),reviewSummaries, recommendationSummaries, featureList,disCountSummaries ,serviceAddresses);
     }
     private Mono<SecurityContext> getLogAuthorizationInfoMono() {
         return getSecurityContextMono().doOnNext(this::logAuthorizationInfo);

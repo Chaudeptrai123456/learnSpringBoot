@@ -10,6 +10,17 @@ public class ProductAggregate {
     private List<ReviewSummary> reviewSummaryList;
     private List<RecommendationSummary> recommendationSummaryList;
     private List<FeatureSummary> featureSummaryList;
+
+    private List<DisCountSummary> disCountSummaries;
+
+    public List<DisCountSummary> getDisCountSummaries() {
+        return disCountSummaries;
+    }
+
+    public void setDisCountSummaries(List<DisCountSummary> disCountSummaries) {
+        this.disCountSummaries = disCountSummaries;
+    }
+
     public ProductAggregate() {
         this.productId = 1;
         this.name = "test";
@@ -17,9 +28,10 @@ public class ProductAggregate {
         this.reviewSummaryList = null;
         this.recommendationSummaryList = null;
         this.serviceAddresses = null;
+        this.disCountSummaries = null;
         this.cost = 0.0;
     }
-    public ProductAggregate(int productId, String name, int quantity, double cost,List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList ,ServiceAddress serviceAddresses) {
+    public ProductAggregate(int productId, String name, int quantity, double cost,List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList,List<DisCountSummary> disCountSummaries ,ServiceAddress serviceAddresses) {
         this.productId = productId;
         this.name = name;
         this.quantity = quantity;
@@ -27,6 +39,7 @@ public class ProductAggregate {
         this.recommendationSummaryList = recommendationSummaryList;
         this.serviceAddresses = serviceAddresses;;
         this.featureSummaryList = featureSummaryList;
+        this.disCountSummaries = disCountSummaries;
         this.cost = cost;
     }
 

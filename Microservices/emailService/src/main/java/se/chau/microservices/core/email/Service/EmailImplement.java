@@ -2,6 +2,7 @@ package se.chau.microservices.core.email.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import se.chau.microservices.api.core.order.DiscountEmail;
 import se.chau.microservices.api.core.order.Email;
 
 @Controller
@@ -16,5 +17,9 @@ public class EmailImplement implements se.chau.microservices.api.core.order.Emai
     public void placeOrder(Email email) {
         System.out.println(email.getOrderId());
         this.emailService.sendEmail(email);
+    }
+
+    public void notificationDiscount(DiscountEmail email) {
+        this.emailService.notificationDiscount(email);
     }
 }

@@ -14,7 +14,6 @@ public class DiscountEntity {
     private int productId;
     private LocalDate startDate;
 
-
     private LocalDate endDate;
 
     private double value;
