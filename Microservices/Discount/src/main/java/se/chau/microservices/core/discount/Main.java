@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 @SpringBootApplication(scanBasePackages = {"se.chau", "se.chau.microservices.util.http"})
+@EnableMongoRepositories(basePackages = "se.chau.microservices.core.discount.Persistence")
 public class Main {
 
     private final Integer threadPoolSize;

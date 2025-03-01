@@ -1,13 +1,16 @@
 package se.chau.microservices.core.discount.Service;
 
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
@@ -23,8 +26,7 @@ import se.chau.microservices.core.discount.Persistence.DiscountRepository;
 import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.sql.Date;
 
 import static java.util.logging.Level.FINE;
 
@@ -44,12 +46,12 @@ public class DiscountServiceImple implements DiscountService {
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
     }
-
     @Override
     public Mono<Discount> createDiscount(Discount discount) {
         LOG.info("test create discount " + discount.getStartDate());
         DiscountEntity discountEntity = mapper.apiToEntity(discount);
         LOG.info("test create discount " + discountEntity.getStartDate());
+        discountEntity.setEndDate(Date.valueOf(discount.getEndDate()).toLocalDate());
         return  this.repository.save(discountEntity)
                         .log(LOG.getName(), FINE)
                         .doOnSuccess(r->{
@@ -70,19 +72,27 @@ public class DiscountServiceImple implements DiscountService {
                 .map(mapper::entityToApi)
                 .map(this::setServiceAddress);
     }
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-    // Method to delete expired discounts
-    @Scheduled(cron = "0 0 0 * * ?") // Cron expression for midnight every day
-    public void deleteExpiredDiscounts() {
-        LocalDate now = LocalDate.now();
-        List<DiscountEntity> expiredDiscounts = repository.findByEndDateBefore(now);
-
-        // Delete each expired discount
-        for (DiscountEntity discount : expiredDiscounts) {
-            repository.delete(discount);
-        }
-        LOG.info(expiredDiscounts.size() + " expired discounts deleted.");
+    @PostConstruct
+    public void createTTLIndex() {
+        mongoTemplate.indexOps(DiscountEntity.class).ensureIndex(
+                new Index().on("endDate", Sort.Direction.ASC).expire(0)
+        );
     }
+    // Method to delete expired discounts
+//    @Scheduled(cron = "0 0 0 * * ?") // Cron expression for midnight every day
+//    public void deleteExpiredDiscounts() {
+//        LocalDate now = LocalDate.now();
+//        List<DiscountEntity> expiredDiscounts = repository.findByEndDateBefore(now);
+//
+//        // Delete each expired discount
+//        for (DiscountEntity discount : expiredDiscounts) {
+//            repository.delete(discount);
+//        }
+//        LOG.info(expiredDiscounts.size() + " expired discounts deleted.");
+//    }
 
     private Boolean checkDiscountActive(int id) {
         return false;
