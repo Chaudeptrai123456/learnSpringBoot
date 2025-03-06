@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +39,8 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import se.chau.microservices.Entity.UserEntity;
+import se.chau.microservices.Service.UserRepository;
 
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
@@ -58,8 +61,13 @@ import static se.chau.microservices.util.http.KeyGeneratorUtils.generateRsaKey;
 public class AuthorizationServerConfig
 {
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationServerConfig.class);
+    @Autowired
+    private UserRepository userRepository;
+
     @Value("${app.auth.host}")
     private String host;
+    @Value("${server.port}")
+    private String port;
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
@@ -106,10 +114,11 @@ public class AuthorizationServerConfig
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
                 .redirectUri("https://localhost:8443/oauth2/code")
                 .redirectUri("https://localhost:8443/oauth2/get-token")
-                .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
+                .scope(OidcScopes.OPENID)
                 .scope("product:read")
                 .scope("product:write")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
@@ -120,6 +129,7 @@ public class AuthorizationServerConfig
                 .clientId("reader")
                 .clientSecret("{noop}1234")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -162,13 +172,14 @@ public class AuthorizationServerConfig
                             .map(c ->c.replaceFirst("^ROLE_", ""))
                             .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
                     claims.put("roles", roles);
-                    claims.put("email","test@gmail.com");
+                    UserEntity user  = userRepository.findUserByUsername(context.getPrincipal().getName()).get();
+                    claims.put("email",user.getEmail());
+                    claims.put("username",user.getUsername());
                 });
             }
         };
     }
-    @Value("${server.port}")
-    private String port;
+
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
@@ -195,8 +206,7 @@ public class AuthorizationServerConfig
                     }
                 });
     }
-
-    static class CustomRedirectUriValidator implements Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> {
+    static class CustomRedirectUriValidator implements  Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> {
 
         @Override
         public void accept(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {

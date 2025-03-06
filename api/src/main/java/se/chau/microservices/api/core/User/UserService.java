@@ -29,11 +29,6 @@ public interface UserService {
             produces = "application/json"
     )
     ResponseEntity<String> getAccessToken(HttpServletRequest request)  ;
-    @GetMapping(
-            value = "/user/getInfo",
-            produces = "application/json"
 
-    )
-    User getInfo(@RequestBody UserReqInfo userId);
 
 }

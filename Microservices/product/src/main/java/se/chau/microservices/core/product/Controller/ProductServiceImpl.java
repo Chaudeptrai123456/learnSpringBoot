@@ -23,6 +23,7 @@ import se.chau.microservices.api.core.product.ProductUpdate;
 import se.chau.microservices.api.discount.Discount;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
+import se.chau.microservices.core.product.Configuration.ProductCacheService;
 import se.chau.microservices.core.product.Persistence.ProductEntity;
 import se.chau.microservices.core.product.Persistence.ProductRepository;
 import se.chau.microservices.util.http.HttpErrorInfo;
@@ -30,6 +31,7 @@ import se.chau.microservices.util.http.ServiceUtil;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 
 import static java.util.logging.Level.FINE;
 
@@ -45,12 +47,15 @@ public class ProductServiceImpl implements ProductService {
     @Value("${url-discount}")
     private String urlDiscount;
 
+    private final ProductCacheService productCacheService;
+
     @Autowired
-    public ProductServiceImpl(ProductMapper mapper, ServiceUtil serviceUtil, ProductRepository repository, WebClient webClient) {
+    public ProductServiceImpl(ProductMapper mapper, ServiceUtil serviceUtil, ProductRepository repository, WebClient webClient, ProductCacheService productCacheService) {
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
         this.repository = repository;
         this.webClient = webClient;
+        this.productCacheService = productCacheService;
     }
     @Override
     public Mono<Product> createProduct(Product body) {
@@ -81,20 +86,38 @@ public class ProductServiceImpl implements ProductService {
         if (productId < 1) {
             throw new InvalidInputException("Invalid productId: " + productId);
         }
+
         LOG.info("Will get product info for id={}", productId);
-        return
-                        this.repository.findByProductId(productId)
+
+        // Step 2: Check if the product exists in the cache
+        return productCacheService.checkProductInCache(String.valueOf(productId))
+                .flatMap(isInCache -> {
+                    if (Boolean.TRUE.equals(isInCache)) {
+                        // Product is in cache, return it
+                        return productCacheService.getProductFromCache(String.valueOf(productId));
+                    } else {
+                        // Product is not in cache, fetch from database and cache it
+                        return repository.findByProductId(productId)
                                 .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
-                                .log(LOG.getName(), FINE)
-                                .map(mapper::entityToApi)
-                                .map(this::setServiceAddress)
+                                .log(LOG.getName(), Level.FINE)  // Add logging at FINE level
+                                .map(mapper::entityToApi)  // Map the entity to the API response model
+                                .map(this::setServiceAddress)  // Add service address if needed
                                 .doOnSuccess(result -> {
-                                    LOG.info("quantity " + result.getQuantity());
-                                    LOG.info("Saved to Redis: Product ID " + result.getProductId());
+                                    // Log the successful product retrieval
+                                    LOG.info("Quantity: {}", result.getQuantity());
+                                    LOG.info("Saved to Redis: Product ID {}", result.getProductId());
+
+                                    // Write the product to Redis
+                                    productCacheService.writeProductToRedis(result)
+                                            .doOnError(error -> LOG.debug("Redis error: {}", error.getMessage()))
+                                            .subscribe();  // Subscribe to persist the product to Redis asynchronously
                                 })
-                                .doOnError(error->{
-                                    LOG.debug("redis " + error.getMessage());
+                                .doOnError(error -> {
+                                    // Log the error if something goes wrong
+                                    LOG.debug("Error during DB retrieval or Redis operations: {}", error.getMessage());
                                 });
+                    }
+                });
     }
     @Override
     public Mono<Void> deleteProduct(int productId) {

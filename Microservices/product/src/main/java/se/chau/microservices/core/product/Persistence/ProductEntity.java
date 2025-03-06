@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "products")
 public class ProductEntity  {
 
@@ -17,6 +19,16 @@ public class ProductEntity  {
     private String name;
     private int quantity;
     private double cost;
+    private List<ImageEntity> listImage;
+
+    public List<ImageEntity> getListImage() {
+        return listImage;
+    }
+
+    public void setListImage(List<ImageEntity> listImage) {
+        this.listImage = listImage;
+    }
+
     public double getCost() {
         return cost;
     }
