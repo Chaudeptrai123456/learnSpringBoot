@@ -1,13 +1,13 @@
 # Stage 1: Extract the JAR layers
-FROM eclipse-temurin:22.0.2_9-jre-jammy as builder
+FROM eclipse-temurin:23 as builder
 WORKDIR extracted
 ADD ./build/libs/*.jar app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
 # Stage 2: Build the final image
-FROM eclipse-temurin:22.0.2_9-jre-jammy
-WORKDIR application
+FROM eclipse-temurin:23
 
+WORKDIR application
 # Copy the extracted layers to the final image
 COPY --from=builder extracted/dependencies/ ./
 COPY --from=builder extracted/spring-boot-loader/ ./

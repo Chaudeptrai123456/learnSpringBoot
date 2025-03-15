@@ -11,12 +11,13 @@ import se.chau.microservices.util.http.HttpErrorInfo;
 public interface  ProductMapper {
     @Mappings({
             @Mapping(target = "serviceAddress", ignore = true),
+            @Mapping(target = "listImage",ignore = true)
     })
     Product entityToApi(ProductEntity entity);
 
     @Mappings({
             @Mapping(target = "id", ignore = true),
-            @Mapping(target = "version", ignore = true)
+            @Mapping(target = "version", ignore = true),
     })
     ProductEntity apiToEntity(Product api);
     HttpErrorInfo readValue(String responseBodyAsString, Class<HttpErrorInfo> httpErrorInfoClass);

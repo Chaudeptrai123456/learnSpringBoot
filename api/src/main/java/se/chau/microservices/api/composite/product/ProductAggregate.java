@@ -1,5 +1,7 @@
 package se.chau.microservices.api.composite.product;
 
+import se.chau.microservices.api.core.product.Image;
+
 import java.util.List;
 
 public class ProductAggregate {
@@ -7,6 +9,7 @@ public class ProductAggregate {
     private String name;
     private int quantity;
     private double cost;
+    private List<Image> imageList;
     private List<ReviewSummary> reviewSummaryList;
     private List<RecommendationSummary> recommendationSummaryList;
     private List<FeatureSummary> featureSummaryList;
@@ -31,7 +34,7 @@ public class ProductAggregate {
         this.disCountSummaries = null;
         this.cost = 0.0;
     }
-    public ProductAggregate(int productId, String name, int quantity, double cost,List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList,List<DisCountSummary> disCountSummaries ,ServiceAddress serviceAddresses) {
+    public ProductAggregate(int productId, String name, int quantity, double cost,List<ReviewSummary> reviewSummaryList, List<RecommendationSummary> recommendationSummaryList,List<FeatureSummary> featureSummaryList,List<DisCountSummary> disCountSummaries,List<Image> imageList ,ServiceAddress serviceAddresses) {
         this.productId = productId;
         this.name = name;
         this.quantity = quantity;
@@ -41,6 +44,15 @@ public class ProductAggregate {
         this.featureSummaryList = featureSummaryList;
         this.disCountSummaries = disCountSummaries;
         this.cost = cost;
+        this.imageList = imageList;
+    }
+
+    public List<Image> getImageList() {
+        return imageList;
+    }
+
+    public void setImageList(List<Image> imageList) {
+        this.imageList = imageList;
     }
 
     public double getCost() {

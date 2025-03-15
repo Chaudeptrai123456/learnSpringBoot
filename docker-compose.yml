@@ -71,6 +71,7 @@ services:
     build: Microservices/product
     depends_on:
       - auth-server
+      - redis
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
@@ -81,6 +82,7 @@ services:
     image: hands-on/product
     depends_on:
       - auth-server
+      - redis
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
@@ -260,16 +262,10 @@ services:
   redis:
     image: redis:latest
     container_name: redis
-    restart: always
-    volumes:
-      - redis_volume_data:/data
-      - ./aclfile:/usr/local/etc/redis/aclfile
     ports:
-      - 6379:6379
-    environment:
-#      username : default
-      -  REDIS_PASSWORD=123
-    command: redis-server --requirepass "123" --aclfile /usr/local/etc/redis/aclfile
+      - "6379:6379"
+    command: [ "redis-server"]
+
   redis_insight:
     image: redislabs/redisinsight:latest
     container_name: redis_insight

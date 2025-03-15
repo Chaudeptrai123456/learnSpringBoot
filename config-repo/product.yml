@@ -77,7 +77,7 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 url-discount: http://localhost:8093/discount/product/
 
 spring.redis:
-    host: localhost       # Redis server address (can be changed to an IP address or remote server)
+    host: 127.0.0.1       # Redis server address (can be changed to an IP address or remote server)
     port: 6379
     username: default # Redis server port (default is 6379)
     password: 123 # Redis password (optional, if you have one configured)
@@ -88,11 +88,12 @@ spring.redis:
         max-idle: 5       # Max number of idle connections
         min-idle: 1       # Min number of idle connections
         max-wait: -1      # Max wait time for getting a connection from the pool (-1 means no limit)
-    ssl: false
 ---
 spring.config.activate.on-profile: docker
-spring.redis.host: redis
 server.port: 80
+
+spring.redis:
+  host: redis
 management:
   endpoint:
     health:

@@ -32,6 +32,6 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
-
+./Microservices/product/resources/test-5cf61-firebase-adminsdk-eorxh-6268317b89.json
 ### VS Code ###
 .vscode/

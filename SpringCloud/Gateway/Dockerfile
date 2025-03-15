@@ -1,11 +1,12 @@
 # Stage 1: Extract the JAR layers
-FROM eclipse-temurin:22.0.2_9-jre-jammy as builder
+# Use an official OpenJDK 23 image from Docker Hub
+FROM  eclipse-temurin:23 as builder
 WORKDIR extracted
 ADD ./build/libs/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
+RUN java  -Djarmode=layertools -jar app.jar extract
 
 # Stage 2: Build the final image
-FROM eclipse-temurin:22.0.2_9-jre-jammy
+FROM eclipse-temurin:23
 WORKDIR application
 
 # Copy the extracted layers to the final image

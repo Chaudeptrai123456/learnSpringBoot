@@ -25,7 +25,7 @@ public class ProductCacheService {
     }
     public Mono<Product> writeProductToRedis(Product product) {
         return productOps.opsForValue()
-                .set(String.valueOf(product.getProductId()), product)  // Write to Redis
+                .set(String.valueOf(product.getProductId()), product, Duration.ofHours(2))  // Write to Redis
                 .thenReturn(product);  // Return the Product after it's written to Redis
     }
 

@@ -1,15 +1,18 @@
 package se.chau.microservices.api.core.product;
 
+import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 public class Product implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1603714798906422731L;
     private int productId;
     private String name;
-
     private int quantity;
-
     private double cost;
+
+    private List<Image> listImage;
     private String serviceAddress;
 
     public Product(){
@@ -27,6 +30,15 @@ public class Product implements Serializable {
         this.cost = cost;
         this.serviceAddress = serviceAddress;
     }
+
+    public List<Image> getListImage() {
+        return listImage;
+    }
+
+    public void setListImage(List<Image> listImage) {
+        this.listImage = listImage;
+    }
+
     public double getCost() {
         return cost;
     }

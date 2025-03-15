@@ -14,7 +14,7 @@ java {
 }
 ext {
     mapstructVersion = "1.5.5.Final"
-    springCloudVersion = "2023.0.1"
+    springCloudVersion = "2022.0.1"
 }
 repositories {
     mavenCentral()

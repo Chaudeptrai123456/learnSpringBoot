@@ -188,8 +188,8 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         String name = product.getName();
         int quantity = product.getQuantity();
         List<RecommendationSummary> recommendationSummaries =  (recommendations == null) ? null : recommendations.stream()
-                .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(),r.getContent()))
-                .collect(Collectors.toList());
+                    .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(),r.getContent()))
+                    .collect(Collectors.toList());
         List<ReviewSummary> reviewSummaries = (reviews == null) ? null : reviews.stream()
                 .map(r -> new ReviewSummary(r.getReviewId(), r.getAuthor(), r.getSubject(),r.getContent()))
                 .collect(Collectors.toList());
@@ -207,7 +207,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
         ServiceAddress serviceAddresses = new ServiceAddress(serviceAddress, productAddress, reviewAddress, recommendationAddress,disAddress,featureAddress);
 
-        return new ProductAggregate(productId, name, quantity, product.getCost(),reviewSummaries, recommendationSummaries, featureList,disCountSummaries ,serviceAddresses);
+        return new ProductAggregate(productId, name, quantity, product.getCost(),reviewSummaries, recommendationSummaries, featureList,disCountSummaries ,product.getListImage(),serviceAddresses);
     }
     private Mono<SecurityContext> getLogAuthorizationInfoMono() {
         return getSecurityContextMono().doOnNext(this::logAuthorizationInfo);
