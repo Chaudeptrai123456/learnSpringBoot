@@ -1,9 +1,11 @@
 package se.chau.microservices.Controller;
 
+import io.netty.handler.codec.MessageAggregationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +14,12 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.chau.microservices.Config.PlainTextPasswordEncoder;
 import se.chau.microservices.Entity.Authority;
 import se.chau.microservices.Entity.UserEntity;
-import se.chau.microservices.Service.AuthorityRepository;
-import se.chau.microservices.Service.CustomUserDetails;
-import se.chau.microservices.Service.UserRepository;
+import se.chau.microservices.Service.*;
 import se.chau.microservices.api.core.User.Account;
 import se.chau.microservices.api.core.User.Token;
 import se.chau.microservices.api.core.User.User;
@@ -34,17 +35,24 @@ import java.util.List;
 public class AuthenticateController implements UserService {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateController.class);
     private final AuthenticationManager authenticationManager;
+    @Value("${email.url}")
+    private String EMAIL_SERVICE_URL;
     private final UserRepository userRepository;
     private final AuthorityRepository authorityRepository;
     private final PlainTextPasswordEncoder encoder;
     private Authentication authentication;
-
+    private final EmailService emailService;
+    private final RedisService redisService;
+    private final OptService optService;
     @Autowired
-    public AuthenticateController(AuthenticationManager authenticationManager, UserRepository userRepository, AuthorityRepository authorityRepository, PlainTextPasswordEncoder encoder, JwtService jwtService) {
+    public AuthenticateController(AuthenticationManager authenticationManager, UserRepository userRepository, AuthorityRepository authorityRepository, PlainTextPasswordEncoder encoder , EmailService emailService, RedisService redisService, OptService optService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
         this.encoder = encoder;
+        this.emailService = emailService;
+        this.redisService = redisService;
+        this.optService = optService;
     }
     @GetMapping(
             value = "/user/test"
@@ -61,23 +69,16 @@ public class AuthenticateController implements UserService {
         if (userRepository.existsByUsername(temp.getUsername())) {
             return new ResponseEntity<>("Username has existed",HttpStatusCode.valueOf(400));
         }
-        UserEntity user = new UserEntity();
-        String hashedPassword = encoder.encode(temp.getPassword());
-        user.setPassword("{SHA512}"+hashedPassword);
-        user.setUsername(temp.getUsername());
-        user.setRegistrationDate(LocalDateTime.now());
-        Authority a = authorityRepository.findAuthorityByName("USER").orElseThrow();
-        List<Authority> list = new ArrayList<>();
-        list.add(a);
-        user.setAuthorities(list);
-        user.setEmail(temp.getEmail());
-        List<UserEntity> b = new ArrayList<>();
-        b.add(user);
-        a.setUser(b);
-        userRepository.save(user);
-        authorityRepository.save(a);
-        return new ResponseEntity<>("password " + temp.getPassword(),HttpStatusCode.valueOf(200));
+        String otp = optService.generateOtp(temp.getEmail());
+        try {
+            this.emailService.sendOpt(temp,otp);
+            this.redisService.writeUser(temp);
+            return ResponseEntity.ok("OTP sent to email. Please verify. " + otp);
+        }catch (MessageAggregationException ex) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body("error " + ex);
+        }
     }
+
 
     @Override
     public ResponseEntity<Token> Login(Account account) {
@@ -112,6 +113,34 @@ public class AuthenticateController implements UserService {
     public ResponseEntity<String> getAccessToken(HttpServletRequest request)  {
             return new ResponseEntity<String>(String.valueOf(request.getAttribute("refresh")),HttpStatusCode.valueOf(200));
     }
+    private Boolean checkOtp(String email,String opt) {
+        return this.optService.validateOtp(email,opt);
+    }
+    @Override
+    public ResponseEntity<String> verifyRegister(@RequestParam String email, @RequestParam String otp) {
+        // check otp
+        if (!this.checkOtp(email,otp)) {
+            return new ResponseEntity<>(HttpStatus.valueOf(401));
+        } else {
+            User temp = this.redisService.getUser(email).block();
+            String hashedPassword = encoder.encode(temp.getPassword());
+            UserEntity user = new UserEntity();
+            user.setPassword("{SHA512}"+hashedPassword);
+            user.setUsername(temp.getUsername());
+            user.setRegistrationDate(LocalDateTime.now());
+            Authority a = authorityRepository.findAuthorityByName("USER").orElseThrow();
+            List<Authority> list = new ArrayList<>();
+            list.add(a);
+            user.setAuthorities(list);
+            user.setEmail(temp.getEmail());
+            List<UserEntity> b = new ArrayList<>();
+            b.add(user);
+            a.setUser(b);
+            userRepository.save(user);
+            authorityRepository.save(a);
+            return new ResponseEntity<String>("Sign up Successfully", HttpStatusCode.valueOf(200));
+        }
+    }
 
     @GetMapping(
             value = "/user/info",
@@ -120,4 +149,5 @@ public class AuthenticateController implements UserService {
     public CustomUserDetails getInfo(String sub) {
         return new CustomUserDetails(this.userRepository.findUserByUsername(sub).get());
     }
+
 }

@@ -29,7 +29,9 @@ public class SecurityConfig {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(authorizeExchangeSpec -> {
-                        authorizeExchangeSpec  .pathMatchers("/headerrouting/**").permitAll()
+                        authorizeExchangeSpec  .pathMatchers("/header/routing/**").permitAll()
+                                .pathMatchers(HttpMethod.POST,"/oauth2/user/register/**").permitAll()
+
                                 .pathMatchers("/actuator/**").permitAll()
                                 .pathMatchers("/eureka/**").permitAll()
                                 .pathMatchers("/oauth2/**").permitAll()

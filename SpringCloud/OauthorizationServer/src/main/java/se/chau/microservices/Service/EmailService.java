@@ -1,4 +1,4 @@
-package se.chau.microservices.core.email.Service;
+package se.chau.microservices.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -12,9 +12,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import se.chau.microservices.api.core.order.DiscountEmail;
-import se.chau.microservices.api.core.order.Email;
-import se.chau.microservices.api.core.order.TemplateEmail;
+import se.chau.microservices.api.core.User.User;
+import se.chau.microservices.api.core.order.OtpTemplate;
 
 import java.util.Properties;
 
@@ -29,7 +28,8 @@ public class EmailService  {
     private  String usernameEmail;
     @Value("${spring.mail.password}")
     private String password;
-
+    @Value("${auth_url}")
+    private String auth_url;
     public void setMailSender(MailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -38,8 +38,6 @@ public class EmailService  {
         this.templateMessage = templateMessage;
     }
 
-    @Value("${url-orderInfo}")
-    private String url_orderInfo;
     @Bean
     public JavaMailSender mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -55,29 +53,19 @@ public class EmailService  {
 
         return mailSender;
     }
+    public  void sendOpt(User request,String opt) {
+        MimeMessage message = this.mailSender().createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+//            helper.setTo(request.getEmail());
+            //test
+            helper.setTo("nguyentienanh2001.dev@gmail.com");
+            helper.setSubject("Confirm Order");
+            helper.setText(new OtpTemplate(request,opt,auth_url).getContent(),true);
+            mailSender().send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    public void sendEmail(Email email) {
-        MimeMessage message = this.mailSender().createMimeMessage();
-        try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(email.getEmail());
-            helper.setSubject("Confirm Order");
-            helper.setText(new TemplateEmail(email).getContent(),true);
-            mailSender().send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public void notificationDiscount(DiscountEmail discountEmail) {
-        MimeMessage message = this.mailSender().createMimeMessage();
-        try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(discountEmail.getEmail());
-            helper.setSubject("Confirm Order");
-            helper.setText(discountEmail.setDiscountEmail(null),true);
-            mailSender().send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

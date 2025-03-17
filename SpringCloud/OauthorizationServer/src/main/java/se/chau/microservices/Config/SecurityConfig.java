@@ -21,10 +21,10 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
-        http
+        http    .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/user/register"))
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/user/register").permitAll()
+                        .requestMatchers("/oauth2/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());

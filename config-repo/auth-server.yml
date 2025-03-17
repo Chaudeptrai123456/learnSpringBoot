@@ -37,9 +37,39 @@ resilience4j.circuitbreaker:
         - se.chau.microservices.api.exception.InvalidInputException
         - se.chau.microservices.api.exception.NotFoundException
 management.tracing.sampling.probability: 1.0
+zipkin:
+  baseUrl: http://172.18.0.10:9411
+  sender:
+    type: web
 
+spring.redis:
+  host: 127.0.0.1       # Redis server address (can be changed to an IP address or remote server)
+  port: 6379
+  username: default # Redis server port (default is 6379)
+  password: 123 # Redis password (optional, if you have one configured)
+  timeout: 2000         # Connection timeout in milliseconds
+  jedis:
+    pool:
+      max-active: 10    # Max number of active connections
+      max-idle: 5       # Max number of idle connections
+      min-idle: 1       # Min number of idle connections
+      max-wait: -1      # Max wait time for getting a connection from the pool (-1 means no limit)
+email:
+  url: http://localhost:8092
+spring.mail.username: phamchaugiatu123@gmail.com
+spring.mail.properties.mail.smtp.starttls.required: true
+spring.mail.host: smtp.gmail.com
+spring.mail.port: 587
+spring.mail.password: doeu iubp eyrj zvqa
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.properties.mail.transport.protocol: smtp
+spring.mail.properties.mail.smtp.starttls.enable: true
+auth_url: http://localhost:9999
 ---
 spring.config.activate.on-profile: docker
+auth_url: https://localhost:8443
+spring.redis:
+  host: redis
 server.port: 80
 app.auth.host: auth-server
 zipkin:

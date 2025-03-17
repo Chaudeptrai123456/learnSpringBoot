@@ -28,7 +28,9 @@ port:
   feature: 8084
   order: 8090
   order-composite: 8091
+  email: 8092
 host:
+  email: localhost
   discount: localhost
   order-composite: localhost
   product: localhost
@@ -81,6 +83,10 @@ spring.cloud.gateway.routes:
       - Path=/recommendation/**
   - id: review
     uri: http://${host.review}:${port.review}
+    predicates:
+      - Path=/review/**
+  - id: email
+    uri: http://${host.email}:${port.email}/oauth2/user/register/opt
     predicates:
       - Path=/review/**
   - id: host_route_200
@@ -156,6 +162,10 @@ resilience4j.circuitbreaker:
 
 management.tracing.sampling.probability: 1.0
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
+zipkin:
+  baseUrl: http://172.18.0.10:9411
+  sender:
+    type: web
 ---
 spring.config.activate.on-profile: docker
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
@@ -172,8 +182,10 @@ port:
   recommendation: 80
   review: 80
   feature: 80
+  email: 8092
   order: 8090
 host:
+  email: email
   discount: discount
   product: product
   composite: product-composite
