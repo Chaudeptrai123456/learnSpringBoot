@@ -11,19 +11,6 @@ services:
       interval: 5s
       timeout: 2s
       retries: 60
-#  kafka:
-#    image: confluentinc/cp-kafka:7.3.1
-#    restart: always
-#    mem_limit: 512m
-#    ports:
-#      - "9092:9092"
-#    environment:
-#      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-#      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-#      - KAFKA_BROKER_ID=1
-#      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-#    depends_on:
-#      - zookeeper
   message-server:
     build: Microservices/messaging-service
     ports:
@@ -31,14 +18,14 @@ services:
     mem_limit: 256m
     depends_on:
       - config-server
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.1
-    restart: always
-    mem_limit: 512m
-    ports:
-      - "2181:2181"
-    environment:
-      - ZOOKEEPER_CLIENT_PORT=2181
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.3.1
+#    restart: always
+#    mem_limit: 512m
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      - ZOOKEEPER_CLIENT_PORT=2181
 
   mysql:
     image: mysql:8.0
@@ -58,6 +45,8 @@ services:
       retries: 60
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf  # 🔹 Gắn file config vào MySQL
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -74,13 +63,14 @@ services:
       retries: 60
     volumes:
       - mongo_data:/data/db
+      - ./mongod.conf:/etc/mongod.conf  # 🔹 Gắn file config vào MongoDB
   product:
     image: hands-on/product
     build: Microservices/product
     depends_on:
       - auth-server
       - redis
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
@@ -91,7 +81,7 @@ services:
 #    depends_on:
 #      - auth-server
 #      - redis
-#    mem_limit: 512m
+#    mem_limit: 256m
 #    environment:
 #      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
 #      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
@@ -110,7 +100,7 @@ services:
   product-composite:
     image: hands-on/product-composite
     build: Microservices/product_composite
-    mem_limit: 512m
+    mem_limit: 256m
     depends_on:
       - config-server
     environment:
@@ -123,7 +113,7 @@ services:
   order:
     build: Microservices/order
     image: hands-on/order
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=user
@@ -135,7 +125,7 @@ services:
   email:
     build: Microservices/emailService
     image: hands-on/email
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_SECURITY_USER_NAME=user
@@ -147,7 +137,7 @@ services:
   review:
     build: Microservices/review
     image: hands-on/review
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=user
@@ -176,7 +166,7 @@ services:
     depends_on:
       - mongodb
       - auth-server
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=user
@@ -203,7 +193,7 @@ services:
     depends_on:
       - mongodb
       - config-server
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
@@ -216,7 +206,7 @@ services:
     depends_on:
       - mongodb
       - config-server
-    mem_limit: 512m
+    mem_limit: 256m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
       - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
@@ -255,17 +245,17 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-  zipkin-server:
-    image: openzipkin/zipkin:2.24.0
-    container_name: zipkin-server
-    restart: always
-    mem_limit: 512m
-    environment:
-      - STORAGE_TYPE=mem
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-    ports:
-      - 9411:9411
+#  zipkin-server:
+#    image: openzipkin/zipkin:2.24.0
+#    container_name: zipkin-server
+#    restart: always
+#    mem_limit: 512m
+#    environment:
+#      - STORAGE_TYPE=mem
+#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+#    ports:
+#      - 9411:9411
   redis:
     image: redis:latest
     mem_limit: 128m
@@ -273,15 +263,15 @@ services:
     ports:
       - "6379:6379"
     command: [ "redis-server"]
-
-  redis_insight:
-    image: redislabs/redisinsight:latest
-    container_name: redis_insight
-    restart: always
-    ports:
-      - 8001:8001
-    volumes:
-      - redis_insight_volume_data:/db
+#
+#  redis_insight:
+#    image: redislabs/redisinsight:latest
+#    container_name: redis_insight
+#    restart: always
+#    ports:
+#      - 8001:8001
+#    volumes:
+#      - redis_insight_volume_data:/db
 volumes:
   redis_volume_data: {}
   redis_insight_volume_data: {}
