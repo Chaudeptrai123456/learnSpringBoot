@@ -29,39 +29,37 @@ public class SecurityConfig {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(authorizeExchangeSpec -> {
-                        authorizeExchangeSpec  .pathMatchers("/header/routing/**").permitAll()
-                                .pathMatchers(HttpMethod.POST,"/oauth2/user/register/**").permitAll()
+                    authorizeExchangeSpec
+                            .pathMatchers("/header/routing/**").permitAll()
+                            .pathMatchers(HttpMethod.POST,"/oauth2/user/register/**").permitAll()
 
-                                .pathMatchers("/actuator/**").permitAll()
-                                .pathMatchers("/eureka/**").permitAll()
-                                .pathMatchers("/oauth2/**").permitAll()
-                                .pathMatchers("/login/**").permitAll()
-                                .pathMatchers("/error/**").permitAll()
-                                .pathMatchers("/openapi/**").permitAll()
-                                .pathMatchers("/webjars/**").permitAll()
-                                .pathMatchers("/config/**").permitAll()
+                            .pathMatchers("/actuator/**").permitAll()
+                            .pathMatchers("/eureka/**").permitAll()
+                            .pathMatchers("/oauth2/**").permitAll()
+                            .pathMatchers("/login/**").permitAll()
+                            .pathMatchers("/error/**").permitAll()
+                            .pathMatchers("/openapi/**").permitAll()
+                            .pathMatchers("/webjars/**").permitAll()
+                            .pathMatchers("/config/**").permitAll()
 
-                                // order service
-                                .pathMatchers(HttpMethod.GET,"/order/**").hasAnyAuthority("USER","ADMIN")
-                                .pathMatchers(HttpMethod.PATCH,"/order/**").hasAnyAuthority("USER","ADMIN")
-                                .pathMatchers(HttpMethod.POST,"/order/**").hasAnyAuthority("USER","ADMIN")
+                            // order service (chỉ USER, ADMIN mới được phép tạo order)
+                            .pathMatchers(HttpMethod.GET, "/order/**").hasAnyAuthority("USER", "ADMIN")
+                            .pathMatchers(HttpMethod.PATCH, "/order/**").hasAnyAuthority("USER", "ADMIN")
+                            .pathMatchers(HttpMethod.POST, "/order/**").hasAnyAuthority("USER", "ADMIN")
 
-                                //pro-composite service
-                                .pathMatchers(HttpMethod.GET,"/product-composite/**").hasAnyAuthority("USER","ADMIN")
-                                .pathMatchers(HttpMethod.POST,"/product-composite/**").hasAnyAuthority("ADMIN")
+                            // product-composite service (GET không cần login, nhưng POST cần ADMIN)
+                            .pathMatchers(HttpMethod.GET, "/product-composite/**").permitAll()
+                            .pathMatchers(HttpMethod.POST, "/product-composite/**").hasAnyAuthority("ADMIN")
 
-                                // orther service
-                                .pathMatchers(HttpMethod.GET,"/product/**","/review/**","/recommendation/**","/discount/**").hasAnyAuthority("ADMIN","USER")
-                                .pathMatchers(HttpMethod.POST,"/product/**","/review/**","/recommendation/**","/discount/**").hasAnyAuthority("ADMIN")
-                                .pathMatchers(HttpMethod.PATCH,"/product/**","/review/**","/recommendation/**","/discount/**").hasAnyAuthority("ADMIN")
+                            // other services (GET không cần login, POST/PATCH cần ADMIN)
+                            .pathMatchers(HttpMethod.GET, "/product/**", "/review/**", "/recommendation/**", "/discount/**").permitAll()
+                            .pathMatchers(HttpMethod.POST, "/product/**", "/review/**", "/recommendation/**", "/discount/**").hasAnyAuthority("ADMIN")
+                            .pathMatchers(HttpMethod.PATCH, "/product/**", "/review/**", "/recommendation/**", "/discount/**").hasAnyAuthority("ADMIN")
 
-                                .pathMatchers(HttpMethod.POST).hasAnyAuthority("USER","ADMIN")
-                                .anyExchange().authenticated().and()
-                                .oauth2ResourceServer(oauth2 -> oauth2
-                                        .jwt(jwt -> jwt
-                                                .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
-                                        ))
-                                ;
+                            .pathMatchers(HttpMethod.POST).hasAnyAuthority("USER","ADMIN")
+                            .anyExchange().authenticated()
+                            .and()
+                            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
                 });
 
         return http.build();

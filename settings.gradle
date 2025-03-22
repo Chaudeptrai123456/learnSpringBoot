@@ -31,4 +31,6 @@ include 'Microservices:emailService'
 findProject(':Microservices:emailService')?.name = 'emailService'
 include 'Microservices:Discount'
 findProject(':Microservices:Discount')?.name = 'Discount'
+include 'Microservices:messaging-service'
+findProject(':Microservices:messaging-service')?.name = 'messaging-service'
 

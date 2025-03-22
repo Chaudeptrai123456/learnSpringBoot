@@ -9,7 +9,7 @@ spring.cloud.stream:
         required-groups: auditGroup
     recommendations-out-0:
       destination: recommendations
-      producer:
+      producer:c
         required-groups: auditGroup
     reviews-out-0:
       destination: reviews

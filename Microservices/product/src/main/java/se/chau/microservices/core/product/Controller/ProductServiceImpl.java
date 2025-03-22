@@ -91,8 +91,8 @@ public class ProductServiceImpl implements ProductService {
                 .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: ")))
                 .log(LOG.getName(), FINE)
                 .map(mapper::entityToApi)
-                .map(this::setServiceAddress)
-                ;
+                .flatMap(this::setImagesForProduct)
+                .map(this::setServiceAddress);
     }
     @Override
     public Mono<Product> getProduct(int productId) {
