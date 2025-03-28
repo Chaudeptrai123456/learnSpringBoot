@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import se.chau.microservices.api.core.User.User;
 import se.chau.microservices.api.core.order.DiscountEmail;
 import se.chau.microservices.api.core.order.Email;
 import se.chau.microservices.api.core.order.TemplateEmail;
@@ -79,5 +80,8 @@ public class EmailService  {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void sendOpt(User request) {
     }
 }

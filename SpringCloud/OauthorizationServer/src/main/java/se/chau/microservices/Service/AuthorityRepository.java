@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface AuthorityRepository extends CrudRepository<Authority,Integer> {
     //findUserByUsername
     Optional<Authority> findAuthorityByName(String name);
+
+    boolean existsByName(String role);
 }

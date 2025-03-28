@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -27,7 +28,18 @@ public class OptService {
 
     public boolean validateOtp(String email, String otp) {
         LOG.info("validate otp");
-        String storedOtp = redisTemplate.opsForValue().get(email);
-        return storedOtp != null && storedOtp.equals(otp);
+
+        // Tạo key cần kiểm tra
+        String testKey = "User" + email + " " + otp;
+        String storedUser = redisTemplate.opsForValue().get(testKey);
+
+        if (storedUser == null) {
+            LOG.error("User not found in Redis for key: " + testKey);
+            return false;
+        }
+
+        LOG.info("User found in Redis for key: " + testKey);
+        return true;
     }
+
 }

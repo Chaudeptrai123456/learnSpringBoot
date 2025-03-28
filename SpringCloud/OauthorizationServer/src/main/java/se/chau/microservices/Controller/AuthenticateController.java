@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import se.chau.microservices.Config.PlainTextPasswordEncoder;
 import se.chau.microservices.Entity.Authority;
 import se.chau.microservices.Entity.UserEntity;
@@ -69,10 +70,12 @@ public class AuthenticateController implements UserService {
         if (userRepository.existsByUsername(temp.getUsername())) {
             return new ResponseEntity<>("Username has existed",HttpStatusCode.valueOf(400));
         }
-        String otp = optService.generateOtp(temp.getEmail());
         try {
+            LOG.info("test password " + temp.getPassword());
+            String otp = optService.generateOtp(temp.getEmail());
             this.emailService.sendOpt(temp,otp);
-            this.redisService.writeUser(temp);
+            this.redisService.writeUser(temp,otp);
+
             return ResponseEntity.ok("OTP sent to email. Please verify. " + otp);
         }catch (MessageAggregationException ex) {
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body("error " + ex);
@@ -122,13 +125,14 @@ public class AuthenticateController implements UserService {
         if (!this.checkOtp(email,otp)) {
             return new ResponseEntity<>(HttpStatus.valueOf(401));
         } else {
-            User temp = this.redisService.getUser(email).block();
+            User temp = this.redisService.getUser(email,otp).block();
+            LOG.info("verifyRegister " + temp.getUsername() + " " + temp.getEmail() + " " + temp.getPassword());
             String hashedPassword = encoder.encode(temp.getPassword());
             UserEntity user = new UserEntity();
             user.setPassword("{SHA512}"+hashedPassword);
             user.setUsername(temp.getUsername());
             user.setRegistrationDate(LocalDateTime.now());
-            Authority a = authorityRepository.findAuthorityByName("USER").orElseThrow();
+            Authority a = authorityRepository.findAuthorityByName("ROLE_USER").orElseThrow();
             List<Authority> list = new ArrayList<>();
             list.add(a);
             user.setAuthorities(list);
