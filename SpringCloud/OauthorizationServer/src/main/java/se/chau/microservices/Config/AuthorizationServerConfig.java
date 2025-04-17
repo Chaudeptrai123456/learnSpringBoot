@@ -80,7 +80,7 @@ public class AuthorizationServerConfig
                 .securityMatcher(endpointsMatcher)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-                .with(authorizationServerConfigurer, Customizer.withDefaults()); // ✅ Dùng `with()` thay vì `apply()`
+                .with(authorizationServerConfigurer, Customizer.withDefaults()); // p Dùng `with()` thay vì `apply()`
 
         http
                 .getConfigurer(OAuth2AuthorizationServerConfigurer.class)
@@ -106,6 +106,10 @@ public class AuthorizationServerConfig
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+                .redirectUri("https://14.225.206.109:8443/oauth2/code")
+                .redirectUri("https://14.225.206.109:8443/oauth2/get-token")
+                .redirectUri("https://chaudeptrai.pro.vn:8443/oauth2/code")
+                .redirectUri("https://chaudeptrai.pro.vn:8443/oauth2/get-token")
                 .redirectUri("https://localhost:8443/oauth2/code")
                 .redirectUri("https://localhost:8443/oauth2/get-token")
                 .scope(OidcScopes.PROFILE)

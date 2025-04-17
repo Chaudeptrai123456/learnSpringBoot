@@ -27,19 +27,8 @@ public class OptService {
     }
 
     public boolean validateOtp(String email, String otp) {
-        LOG.info("validate otp");
-
-        // Tạo key cần kiểm tra
-        String testKey = "User" + email + " " + otp;
-        String storedUser = redisTemplate.opsForValue().get(testKey);
-
-        if (storedUser == null) {
-            LOG.error("User not found in Redis for key: " + testKey);
-            return false;
-        }
-
-        LOG.info("User found in Redis for key: " + testKey);
-        return true;
+        String storedOtp = redisTemplate.opsForValue().get(email); // đúng key đã lưu
+        return otp.equals(storedOtp);
     }
 
 }

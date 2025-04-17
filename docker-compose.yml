@@ -2,7 +2,7 @@
 services:
   rabbitmq:
     image: rabbitmq:3.11.8-management
-    mem_limit: 256m
+    mem_limit: 512m
     ports:
       - 5672:5672
       - 15672:15672
@@ -11,13 +11,13 @@ services:
       interval: 5s
       timeout: 2s
       retries: 60
-  message-server:
-    build: Microservices/messaging-service
-    ports:
-      - "8093:8093"
-    mem_limit: 256m
-    depends_on:
-      - config-server
+#  message-server:
+#    build: Microservices/messaging-service
+#    ports:
+#      - "8095:8095"
+#    mem_limit: 512m
+#    depends_on:
+#      - config-server
 #  zookeeper:
 #    image: confluentinc/cp-zookeeper:7.3.1
 #    restart: always
@@ -70,26 +70,26 @@ services:
     depends_on:
       - auth-server
       - redis
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-#  product2:
-#    build: Microservices/product
-#    image: hands-on/product
-#    depends_on:
-#      - auth-server
-#      - redis
-#    mem_limit: 256m
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+  product2:
+    build: Microservices/product
+    image: hands-on/product
+    depends_on:
+      - auth-server
+      - redis
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   config-server:
     build: SpringCloud/config-service
     image: hands-on/config-server
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker, native
       - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
@@ -100,32 +100,17 @@ services:
   product-composite:
     image: hands-on/product-composite
     build: Microservices/product_composite
-    mem_limit: 256m
-    depends_on:
-      - config-server
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned
-      - OAUTH_ISSUER_URL=http://auth-server:80
       - SPRING_SECURITY_USER_NAME=user
       - SPRING_SECURITY_USER_PASSWORD=123
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-  order:
-    build: Microservices/order
-    image: hands-on/order
-    mem_limit: 256m
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
-      - SPRING_SECURITY_USER_NAME=user
-      - SPRING_SECURITY_USER_PASSWORD=123
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-    depends_on:
-      - config-server
   email:
     build: Microservices/emailService
     image: hands-on/email
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_SECURITY_USER_NAME=user
@@ -137,7 +122,7 @@ services:
   review:
     build: Microservices/review
     image: hands-on/review
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=user
@@ -146,54 +131,64 @@ services:
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       - config-server
-#  review2:
-#    build: Microservices/review
-#    image: hands-on/review
-#    mem_limit: 512m
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-#      - SPRING_SECURITY_USER_NAME=user
-#      - SPRING_SECURITY_USER_PASSWORD=123
-#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-#    depends_on:
-#      - mysql
-#      - config-server
-
+  review2:
+    build: Microservices/review
+    image: hands-on/review
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_SECURITY_USER_NAME=user
+      - SPRING_SECURITY_USER_PASSWORD=123
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+    depends_on:
+      - mysql
+      - config-server
+  order:
+    image: hands-on/order
+    build: Microservices/order
+    depends_on:
+      - mongodb
+      - auth-server
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+      - SPRING_SECURITY_USER_NAME=user
+      - SPRING_SECURITY_USER_PASSWORD=123
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
   recommendation:
     image: hands-on/recommendation
     build: Microservices/recommendation
     depends_on:
       - mongodb
       - auth-server
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=user
       - SPRING_SECURITY_USER_PASSWORD=123
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-#  recommendation2:
-#    image: hands-on/recommendation
-#    build: Microservices/recommendation
-#    depends_on:
-#      - mongodb
-#      - config-server
-#
-#    mem_limit: 512m
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-#      - SPRING_SECURITY_USER_NAME=user
-#      - SPRING_SECURITY_USER_PASSWORD=123
-#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+  recommendation2:
+    image: hands-on/recommendation
+    build: Microservices/recommendation
+    depends_on:
+      - mongodb
+      - config-server
+
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_SECURITY_USER_NAME=user
+      - SPRING_SECURITY_USER_PASSWORD=123
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   feature:
     image: hands-on/feature
     build: Microservices/feature
     depends_on:
       - mongodb
-      - config-server
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
@@ -206,26 +201,26 @@ services:
     depends_on:
       - mongodb
       - config-server
-    mem_limit: 256m
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
       - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
       - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-#  feature2:
-#    build: Microservices/feature
-#    image: hands-on/feature
-#    depends_on:
-#      - mongodb
-#      - config-server
-#    mem_limit: 512m
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-#      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
-#      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
-#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+  feature2:
+    build: Microservices/feature
+    image: hands-on/feature
+    depends_on:
+      - mongodb
+      - config-server
+    mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
+      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   gateway:
     build: SpringCloud/Gateway
     image: hands-on/gateway
@@ -235,12 +230,12 @@ services:
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     ports:
       - "8443:8443"
-    mem_limit: 256m
+    mem_limit: 512m
   auth-server:
     build: SpringCloud/OauthorizationServer
     image: hands-on/auth-server
     ports:
-      - "80:80"
+      - "9999:9999"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
@@ -260,10 +255,10 @@ services:
     image: redis:latest
     mem_limit: 128m
     container_name: redis
-    ports:
-      - "6379:6379"
-    command: [ "redis-server"]
-#
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
 #  redis_insight:
 #    image: redislabs/redisinsight:latest
 #    container_name: redis_insight

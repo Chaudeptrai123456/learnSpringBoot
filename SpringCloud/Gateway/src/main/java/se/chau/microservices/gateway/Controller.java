@@ -24,6 +24,9 @@ public class Controller {
     // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
     // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 
+
+    // http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write
+
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     @Value("${host.auth}")
@@ -49,7 +52,7 @@ public class Controller {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
-                .POST(HttpRequest.BodyPublishers.ofString("grant_type=authorization_code&code=" + code + "&redirect_uri=https://localhost:8443/oauth2/code"))
+                .POST(HttpRequest.BodyPublishers.ofString("grant_type=authorization_code&code=" + code + "&redirect_uri=https://" + authohost + ":8443/oauth2/code"))
                 .setHeader("Content-Type", "application/x-www-form-urlencoded")
                 .setHeader("Authorization", auth)
                 .build();

@@ -1,8 +1,9 @@
 # Stage 1: Extract the JAR layers
-FROM eclipse-temurin:23 as builder
+# Use an official OpenJDK 23 image from Docker Hub
+FROM  eclipse-temurin:23 as builder
 WORKDIR extracted
 ADD ./build/libs/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
+RUN java  -Djarmode=layertools -jar app.jar extract
 
 # Stage 2: Build the final image
 FROM eclipse-temurin:23
@@ -15,7 +16,7 @@ COPY --from=builder extracted/snapshot-dependencies/ ./
 COPY --from=builder extracted/application/ ./
 
 # Expose the port the application will run on
-EXPOSE 8093
+EXPOSE 8095
 
 # Specify the entry point for the Spring Boot application
 ENTRYPOINT ["java","org.springframework.boot.loader.launch.JarLauncher"]

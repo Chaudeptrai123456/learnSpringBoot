@@ -24,83 +24,72 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
+
     @Bean
-    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(authorizeExchangeSpec -> {
-                    authorizeExchangeSpec
-                            .pathMatchers("/header/routing/**").permitAll()
-                            .pathMatchers(HttpMethod.POST,"/oauth2/user/register/**").permitAll()
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        return http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(exchanges -> exchanges
 
-                            .pathMatchers("/actuator/**").permitAll()
-                            .pathMatchers("/eureka/**").permitAll()
-                            .pathMatchers("/oauth2/**").permitAll()
-                            .pathMatchers("/login/**").permitAll()
-                            .pathMatchers("/error/**").permitAll()
-                            .pathMatchers("/openapi/**").permitAll()
-                            .pathMatchers("/webjars/**").permitAll()
-                            .pathMatchers("/config/**").permitAll()
+                        // Public routes
+                        .pathMatchers(
+                                "/header/routing/**",
+                                "/oauth2/user/register/**",
+                                "/actuator/**",
+                                "/eureka/**",
+                                "/oauth2/**",
+                                "/login/**",
+                                "/error/**",
+                                "/openapi/**",
+                                "/webjars/**",
+                                "/config/**"
+                        ).permitAll()
 
-                            // order service (chỉ USER, ADMIN mới được phép tạo order)
-                            .pathMatchers(HttpMethod.GET, "/order/**").hasAnyAuthority("USER", "ADMIN")
-                            .pathMatchers(HttpMethod.PATCH, "/order/**").hasAnyAuthority("USER", "ADMIN")
-                            .pathMatchers(HttpMethod.POST, "/order/**").hasAnyAuthority("USER", "ADMIN")
+                        // Order service (needs USER or ADMIN)
+                        .pathMatchers(HttpMethod.GET, "/order/**").hasAnyAuthority("USER", "ADMIN")
+                        .pathMatchers(HttpMethod.PATCH, "/order/**").hasAnyAuthority("USER", "ADMIN")
+                        .pathMatchers(HttpMethod.POST, "/order/**").hasAnyAuthority("USER", "ADMIN")
 
-                            // product-composite service (GET không cần login, nhưng POST cần ADMIN)
-                            .pathMatchers(HttpMethod.GET, "/product-composite/**").permitAll()
-                            .pathMatchers(HttpMethod.POST, "/product-composite/**").hasAnyAuthority("ADMIN")
+                        // Product-composite service
+                        .pathMatchers(HttpMethod.GET, "/product-composite/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/product-composite/**").hasAuthority("ADMIN")
 
-                            // other services (GET không cần login, POST/PATCH cần ADMIN)
-                            .pathMatchers(HttpMethod.GET, "/product/**", "/review/**", "/recommendation/**", "/discount/**").permitAll()
-                            .pathMatchers(HttpMethod.POST, "/product/**", "/review/**", "/recommendation/**", "/discount/**").hasAnyAuthority("ADMIN")
-                            .pathMatchers(HttpMethod.PATCH, "/product/**", "/review/**", "/recommendation/**", "/discount/**").hasAnyAuthority("ADMIN")
+                        // Other microservices (GET public, write restricted)
+                        .pathMatchers(HttpMethod.GET,
+                                "/product/**", "/review/**", "/recommendation/**", "/discount/**").permitAll()
+                        .pathMatchers(HttpMethod.POST,
+                                "/product/**", "/review/**", "/recommendation/**", "/discount/**").hasAuthority("ADMIN")
+                        .pathMatchers(HttpMethod.PATCH,
+                                "/product/**", "/review/**", "/recommendation/**", "/discount/**").hasAuthority("ADMIN")
 
-                            .pathMatchers(HttpMethod.POST).hasAnyAuthority("USER","ADMIN")
-                            .anyExchange().authenticated()
-                            .and()
-                            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
-                });
+                        // Any other POST requires USER or ADMIN
+                        .pathMatchers(HttpMethod.POST).hasAnyAuthority("USER", "ADMIN")
 
-        return http.build();
+                        // Any other request requires authentication
+                        .anyExchange().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor()))
+                )
+                .build();
     }
-    Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> grantedAuthoritiesExtractor() {
-        JwtAuthenticationConverter jwtAuthenticationConverter =  new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new GrantedAuthoritiesExtractor());
-        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
-    }
-    static class GrantedAuthoritiesExtractor  implements Converter<Jwt, Collection<GrantedAuthority>> {
 
+    private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> grantedAuthoritiesExtractor() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(new GrantedAuthoritiesExtractor());
+        return new ReactiveJwtAuthenticationConverterAdapter(converter);
+    }
+
+    static class GrantedAuthoritiesExtractor implements Converter<Jwt, Collection<GrantedAuthority>> {
+        @Override
         public Collection<GrantedAuthority> convert(Jwt jwt) {
-            Collection<?> authorities = (Collection<?>)
-                    jwt.getClaims().getOrDefault("roles", Collections.emptyList());
-            return authorities.stream()
+            Collection<?> roles = (Collection<?>) jwt.getClaims().getOrDefault("roles", Collections.emptyList());
+            return roles.stream()
                     .map(Object::toString)
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
         }
     }
-//    @Bean
-//    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
-//        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-//                .authorizeExchange(authorizeExchangeSpec -> {
-//                        authorizeExchangeSpec  .pathMatchers("/headerrouting/**").permitAll()
-//                                .pathMatchers("/actuator/**").permitAll()
-//                                .pathMatchers("/eureka/**").permitAll()
-//                                .pathMatchers("/oauth2/**").permitAll()
-//                                .pathMatchers("/login/**").permitAll()
-//                                .pathMatchers("/error/**").permitAll()
-//                                .pathMatchers("/openapi/**").permitAll()
-//                                .pathMatchers("/webjars/**").permitAll()
-//                                .pathMatchers("/config/**").permitAll()
-//                                .pathMatchers(HttpMethod.GET).hasAnyAuthority("USER","ADMIN")
-//                                .anyExchange().authenticated().and()
-//                                .oauth2ResourceServer()
-//                                .jwt();
-//                });
-//
-//        return http.build();
-//    }
-
-
 }

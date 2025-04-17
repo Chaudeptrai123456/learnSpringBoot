@@ -1,11 +1,14 @@
-  #
-#spring.cloud.stream.kafka.binder:
-#  brokers: 127.0.0.1
-#  defaultBrokerPort: 9092
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 spring.cloud.stream.defaultBinder: rabbit
+
 spring:
+  application:
+    name: config-server
   cloud:
+    config:
+      server:
+        native:
+          search-locations: file:./config-repo
     compatibility-verifier:
       enabled: true
     stream:
@@ -13,49 +16,65 @@ spring:
     function:
       definition:
     datasource:
-    url: jdbc:mysql://172.20.0.6:3306/review
-    username: chau
-    password: 123
-    driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://172.20.0.6:3306/review
+      username: chau
+      password: 123
+      driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     mongodb:
       uri: mongodb://chau:123@localhost:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+  profiles:
+    active: native
 
 spring.rabbitmq:
   host: localhost
   port: 5672
   username: guest
   password: guest
-# WARNING: Exposing all management endpoints over http should only be used during development, must be locked down in production!
-management.endpoint.health.show-details: "ALWAYS"
-management.endpoints.web.exposure.include: "*"
-management.endpoint.health.probes.enabled: true
-management.health.rabbit.enabled: true
-management.health.kafka.enabled: false
 
-management.tracing.sampling.probability: 1.0
+management:
+  endpoint:
+    health:
+      show-details: "ALWAYS"
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    rabbit:
+      enabled: true
+    kafka:
+      enabled: false
+  tracing:
+    sampling:
+      probability: 1.0
+
 logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
-
 ---
+
 spring.config.activate.on-profile: docker
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://14.225.206.109:9999
+
 management.zipkin.tracing.endpoint: http://zipkin-server:9411/api/v2/spans
 zipkin:
-  baseUrl: http://zipkin-server:9411 # Zipkin server URL (replace with your Zipkin server URL)
+  baseUrl: http://zipkin-server:9411
   sender:
     type: web
+
 spring.rabbitmq:
   host: rabbitmq
   port: 5672
   username: guest
   password: guest
-#spring.cloud.stream.kafka.binder.brokers: kafka
 
 app:
-  auth-server: auth-server
+  auth-server: 14.225.206.109
 
 ---
+
 spring.config.activate.on-profile: kafka
 
 spring.cloud.stream.defaultBinder: kafka
@@ -66,10 +85,9 @@ management.health.rabbit.enabled: false
 management.health.kafka.enabled: true
 
 ---
+
 spring.config.activate.on-profile: prod
+
 spring.rabbitmq.host: 172.17.0.1
-management.endpoint.health.group.readiness.include: readinessState, rabbit, db, mongo
-# Only allow management endpoints over http in production for info, health and circuitbreakerevents
-management.endpoints.web.exposure.include: health,info,circuitbreakerevents
 server.shutdown: graceful
 spring.lifecycle.timeout-per-shutdown-phase: 10s

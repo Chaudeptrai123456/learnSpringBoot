@@ -30,8 +30,8 @@ dependencyManagement {
 }
 dependencies {
     implementation("org.glassfish.jersey.core:jersey-common:3.1.7")
-    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
-    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
+//    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+//    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation("org.springframework.security:spring-security-core")

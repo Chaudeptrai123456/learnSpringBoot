@@ -15,7 +15,7 @@ COPY --from=builder extracted/snapshot-dependencies/ ./
 COPY --from=builder extracted/application/ ./
 
 # Expose the port the application will run on
-EXPOSE 8080
+EXPOSE 8085
 
 # Specify the entry point for the Spring Boot application
 ENTRYPOINT ["java","org.springframework.boot.loader.launch.JarLauncher"]

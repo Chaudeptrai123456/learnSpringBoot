@@ -32,7 +32,7 @@ public class Main {
     @Bean
     CommandLineRunner initAuthorities(AuthorityRepository authorityRepository) {
         return args -> {
-            List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
+            List<String> roles = Arrays.asList("USER", "ADMIN");
 
             for (String role : roles) {
                 if (!authorityRepository.existsByName(role)) {

@@ -57,8 +57,8 @@ spring.cloud.compatibility-verifier.enabled: false
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 ---
 spring.config.activate.on-profile: docker
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
-server.port: 80
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
+server.port: 8085
 spring:
   data:
     mongodb:

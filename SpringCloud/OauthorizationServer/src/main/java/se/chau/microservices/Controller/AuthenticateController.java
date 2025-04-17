@@ -132,7 +132,7 @@ public class AuthenticateController implements UserService {
             user.setPassword("{SHA512}"+hashedPassword);
             user.setUsername(temp.getUsername());
             user.setRegistrationDate(LocalDateTime.now());
-            Authority a = authorityRepository.findAuthorityByName("ROLE_USER").orElseThrow();
+            Authority a = authorityRepository.findAuthorityByName("USER").orElseThrow();
             List<Authority> list = new ArrayList<>();
             list.add(a);
             user.setAuthorities(list);

@@ -1,11 +1,11 @@
-server.port: 9999
+server.port: 80
 logging:
   level:
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
 spring.application.name: auth-server
-app.auth.host: localhost
+app.auth.host: 14.225.206.109
 spring.main.allow-bean-definition-overriding: true
 spring:
   cloud:
@@ -20,7 +20,7 @@ spring:
     hibernate:
       ddl-auto: update  # or `create-drop` for fresh schema creation during development
     show-sql: true       # Show SQL queries in the console (optional)
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform:  org.hibernate.dialect.MySQLDialect
 
 resilience4j.circuitbreaker:
   instances:
@@ -55,7 +55,7 @@ spring.redis:
       min-idle: 1       # Min number of idle connections
       max-wait: -1      # Max wait time for getting a connection from the pool (-1 means no limit)
 email:
-  url: http://localhost:8092
+  url: http://email:8092
 spring.mail.username: phamchaugiatu123@gmail.com
 spring.mail.properties.mail.smtp.starttls.required: true
 spring.mail.host: smtp.gmail.com
@@ -64,55 +64,4 @@ spring.mail.password: doeu iubp eyrj zvqa
 spring.mail.properties.mail.smtp.auth: true
 spring.mail.properties.mail.transport.protocol: smtp
 spring.mail.properties.mail.smtp.starttls.enable: true
-auth_url: http://localhost:9999
----
-spring.config.activate.on-profile: docker
-auth_url: http://14.225.206.109:9999
-spring.redis:
-  host: redis
-server.port: 9999
-app.auth.host: 14.225.206.109
-spring.security.oauth2.authorization-server.issuer: http://14.225.206.109:9999
-zipkin:
-  baseUrl: http://127.0.0.1:9411
-  sender:
-    type: web
-spring:
-  datasource:
-    url: jdbc:mysql://mysql:3306/review
-    username: chau
-    password: 123
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update  # or `create-drop` for fresh schema creation during development
-    show-sql: true       # Show SQL queries in the console (optional)
-    database-platform: org.hibernate.dialect.MySQLDialect
-spring.rabbitmq.host: rabbitmq
-
-spring.cloud.stream.kafka.binder.brokers: kafka
----
-spring.config.activate.on-profile: prod
-auth_url: https://14.225.206.109:8443
-spring.redis:
-  host: redis
-server.port: 9999
-app.auth.host: 14.225.206.109
-zipkin:
-  baseUrl: http://127.0.0.1:9411
-  sender:
-    type: web
-spring:
-  datasource:
-    url: jdbc:mysql://mysql:3306/review
-    username: chau
-    password: 123
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update  # or `create-drop` for fresh schema creation during development
-    show-sql: true       # Show SQL queries in the console (optional)
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-spring.rabbitmq.host: rabbitmq
-
-spring.cloud.stream.kafka.binder.brokers: kafka
+auth_url: http://14.225.206.109:80
