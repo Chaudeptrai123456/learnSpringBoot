@@ -104,11 +104,28 @@ spring:
       host: mongodb
       uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
 url-discount: http://discount:80/discount/product/
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://14.225.206.109:9999
+---
+spring.config.activate.on-profile: docker1
+server.port: 8081
+
+spring.redis.host: redis
+management:
+  endpoint:
+    health:
+      validate-group-membership: false
+app.auth-server: auth-server
+spring:
+  data:
+    mongodb:
+      host: mongodb
+      uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+url-discount: http://discount:80/discount/product/
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
 ---
 spring.config.activate.on-profile: streaming_partitioned
 
-spring.cloud.stream.bindings.messageProcessor-in-0.consumer:
+spring.cloud.stream.bindings.messageProcessor-is-0.consumer:
   partitioned: true
   instanceCount: 2
 

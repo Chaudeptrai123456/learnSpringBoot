@@ -37,7 +37,19 @@ spring.cloud.stream.kafka.bindings.messageProcessor-in-0.consumer:
   enableDlq: true
 ---
 spring.config.activate.on-profile: docker
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
+server.port: 8090
+spring:
+  data:
+    mongodb:
+      host: mongodb
+      uri: mongodb://${CONFIG_SERVER_USR}:${CONFIG_SERVER_PWD}@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+spring.rabbitmq.host: rabbitmq
+
+spring.cloud.stream.kafka.binder.brokers: kafka
+---
+spring.config.activate.on-profile: docker1
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
 server.port: 8090
 spring:
   data:

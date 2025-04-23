@@ -9,7 +9,7 @@ spring.cloud.stream:
         required-groups: auditGroup
     recommendations-out-0:
       destination: recommendations
-      producer:c
+      producer:
         required-groups: auditGroup
     reviews-out-0:
       destination: reviews
@@ -27,6 +27,20 @@ logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId
 services.composite.uri: https://localhost:8443
 ---
 spring.config.activate.on-profile: docker
+server.port: 80
+services.composite.uri: https://localhost:8443
+zipkin:
+  baseUrl: http://zipkin-server:9411 # Zipkin server URL (replace with your Zipkin server URL)
+  sender:
+    type: web
+uri:
+  service:
+    product: http://product:80
+    recommendation: http://recommendation:80
+    review: http://review:80
+    feature: http://feature:80
+---
+spring.config.activate.on-profile: docker1
 server.port: 80
 services.composite.uri: https://localhost:8443
 zipkin:

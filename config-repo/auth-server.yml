@@ -92,6 +92,32 @@ spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
 ---
+spring.config.activate.on-profile: docker1
+auth_url: http://auth-server:9999
+spring.redis:
+  host: redis
+server.port: 9999
+app.auth.host: auth-server
+spring.security.oauth2.authorization-server.issuer: http://auth-server:9999
+zipkin:
+  baseUrl: http://127.0.0.1:9411
+  sender:
+    type: web
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/review
+    username: chau
+    password: 123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update  # or `create-drop` for fresh schema creation during development
+    show-sql: true       # Show SQL queries in the console (optional)
+    database-platform: org.hibernate.dialect.MySQLDialect
+spring.rabbitmq.host: rabbitmq
+
+spring.cloud.stream.kafka.binder.brokers: kafka
+---
 spring.config.activate.on-profile: prod
 auth_url: https://14.225.206.109:8443
 spring.redis:

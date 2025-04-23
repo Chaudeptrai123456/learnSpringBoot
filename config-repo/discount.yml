@@ -20,6 +20,20 @@ spring:
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 ---
 spring.config.activate.on-profile: docker
+server.port: 8095
+management:
+  endpoint:
+    health:
+      validate-group-membership: false
+app.auth-server: auth-server
+spring:
+  data:
+    mongodb:
+      host: mongodb
+      uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://14.225.206.109:9999
+---
+spring.config.activate.on-profile: docker1
 server.port: 80
 management:
   endpoint:
@@ -31,8 +45,9 @@ spring:
     mongodb:
       host: mongodb
       uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:80
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
 ---
+
 spring.config.activate.on-profile: streaming_partitioned
 
 spring.cloud.stream.bindings.messageProcessor-in-0.consumer:

@@ -75,17 +75,17 @@ services:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-  product2:
-    build: Microservices/product
-    image: hands-on/product
-    depends_on:
-      - auth-server
-      - redis
-    mem_limit: 512m
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+#  product2:
+#    build: Microservices/product
+#    image: hands-on/product
+#    depends_on:
+#      - auth-server
+#      - redis
+#    mem_limit: 512m
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   config-server:
     build: SpringCloud/config-service
     image: hands-on/config-server
@@ -131,19 +131,19 @@ services:
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       - config-server
-  review2:
-    build: Microservices/review
-    image: hands-on/review
-    mem_limit: 512m
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-      - SPRING_SECURITY_USER_NAME=user
-      - SPRING_SECURITY_USER_PASSWORD=123
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-    depends_on:
-      - mysql
-      - config-server
+#  review2:
+#    build: Microservices/review
+#    image: hands-on/review
+#    mem_limit: 512m
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+#      - SPRING_SECURITY_USER_NAME=user
+#      - SPRING_SECURITY_USER_PASSWORD=123
+#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+#    depends_on:
+#      - mysql
+#      - config-server
   order:
     image: hands-on/order
     build: Microservices/order
@@ -169,20 +169,20 @@ services:
       - SPRING_SECURITY_USER_PASSWORD=123
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-  recommendation2:
-    image: hands-on/recommendation
-    build: Microservices/recommendation
-    depends_on:
-      - mongodb
-      - config-server
-
-    mem_limit: 512m
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-      - SPRING_SECURITY_USER_NAME=user
-      - SPRING_SECURITY_USER_PASSWORD=123
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+#  recommendation2:
+#    image: hands-on/recommendation
+#    build: Microservices/recommendation
+#    depends_on:
+#      - mongodb
+#      - config-server
+#
+#    mem_limit: 512m
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+#      - SPRING_SECURITY_USER_NAME=user
+#      - SPRING_SECURITY_USER_PASSWORD=123
+#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   feature:
     image: hands-on/feature
     build: Microservices/feature
@@ -202,25 +202,27 @@ services:
       - mongodb
       - config-server
     mem_limit: 512m
+    ports:
+      - "8095:8095"
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
       - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
       - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-  feature2:
-    build: Microservices/feature
-    image: hands-on/feature
-    depends_on:
-      - mongodb
-      - config-server
-    mem_limit: 512m
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
-      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
-      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+#  feature2:
+#    build: Microservices/feature
+#    image: hands-on/feature
+#    depends_on:
+#      - mongodb
+#      - config-server
+#    mem_limit: 512m
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1
+#      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
+#      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
   gateway:
     build: SpringCloud/Gateway
     image: hands-on/gateway

@@ -90,6 +90,7 @@ public class AuthorizationServerConfig
                 .exceptionHandling(exceptions ->
                         exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 )
+
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();

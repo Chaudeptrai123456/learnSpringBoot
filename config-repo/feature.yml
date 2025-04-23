@@ -57,6 +57,18 @@ spring.cloud.compatibility-verifier.enabled: false
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9999
 ---
 spring.config.activate.on-profile: docker
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://14.225.206.109:9999
+server.port: 8085
+spring:
+  data:
+    mongodb:
+      host: mongodb
+      uri: mongodb://${CONFIG_SERVER_USR}:${CONFIG_SERVER_PWD}@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+spring.rabbitmq.host: rabbitmq
+
+spring.cloud.stream.kafka.binder.brokers: kafka
+---
+spring.config.activate.on-profile: docker1
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
 server.port: 8085
 spring:
@@ -67,7 +79,6 @@ spring:
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
-
 ---
 spring.config.activate.on-profile: streaming_partitioned
 

@@ -15,10 +15,10 @@ public class Event<K, T> {
         DELETE
     }
 
-    private final Type eventType;
-    private final K key;
-    private final T data;
-    private final ZonedDateTime eventCreatedAt;
+    private   Type eventType;
+    private   K key;
+    private   T data;
+    private  ZonedDateTime eventCreatedAt;
 
     public Event() {
         this.eventType = null;

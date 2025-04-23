@@ -137,9 +137,25 @@ logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId
 services.composite.uri: https://localhost:8443
 ---
 spring.config.activate.on-profile: docker
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://14.225.206.109:9999
 server.port: 8080
 services.composite.uri: https://14.225.206.109:8443
+zipkin:
+  baseUrl: http://zipkin-server:9411 # Zipkin server URL (replace with your Zipkin server URL)
+  sender:
+    type: web
+uri:
+  service:
+    discount: http://discount:8095
+    product: http://product:8081
+    recommendation: http://recommendation:8080
+    review: http://review:8080
+    feature: http://feature:8085
+---
+spring.config.activate.on-profile: docker1
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
+server.port: 8080
+services.composite.uri: https://auth-server:8443
 zipkin:
   baseUrl: http://zipkin-server:9411 # Zipkin server URL (replace with your Zipkin server URL)
   sender:
