@@ -35,22 +35,31 @@ public class EmailService  {
     private static class OtpTemplate {
         private final String content;
 
-        public OtpTemplate(User request, String otp, String authUrl) { // Thêm authUrl
-            // Encode các tham số URL để tránh lỗi
+        public OtpTemplate(User request, String otp, String authUrl) {
             String encodedEmail = URLEncoder.encode(request.getEmail(), StandardCharsets.UTF_8);
             String verificationLink = authUrl + "/oauth2/user/verify?email=" + encodedEmail + "&otp=" + otp;
 
-            this.content = "<div style=\"font-family:Arial,sans-serif;min-width:200px;overflow:auto;line-height:1.5\">\n" +
-                    "    <div style=\"background-color:#f2f2f2;margin:50px auto;width:90%;max-width:600px;padding:20px 30px;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,.05)\">\n" +
-                    "        <h2 style=\"color:#111;margin:0 0 20px;font-size:24px;font-weight:bold\">Xác nhận đơn hàng của bạn</h2>\n" +
-                    "        <p style=\"margin:0 0 20px;font-size:16px\">Xin chào " + request.getUsername() + ",</p>\n" +
-                    "        <p style=\"margin:0 0 20px;font-size:16px\">Cảm ơn bạn đã đặt hàng. Vui lòng xác nhận đơn hàng của bạn bằng cách sử dụng mã OTP sau:</p>\n" +
-                    "        <div style=\"background:#00466a;color:#fff;padding:16px;text-align:center;border-radius:4px;font-size:20px;letter-spacing:6px;margin-bottom:20px\">" + otp + "</div>\n" +
-                    "        <p style=\"margin:0 0 20px;font-size:16px\">Hoặc bạn có thể nhấp vào liên kết sau để xác nhận:</p>\n" +
-                    "        <a href=\"" + verificationLink + "\" style=\"background:#20e070;color:#fff;padding:12px 20px;border-radius:4px;text-decoration:none;font-size:16px;margin-bottom:20px;display:inline-block\">Xác nhận đơn hàng</a>\n" + //Thêm link xác nhận
-                    "        <p style=\"margin:0 0 20px;font-size:16px\">Nếu bạn không thực hiện đơn hàng này, vui lòng bỏ qua email này.</p>\n" +
-                    "        <p style=\"margin:0 0 10px;font-size:16px\">Trân trọng,</p>\n" +
-                    "        <p style=\"margin:0 0 0;font-size:16px\">Đội ngũ hỗ trợ khách hàng</p>\n" +
+            this.content = "<div style=\"font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-width: 200px; overflow: auto; line-height: 1.6;\">\n" +
+                    "    <div style=\"background-color: #f7f7f7; margin: 40px auto; width: 95%; max-width: 600px; padding: 30px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.08); border: 1px solid #e0e0e0;\">\n" +
+                    "        <div style=\"text-align: center; margin-bottom: 30px;\">\n" +
+                    "            <h2 style=\"color: #333; margin: 0 0 15px; font-size: 28px; font-weight: 700;\">Xác nhận đăng ký tài khoản</h2>\n" +
+                    "            <p style=\"color: #555; font-size: 16px;\">Chào mừng <strong style=\"font-weight: 600;\">" + request.getUsername() + "</strong>,</p>\n" +
+                    "            <p style=\"color: #555; font-size: 16px; margin-bottom: 20px;\">Cảm ơn bạn đã đăng ký tài khoản tại hệ thống của chúng tôi. Để hoàn tất quá trình đăng ký, vui lòng sử dụng mã OTP hoặc nhấp vào nút xác nhận bên dưới:</p>\n" +
+                    "        </div>\n" +
+                    "        <div style=\"background-color: #007bff; color: #fff; padding: 18px; text-align: center; border-radius: 8px; font-size: 22px; letter-spacing: 8px; margin-bottom: 30px; font-weight: 600;\">" + otp + "</div>\n" +
+                    "        <div style=\"text-align: center; margin-bottom: 30px;\">\n" +
+                    "            <a href=\"" + verificationLink + "\" style=\"background-color: #28a745; color: #fff; padding: 14px 24px; border-radius: 8px; text-decoration: none; font-size: 18px; font-weight: 500; display: inline-block; transition: background-color 0.3s ease;\">\n" +
+                    "                <span style=\"display: inline-block; vertical-align: middle; margin-right: 8px;\">✔️</span> Xác nhận tài khoản\n" +
+                    "            </a>\n" +
+                    "            <p style=\"color: #777; font-size: 14px; margin-top: 10px;\">Hoặc sao chép và dán liên kết sau vào trình duyệt của bạn:</p>\n" +
+                    "            <p style=\"color: #777; font-size: 12px; word-break: break-all;\"><a href=\"" + verificationLink + "\" style=\"color: #007bff; text-decoration: underline;\">" + verificationLink + "</a></p>\n" +
+                    "        </div>\n" +
+                    "        <p style=\"color: #555; font-size: 16px; margin-bottom: 20px;\">Nếu bạn không thực hiện việc đăng ký này, xin vui lòng bỏ qua email này. Tài khoản của bạn sẽ không được kích hoạt.</p>\n" +
+                    "        <hr style=\"border: 1px solid #e0e0e0; margin-bottom: 20px;\">\n" +
+                    "        <div style=\"text-align: center; color: #777; font-size: 14px;\">\n" +
+                    "            <p style=\"margin-bottom: 5px;\">Trân trọng,</p>\n" +
+                    "            <p style=\"margin-bottom: 0;\">Đội ngũ hỗ trợ khách hàng</p>\n" +
+                    "        </div>\n" +
                     "    </div>\n" +
                     "</div>";
         }

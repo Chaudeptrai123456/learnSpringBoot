@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -62,7 +63,7 @@ public class AuthenticateController implements UserService {
         return new ResponseEntity<>("test", HttpStatusCode.valueOf(200));
     }
     @Override
-    public ResponseEntity<String> Register(User temp) {
+    public ResponseEntity<String> Register(@ModelAttribute User temp) {
         System.out.println("test authentication register");
         if (userRepository.existsByEmail(temp.getEmail())){
             return new ResponseEntity<>("Email has existed",HttpStatusCode.valueOf(400));
@@ -76,7 +77,7 @@ public class AuthenticateController implements UserService {
             this.emailService.sendOpt(temp,otp);
             this.redisService.writeUser(temp,otp);
 
-            return ResponseEntity.ok("OTP sent to email. Please verify. " + otp);
+            return ResponseEntity.ok("<h2>check your email</h2>");
         }catch (MessageAggregationException ex) {
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body("error " + ex);
         }

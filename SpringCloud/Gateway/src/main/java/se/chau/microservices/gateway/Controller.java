@@ -26,6 +26,7 @@ public class Controller {
 
 
     // http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write
+    // https://14.225.206.109:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write
 
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 

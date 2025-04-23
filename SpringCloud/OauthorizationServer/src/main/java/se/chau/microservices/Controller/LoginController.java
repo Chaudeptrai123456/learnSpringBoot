@@ -8,4 +8,8 @@ public class LoginController {
     public String loginPage(){
         return  "custom_login";
     }
+    @GetMapping("/user/register")
+    public String registerPage(){
+        return  "custom_regis";
+    }
 }

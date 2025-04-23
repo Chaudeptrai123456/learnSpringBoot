@@ -1,47 +1,111 @@
 body {
-    background-color: #0f2027;
-    font-family: Arial, sans-serif;
-    color: white;
+    background: linear-gradient(90deg, #64b5f6, #4fc3f7); /* Gradient xanh dương nhạt hơn */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333; /* Màu chữ tối hơn */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .login-box {
-    background: #1c1c1c;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px #00fff7;
-    width: 300px;
+    background: #fff; /* Nền trắng cho hộp đăng nhập */
+    padding: 60px; /* Tăng padding */
+    border-radius: 20px; /* Bo tròn góc nhiều hơn */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Đổ bóng rõ hơn */
+    width: 400px; /* Tăng chiều rộng hộp */
+    text-align: center;
+}
+
+.login-box h2 {
+    color: #e53935; /* Màu tiêu đề tương đồng với gradient */
+    margin-bottom: 40px;
+    text-transform: none; /* Không viết hoa tiêu đề */
+    letter-spacing: normal; /* Khoảng cách chữ bình thường */
+    font-size: 2.5em; /* Kích thước chữ lớn hơn */
 }
 
 .user-box {
-    margin-bottom: 20px;
-}
-
-.user-box input {
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid white;
-    color: white;
-    outline: none;
+    margin-bottom: 30px;
+    text-align: left; /* Căn trái nội dung bên trong user-box */
 }
 
 .user-box label {
-    font-size: 14px;
-    color: #aaa;
+    display: block;
+    color: #777;
+    font-size: 1em;
+    margin-bottom: 8px;
+}
+
+.user-box input {
+    width: calc(100% - 20px);
+    padding: 12px;
+    background: #f0f0f0; /* Nền xám nhạt cho input */
+    border: none;
+    border-radius: 10px; /* Bo tròn góc input */
+    color: #333;
+    outline: none;
+    font-size: 1.1em;
 }
 
 button {
     width: 100%;
-    padding: 10px;
-    background: #00fff7;
+    padding: 14px;
+    background: linear-gradient(90deg, #2196f3, #03a9f4); /* Gradient xanh dương */
     border: none;
-    color: black;
+    color: white;
     font-weight: bold;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease;
+    margin-top: 30px; /* Thêm khoảng cách phía trên nút */
+}
+
+button:hover {
+    background: linear-gradient(90deg, #0b7dda, #0288d1); /* Màu hover đậm hơn */
+}
+
+.options {
+    display: flex;
+    justify-content: space-between; /* Chia đều khoảng cách giữa các phần tử */
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.options label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.options input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.options a {
+    color: #2196f3;
+    text-decoration: none;
+}
+
+.options a:hover {
+    text-decoration: underline;
+}
+
+.register-link {
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.register-link a {
+    color: #e53935;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
 }

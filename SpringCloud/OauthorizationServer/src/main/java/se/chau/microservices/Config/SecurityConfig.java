@@ -24,7 +24,7 @@ public class SecurityConfig {
             throws Exception {
         http    .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/user/register"))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/actuator/**","/login.css","/user/login").permitAll()
+                        .requestMatchers("/actuator/**","/login.css","/user/login","/user/register","/oauth2/user/register").permitAll()
                         .requestMatchers("/oauth2/user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/product-composite/**").permitAll()
                         .requestMatchers(HttpMethod.GET,

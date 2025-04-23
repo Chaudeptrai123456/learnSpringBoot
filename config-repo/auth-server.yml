@@ -43,7 +43,7 @@ zipkin:
     type: web
 
 spring.redis:
-  host: 127.0.0.1       # Redis server address (can be changed to an IP address or remote server)
+  host: 172.18.0.2    # Redis server address (can be changed to an IP address or remote server)
   port: 6379
   username: default # Redis server port (default is 6379)
   password: 123 # Redis password (optional, if you have one configured)
