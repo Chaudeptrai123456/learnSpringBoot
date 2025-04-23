@@ -24,14 +24,16 @@ public class SecurityConfig {
             throws Exception {
         http    .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/user/register"))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**","/login.css","/user/login").permitAll()
                         .requestMatchers("/oauth2/user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/product-composite/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/product/**", "/review/**", "/recommendation/**", "/discount/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults());
+//                .formLogin(Customizer.withDefaults());
+
+                .formLogin(form -> form.loginPage("/login").permitAll());
 
         return http.build();
     }

@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Information</title>
+    <title>Đăng nhập nha Châu</title>
+    <link rel="stylesheet" th:href="@{/login.css}">
 </head>
 <body>
-<h1>User Information</h1>
-<p>Email: {{userInfo['email']}}</p>
-<p>Name: {{userInfo['name']}}</p>
-<p>Picture: <img src="{{userInfo['picture']}}" alt="User Picture"></p>
+<div class="login-box">
+    <h2>Chào Châu đẹp trai 😎</h2>
+    <form th:action="@{/login}" method="post">
+        <div class="user-box">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="user-box">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Đăng nhập</button>
+    </form>
+</div>
 </body>
 </html>
-
