@@ -59,7 +59,7 @@ spring:
   data:
     mongodb:
       host: mongodb
-      uri: mongodb://${CONFIG_SERVER_USR}:${CONFIG_SERVER_PWD}@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
+      uri: mongodb://chau:123@mongodb:27017/product-db?authSource=admin&authMechanism=SCRAM-SHA-256
 spring.rabbitmq.host: rabbitmq
 
 spring.cloud.stream.kafka.binder.brokers: kafka
@@ -72,9 +72,9 @@ spring.mail.password: pdyw cdmz npfw qsmt
 spring.mail.properties.mail.smtp.auth: true
 spring.mail.properties.mail.transport.protocol: smtp
 spring.mail.properties.mail.smtp.starttls.enable: true
-url-product-sumcost: http://product:80/product/sumcost
+url-product-sumcost: http://product:8081/product/sumcost
 
-url-userInfo: http://auth-server:80/user/getInfo
+url-userInfo: http://auth-server:9999/user/getInfo
 ---
 spring.config.activate.on-profile: docker1
 spring.security.oauth2.resourceserver.jwt.issuer-uri: http://auth-server:9999
@@ -96,9 +96,9 @@ spring.mail.password: pdyw cdmz npfw qsmt
 spring.mail.properties.mail.smtp.auth: true
 spring.mail.properties.mail.transport.protocol: smtp
 spring.mail.properties.mail.smtp.starttls.enable: true
-url-product-sumcost: http://product:80/product/sumcost
+url-product-sumcost: http://product:8081/product/sumcost
 
-url-userInfo: http://auth-server:80/user/getInfo
+url-userInfo: http://auth-server:9999/user/getInfo
 ---
 spring.config.activate.on-profile: streaming_partitioned
 

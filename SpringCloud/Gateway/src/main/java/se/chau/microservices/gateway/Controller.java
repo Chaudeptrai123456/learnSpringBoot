@@ -24,15 +24,15 @@ public class Controller {
     // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
     // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 
-
     // http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write
-    // https://14.225.206.109:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write
+    // https://chaudeptrai.pro.vn:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://backend.chaudeptrai.pro.vn:8443/oauth2/code&scope=openid%20product:read%20product:write
 
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     @Value("${host.auth}")
     private String authohost;
     @Value("${port.auth}")
+
     private String authport;
     @GetMapping(value = "/oauth2/code")
     public OAuth2TokenResponse exchangeCodeForToken(

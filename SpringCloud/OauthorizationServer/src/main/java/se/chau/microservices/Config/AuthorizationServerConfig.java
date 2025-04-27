@@ -79,6 +79,7 @@ public class AuthorizationServerConfig
         http
                 .securityMatcher(endpointsMatcher)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+                .csrf(Customizer.withDefaults())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
                 .with(authorizationServerConfigurer, Customizer.withDefaults()); // p Dùng `with()` thay vì `apply()`
 
@@ -92,6 +93,7 @@ public class AuthorizationServerConfig
                 )
 
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+
 
         return http.build();
     }

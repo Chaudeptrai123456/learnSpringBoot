@@ -37,6 +37,7 @@ import se.chau.microservices.api.discount.DiscountService;
 import se.chau.microservices.api.event.Event;
 import se.chau.microservices.api.exception.InvalidInputException;
 import se.chau.microservices.api.exception.NotFoundException;
+import se.chau.microservices.core.product_composite.service.Cache.RedisService;
 import se.chau.microservices.util.http.HttpErrorInfo;
 import se.chau.microservices.util.http.ServiceUtil;
 
@@ -66,18 +67,22 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private  String FEATURE_SERVICE_URL;
     @Value("${uri.service.discount}")
     private String DISCOUNT_SERVICE_URL;
+
+    private final RedisService redisService;
+
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
             WebClient webClient,
             ObjectMapper mapper,
             StreamBridge streamBridge,
-            ServiceUtil serviceUtil ) {
+            ServiceUtil serviceUtil, RedisService redisService) {
         this.webClient = webClient;
         this.publishEventScheduler = publishEventScheduler;
         this.mapper = mapper;
         this.streamBridge = streamBridge;
         this.serviceUtil = serviceUtil;
+        this.redisService = redisService;
     }
     @Override
     public Mono<Product> createProduct(Product product) {
@@ -139,19 +144,34 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         return null;
     }
 
+//    @Override
+//    public Mono<Product> updateProduct(ProductUpdate product, int productId) throws HttpClientErrorException {
+//        if (productId == 13) {
+//            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+//            LOG.warn(errMsg);
+//            throw new NotFoundException(errMsg);
+//        }
+//        return Mono.fromCallable(() -> {
+//             sendMessage("products-out-0", new Event(UPDATE, productId, product));
+//             return this.getProduct(productId);
+//            }).subscribeOn(publishEventScheduler).block();
+//        }
     @Override
-    public Mono<Product> updateProduct(ProductUpdate product, int productId) throws HttpClientErrorException {
+    public Mono<Product> updateProduct(ProductUpdate product, int productId) {
         if (productId == 13) {
             String errMsg = "Product Id: " + productId + " not found in fallback cache!";
             LOG.warn(errMsg);
-            throw new NotFoundException(errMsg);
-        }
-        return Mono.fromCallable(() -> {
-             sendMessage("products-out-0", new Event(UPDATE, productId, product));
-             return this.getProduct(productId);
-            }).subscribeOn(publishEventScheduler).block();
+            return Mono.error(new NotFoundException(errMsg));
         }
 
+        sendMessage("products-out-0", new Event(UPDATE, productId, product));
+
+        return Mono.fromRunnable(() -> {
+                redisService.delete("product", productId);
+                LOG.info("Deleted product cache for productId={}", productId);
+            })
+            .then(this.getProduct(productId));
+    }
     @Override
     public Mono<Double> sumCost(List<ProductOrder> list) {
         return this.sumCost(list);

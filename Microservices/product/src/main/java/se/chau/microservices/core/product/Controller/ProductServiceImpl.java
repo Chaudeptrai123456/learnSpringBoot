@@ -187,38 +187,47 @@ public class ProductServiceImpl implements ProductService {
         return e;
     }
     @Override
-    public Mono<Double> sumCost(List<ProductOrder> list) throws HttpClientErrorException{
-        try {
-            LOG.info("call from order service");
-            return Mono.fromCallable(()->{
-                return list.stream()
-                        .map(index -> {
-                            LOG.info("test update product " + index.getProductId());
-                            ProductUpdate productUpdate = new ProductUpdate();
-                            productUpdate.setQuantity(-index.getQuantity());
-                            productUpdate.setCost(0);
-                            Product product = this.updateProduct(productUpdate, index.getProductId()).block();
-                            return product != null ? product.getCost() * index.getQuantity()*getSaleOff(index.getProductId()) : 0.0;
-                        })   // Map to the price of each product
-                        .reduce(0.0, Double::sum);
-            });
-        } catch (Error error) {
-            throw new InvalidInputException(error.getMessage());
+    public Mono<Double> sumCost(List<ProductOrder> orders) {
+        if (orders == null || orders.isEmpty()) {
+            return Mono.just(0.0);
         }
 
+        return Flux.fromIterable(orders)
+                .flatMap(order -> {
+                    ProductUpdate productUpdate = new ProductUpdate();
+                    productUpdate.setQuantity(-order.getQuantity());
+                    productUpdate.setCost(0);
+
+                    return updateProduct(productUpdate, order.getProductId())
+                            .flatMap(updatedProduct -> getSaleOff(order.getProductId())
+                                    .defaultIfEmpty(0.0)
+                                    .map(saleOff -> updatedProduct.getCost() * order.getQuantity() * (1 - saleOff))
+                            )
+                            .onErrorResume(error -> {
+                                LOG.error("Error updating or calculating saleOff for productId {}: {}", order.getProductId(), error.getMessage());
+                                return Mono.just(0.0); // Nếu lỗi thì tính tiền sản phẩm đó = 0
+                            });
+                })
+                .reduce(0.0, Double::sum)
+                .doOnSuccess(total -> LOG.info("Total sum cost: {}", total))
+                .doOnError(error -> LOG.error("Error in sumCost: {}", error.getMessage()));
     }
-    private Double getSaleOff(int productId){
-        var discounts =  webClient.get().uri(urlDiscount+productId).retrieve()
+
+    private Mono<Double> getSaleOff(int productId){
+        return webClient.get()
+                .uri(urlDiscount + productId)
+                .retrieve()
                 .bodyToFlux(Discount.class)
-                .log(LOG.getName(),FINE)
-                .doOnError(error -> LOG.debug("ERROR get info from product service: " + error.getMessage())).collectList().block();
-        AtomicReference<Double> resutl = new AtomicReference<>(0.0);
-        assert discounts != null;
-        discounts.forEach(index->{
-            resutl.updateAndGet(v -> v + index.getValue());
-        });
-        return resutl.get()/100;
+                .log(LOG.getName(), FINE)
+                .doOnError(error -> LOG.debug("ERROR get info from product service: " + error.getMessage()))
+                .collectList()
+                .map(discounts -> {
+                    AtomicReference<Double> result = new AtomicReference<>(0.0);
+                    discounts.forEach(index -> result.updateAndGet(v -> v + index.getValue()));
+                    return result.get() / 100;
+                });
     }
+
     private Order setServiceAddress(Order e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;
@@ -266,7 +275,6 @@ public class ProductServiceImpl implements ProductService {
     private String getErrorMessage(WebClientResponseException ex) {
         return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
     }
-
     private Boolean checkQuantity(int quantity, int productQuantity){
         return quantity > productQuantity;
     }

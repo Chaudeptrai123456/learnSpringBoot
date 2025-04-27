@@ -26,6 +26,34 @@ services:
 #      - "2181:2181"
 #    environment:
 #      - ZOOKEEPER_CLIENT_PORT=2181
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "81:80"
+      - "441:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/custom.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro  # nếu dùng SSL
+    networks:
+      - proxy
+
+  letsencrypt:
+      image: jrcs/letsencrypt-nginx-proxy-companion
+      container_name: nginx-letsencrypt
+      environment:
+        NGINX_PROXY_CONTAINER: nginx-proxy
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - ./certs:/etc/nginx/certs
+        - ./vhost.d:/etc/nginx/vhost.d
+        - ./html:/usr/share/nginx/html
+      networks:
+        - proxy
+      depends_on:
+        - nginx-proxy
 
   mysql:
     image: mysql:8.0
@@ -119,18 +147,18 @@ services:
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
     depends_on:
       - config-server
-  review:
-    build: Microservices/review
-    image: hands-on/review
-    mem_limit: 512m
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
-      - SPRING_SECURITY_USER_NAME=user
-      - SPRING_SECURITY_USER_PASSWORD=123
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-    depends_on:
-      - config-server
+#  review:
+#    build: Microservices/review
+#    image: hands-on/review
+#    mem_limit: 512m
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
+#      - SPRING_SECURITY_USER_NAME=user
+#      - SPRING_SECURITY_USER_PASSWORD=123
+#      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
+#      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+#    depends_on:
+#      - config-server
 #  review2:
 #    build: Microservices/review
 #    image: hands-on/review
@@ -148,8 +176,8 @@ services:
     image: hands-on/order
     build: Microservices/order
     depends_on:
-      - mongodb
       - auth-server
+      - mongodb
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0
@@ -226,6 +254,8 @@ services:
   gateway:
     build: SpringCloud/Gateway
     image: hands-on/gateway
+    depends_on:
+      - config-server
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
@@ -236,12 +266,17 @@ services:
   auth-server:
     build: SpringCloud/OauthorizationServer
     image: hands-on/auth-server
+    depends_on:
+      - config-server
     ports:
       - "9999:9999"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
       - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - VIRTUAL_HOST= backend.chaudeptrai.pro.vn
+        - LETSENCRYPT_HOST= backend.chaudeptrai.pro.vn
+        - LETSENCRYPT_EMAIL= your@email.com
   zipkin-server:
     image: openzipkin/zipkin:2.24.0
     container_name: zipkin-server
@@ -260,7 +295,9 @@ services:
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
-
+networks:
+  proxy:
+    driver: bridge
 #  redis_insight:
 #    image: redislabs/redisinsight:latest
 #    container_name: redis_insight
