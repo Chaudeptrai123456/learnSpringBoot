@@ -4,6 +4,28 @@ Welcome to the **Learn Spring Boot** project! This branch (`microservice`) focus
 
 ---
 
+## 📝 Summary
+
+This README is structured to help you understand the key aspects of the project:
+
+1. **Microservices**  
+   - Autonomous services collaborate to handle complex tasks.
+   - Data is aggregated using **Composite Services** for unified responses.
+
+2. **Spring Cloud**  
+   - **Auth-Server** handles authentication and authorization for all requests coming to the **Gateway**.
+   - **Gateway** verifies user permissions and forwards requests to the appropriate microservices.
+
+3. **Shared Components**  
+   - **Utils Library** provides reusable functions (e.g., logging, JWT handling).  
+   - **API Library** ensures consistency in API contracts and error handling across services.
+
+4. **Workflow**  
+   - Describes the development and deployment lifecycle.  
+   - Includes CI/CD automation using **GitHub Actions** and Docker-based deployments.
+
+---
+
 ## 🌟 Key Areas
 
 ### 1️⃣ Microservices
@@ -29,10 +51,15 @@ Welcome to the **Learn Spring Boot** project! This branch (`microservice`) focus
   Spring Cloud provides tools for developers to quickly build distributed systems and microservices. It simplifies the complexities of service discovery, configuration management, and load balancing.
 
 - **How it's implemented in this project?**
+  - **Auth-Server**: 
+    - Centralized service responsible for authenticating users and authorizing their requests.
+    - Issues and validates **JWT tokens** to ensure secure communication between components.
+    - Ensures that only authenticated and authorized users can access the **Gateway**.
+  - **Gateway**:
+    - Acts as the second layer of security by verifying user permissions based on the roles and claims in the **JWT token**.
+    - Forwards authorized requests to the appropriate microservices for processing.
   - **Eureka Server**: Handles service discovery, allowing services to register and discover one another.
   - **Spring Cloud Config Server**: Centralized configuration management.
-  - **Spring Cloud Gateway**: API Gateway for routing external requests to appropriate microservices.
-  - **Ribbon**: Client-side load balancing for efficient routing of requests.
 
 - **Spring Cloud Features in this Project:**
   - Dynamic load balancing for distributed systems.
