@@ -92,7 +92,11 @@ public class AuthorizationServerConfig
                         exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 )
 
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer(
+                        oauth2 -> oauth2
+                                .jwt(Customizer.withDefaults())
+                                .bearerTokenResolver(new HeaderAndCookieBearerTokenResolver()) // Thêm dòng này!
+                );
 
 
         return http.build();

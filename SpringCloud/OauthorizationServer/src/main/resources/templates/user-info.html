@@ -11,3 +11,119 @@
 <a href="/logout">Logout</a>
 </body>
 </html>
+
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Token and Product Data</title>-->
+<!--    <style>-->
+<!--        /* CSS như gửi bên trên */-->
+<!--        body {-->
+<!--            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;-->
+<!--            padding: 40px;-->
+<!--            background-color: #f9f9f9;-->
+<!--            color: #333;-->
+<!--        }-->
+
+<!--        h1 {-->
+<!--            font-size: 32px;-->
+<!--            margin-bottom: 20px;-->
+<!--            color: #222;-->
+<!--        }-->
+
+<!--        .token-box {-->
+<!--            background: #ffffff;-->
+<!--            padding: 12px 16px;-->
+<!--            border: 1px solid #ccc;-->
+<!--            border-radius: 6px;-->
+<!--            margin-bottom: 20px;-->
+<!--            word-wrap: break-word;-->
+<!--            font-family: monospace;-->
+<!--            font-size: 14px;-->
+<!--            white-space: pre-wrap;-->
+<!--        }-->
+
+<!--        table {-->
+<!--            width: 100%;-->
+<!--            border-collapse: collapse;-->
+<!--            background: #fff;-->
+<!--            border: 1px solid #ddd;-->
+<!--            border-radius: 6px;-->
+<!--            overflow: hidden;-->
+<!--            box-shadow: 0 0 8px rgba(0, 0, 0, 0.03);-->
+<!--        }-->
+
+<!--        th, td {-->
+<!--            padding: 12px 16px;-->
+<!--            text-align: left;-->
+<!--            border-bottom: 1px solid #eee;-->
+<!--        }-->
+
+<!--        th {-->
+<!--            background-color: #f1f1f1;-->
+<!--            font-weight: 600;-->
+<!--        }-->
+
+<!--        tr:hover {-->
+<!--            background-color: #fafafa;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Token and Product Data</h1>-->
+
+<!--<h2>Access Token:</h2>-->
+<!--<div class="token-box" id="accessTokenBox">[[${accessToken}]]</div>-->
+
+<!--<h2>Refresh Token:</h2>-->
+<!--<div class="token-box" id="refreshTokenBox">[[${refreshToken}]]</div>-->
+
+<!--<h2>Product Data:</h2>-->
+<!--<div id="productTableContainer"></div>-->
+
+<!--<script>-->
+<!--    // Lấy JSON từ Thymeleaf (escape để đảm bảo an toàn)-->
+<!--    const productDataJson = /*[[${productData}]]*/ '[]';-->
+<!--    let productList;-->
+<!--    try {-->
+<!--        productList = JSON.parse(productDataJson);-->
+<!--    } catch (e) {-->
+<!--        document.getElementById('productTableContainer').innerHTML = '<p style="color:red;">Lỗi khi parse dữ liệu sản phẩm</p>';-->
+<!--        throw e;-->
+<!--    }-->
+<!--    console.log("test " + productList);-->
+
+<!--    if (!Array.isArray(productList)) {-->
+<!--        document.getElementById('productTableContainer').innerHTML = '<p>Không có dữ liệu sản phẩm.</p>';-->
+<!--    } else {-->
+<!--        const table = document.createElement('table');-->
+
+<!--        const header = `-->
+<!--            <tr>-->
+<!--                <th>ID</th>-->
+<!--                <th>Tên</th>-->
+<!--                <th>Số lượng</th>-->
+<!--                <th>Giá</th>-->
+<!--                <th>Dịch vụ</th>-->
+<!--            </tr>`;-->
+<!--        table.innerHTML = header;-->
+
+<!--        for (const product of productList) {-->
+<!--            const row = document.createElement('tr');-->
+<!--            row.innerHTML = `-->
+<!--                <td>${product.productId}</td>-->
+<!--                <td>${product.name}</td>-->
+<!--                <td>${product.quantity}</td>-->
+<!--                <td>${product.cost}</td>-->
+<!--                <td>${product.serviceAddresses ?? 'Không có'}</td>-->
+<!--            `;-->
+<!--            table.appendChild(row);-->
+<!--        }-->
+
+<!--        document.getElementById('productTableContainer').appendChild(table);-->
+<!--    }-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>

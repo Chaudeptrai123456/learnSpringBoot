@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Spring Boot - Microservice</title>
+    <style>
+        /* Reset and global styles */
+
+        #workflow-container {
+            display: none; /* Ẩn khung mô tả ban đầu */
+            position: absolute;
+            background-color: #FFC107;
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        #workflow-container ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        #workflow-container ul li {
+            margin-bottom: 10px;
+        }
+
+        #workflow-container h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #toggle-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #toggle-button:hover {
+            background-color: #45a049;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f0f0;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        /* Header styling */
+        header {
+            background: #333333;
+            color: #ffffff;
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffcc00;
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            padding: 8rem 2rem 4rem;
+        }
+
+        main section {
+            display: none;
+            background: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+
+        main section.active {
+            display: block;
+        }
+
+        section h2 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 1rem;
+        }
+
+        section ul {
+            padding-left: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        section p, section ul, section li {
+            color: #555555;
+        }
+
+        /* Footer styling */
+        footer {
+            background: #333333;
+            color: #ffffff;
+            text-align: center;
+            padding: 1rem 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <!-- Header with navigation -->
+    <header>
+        <h1 onclick="showAllSections()">Learn Spring Boot</h1>
+        <nav>
+            <a onclick="showSection('summary')">Summary</a>
+            <a onclick="showSection('key-areas')">Key Areas</a>
+            <a onclick="showSection('workflow')">Workflow</a>
+            <a onclick="handleLogin()">Login</a> <!-- Updated to call handleLogin -->
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <!-- Summary Section -->
+        <section id="summary" class="active">
+            <h2>I. 📝 Summary</h2>
+            <p>
+                Welcome to the <strong>Learn Spring Boot</strong> project! This branch (<code>microservice</code>) focuses on building and understanding microservices using Spring Boot.
+            </p>
+            <h3>Key Highlights</h3>
+            <ul>
+                <li><strong>Microservices:</strong> Autonomous services collaborate to handle complex tasks. Data is aggregated using <strong>Composite Services</strong> for unified responses.</li>
+                <li><strong>Spring Cloud:</strong> Auth-Server handles authentication and authorization for all requests coming to the Gateway. Gateway verifies user permissions and forwards requests to the appropriate microservices.</li>
+                <li><strong>Shared Components:</strong> Utils Library provides reusable functions (e.g., logging, JWT handling). API Library ensures consistency in API contracts and error handling across services.</li>
+                <li><strong>Workflow:</strong> Describes the development and deployment lifecycle. Includes CI/CD automation using GitHub Actions and Docker-based deployments.</li>
+            </ul>
+            <h3>Microservices</h3>
+            <p>
+                Microservices is an architectural style that structures an application as a collection of small, autonomous services, modeled around a business domain.
+            </p>
+            <p><strong>How it's implemented in this project?</strong></p>
+            <ul>
+                <li>Each microservice is designed to handle a specific business capability.</li>
+                <li>Services communicate with each other using REST APIs.</li>
+                <li>Multiple services collaborate to handle complex tasks, ensuring scalability and modularity.</li>
+                <li>Composite services act as aggregators, combining data from multiple services to provide a unified response for complex operations.</li>
+            </ul>
+            <p><strong>Key Features of Microservices in this Project:</strong></p>
+            <ul>
+                <li>Independent deployments.</li>
+                <li>Decentralized data management with separate databases for each service.</li>
+                <li>Fault isolation to prevent cascading failures.</li>
+                <li>Support for task orchestration and data aggregation through composite services.</li>
+            </ul>
+            <h3>Spring Cloud</h3>
+            <p>
+                Spring Cloud provides tools for developers to quickly build distributed systems and microservices. It simplifies the complexities of service discovery, configuration management, and load balancing.
+            </p>
+            <p><strong>How it's implemented in this project?</strong></p>
+            <ul>
+                <li><strong>Auth-Server:</strong> Centralized service responsible for authenticating users and authorizing their requests. Issues and validates JWT tokens to ensure secure communication between components.</li>
+                <li><strong>Gateway:</strong> Acts as the second layer of security by verifying user permissions based on the roles and claims in the JWT token. Forwards authorized requests to the appropriate microservices for processing.</li>
+                <li><strong>Eureka Server:</strong> Handles service discovery, allowing services to register and discover one another.</li>
+                <li><strong>Spring Cloud Config Server:</strong> Centralized configuration management.</li>
+            </ul>
+            <p><strong>Spring Cloud Features in this Project:</strong></p>
+            <ul>
+                <li>Dynamic load balancing for distributed systems.</li>
+                <li>Centralized and externalized configurations for easy management.</li>
+                <li>Resilience tools such as circuit breakers.</li>
+            </ul>
+            <h3>Shared Components</h3>
+            <p>Shared components are libraries or modules that are used across all microservices to ensure consistency and reduce redundancy.</p>
+            <h4>Utils Library</h4>
+            <ul>
+                <li>Provides common reusable functions to simplify development and avoid code duplication.</li>
+                <li>Key functionalities include logging utilities, date and time formatting helpers, string operations, and JWT utilities (e.g., token generation, validation).</li>
+            </ul>
+            <h4>API Library</h4>
+            <ul>
+                <li>Ensures consistency in API contracts and error handling across all services.</li>
+                <li>Key functionalities include common request and response DTOs, standardized error handling, and exception classes.</li>
+            </ul>
+            <p><strong>Key Benefits:</strong></p>
+            <ul>
+                <li>Centralized management of common logic.</li>
+                <li>Improved maintainability and reduced code duplication.</li>
+                <li>Ensured consistency across microservices.</li>
+            </ul>
+            <h3>Workflow</h3>
+            <p>The workflow explains how the system moves from development to deployment and how tasks are automated using CI/CD pipelines.</p>
+            <ul>
+                <li><strong>Local Development Workflow:</strong> Develop and test microservices locally. Use Docker Compose (local environment) for integration testing.</li>
+                <li><strong>Production Workflow:</strong> Push code changes to the repository. CI/CD pipelines build, test, and deploy changes automatically.</li>
+                <li><strong>CI/CD Automation:</strong> GitHub Actions is used for automating builds, tests, and deployments. Docker images are built and pushed to a container registry before deployment.</li>
+            </ul>
+            <h3>🏗️ Tech Stack</h3>
+            <ul>
+                <li><strong>Java:</strong> Programming language</li>
+                <li><strong>Spring Boot:</strong> Framework for microservices</li>
+                <li><strong>Spring Cloud:</strong> Tools for distributed systems</li>
+                <li><strong>H2/MySQL:</strong> Database integration</li>
+                <li><strong>Gradle:</strong> Dependency management</li>
+                <li><strong>Docker Compose:</strong> Container orchestration</li>
+            </ul>
+            <h3>📖 How to Use</h3>
+            <p><strong>Setting up locally:</strong></p>
+            <ol>
+                <li>Clone the repository:
+                    <pre><code>git clone https://github.com/Chaudeptrai123456/learnSpringBoot.git</code></pre>
+                </li>
+                <li>Checkout to the <code>microservice</code> branch:
+                    <pre><code>git checkout microservice</code></pre>
+                </li>
+                <li>Import the project into your favorite IDE (e.g., IntelliJ, Eclipse).</li>
+                <li>Run the application:
+                    <pre><code>./gradlew bootRun</code></pre>
+                </li>
+            </ol>
+            <p><strong>Using Docker Compose:</strong></p>
+            <ol>
+                <li>Navigate to the root directory of the project.</li>
+                <li>Start all services in the desired environment:
+                    <ul>
+                        <li><strong>Local:</strong>
+                            <pre><code>docker-compose -f docker-compose-local.yml up</code></pre>
+                        </li>
+                        <li><strong>Production:</strong>
+                            <pre><code>docker-compose -f docker-compose-prod.yml up</code></pre>
+                        </li>
+                    </ul>
+                </li>
+            </ol>
+            <h3>🤝 Contributing</h3>
+            <p>Contributions are welcome! Please follow these steps:</p>
+            <ol>
+                <li>Fork the repository.</li>
+                <li>Create a new branch:
+                    <pre><code>git checkout -b feature-name</code></pre>
+                </li>
+                <li>Commit your changes:
+                    <pre><code>git commit -m 'Add some feature'</code></pre>
+                </li>
+                <li>Push to the branch:
+                    <pre><code>git push origin feature-name</code></pre>
+                </li>
+                <li>Open a Pull Request.</li>
+            </ol>
+            <h3>📜 License</h3>
+            <p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for more details.</p>
+        </section>
+        </section>
+
+        <section id="key-areas" class="active">
+            <h2>🌟 Key Areas</h2>
+            <div class="accordion">
+                <!-- Microservices Accordion -->
+                <div class="accordion-item">
+                    <button class="accordion-header" onclick="toggleAccordion(this)">
+                        1️⃣ Microservices - A modern architectural style for scalable systems
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Microservices architecture is a modern approach to designing software systems. It breaks down a monolithic application into a collection of smaller, independent services. Each microservice is responsible for a specific business capability and can be developed, deployed, and scaled independently.
+                        </p>
+                        <p>
+                            In this project, microservices are implemented to handle various aspects of the system.
+                        </p>
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li><strong>Autonomy:</strong> Each service operates independently and communicates with others using well-defined APIs.</li>
+                            <li><strong>Scalability:</strong> Services can be scaled individually based on demand.</li>
+                            <li><strong>Fault Isolation:</strong> Failures in one service do not cascade to others, ensuring system stability.</li>
+                        </ul>
+                        <p>
+                            For example, the system includes a <strong>User Management Service</strong> for handling user registration and authentication. It works alongside an <strong>Order Processing Service</strong>, which manages orders and inventory. These services collaborate seamlessly through REST APIs.
+                        </p>
+                        <h4>Advantages of Microservices:</h4>
+                        <ul>
+                            <li>Improves development velocity as teams can work on different services independently.</li>
+                            <li>Allows diverse technology stacks for different services, optimizing performance.</li>
+                            <li>Facilitates easier debugging due to smaller, focused codebases.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Spring Cloud Accordion -->
+                <div class="accordion-item">
+                    <button class="accordion-header" onclick="toggleAccordion(this)">
+                        2️⃣ Spring Cloud - Tools to simplify distributed systems
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            <strong>Spring Cloud</strong> is a set of tools designed to simplify the complexities of building distributed systems. It provides solutions for common challenges such as service discovery, load balancing, centralized configuration, and resilience.
+                        </p>
+                        <p>
+                            In this project, Spring Cloud is leveraged extensively to ensure seamless integration between microservices. Below are the key components used:
+                        </p>
+                        <h4>Key Components:</h4>
+                        <ul>
+                            <li><strong>Auth-Server:</strong> A centralized server responsible for authenticating users and authorizing their requests. It uses OAuth 2.0 and JWT tokens for secure communication.</li>
+                            <li><strong>Gateway:</strong> Acts as the entry point for all client requests. It verifies user permissions and forwards requests to appropriate services.</li>
+                            <li><strong>Eureka Server:</strong> Provides service discovery, allowing microservices to dynamically locate and communicate with each other without hardcoding IP addresses.</li>
+                            <li><strong>Config Server:</strong> Manages centralized configuration for all services, making it easier to update settings across the system.</li>
+                        </ul>
+                        <p>
+                            These components work together to address the challenges of a distributed system. For example, the Gateway ensures security by validating tokens, while the Eureka Server simplifies service-to-service communication.
+                        </p>
+                        <h4>Resilience and Monitoring:</h4>
+                        <ul>
+                            <li><strong>Circuit Breaker:</strong> Prevents cascading failures by stopping requests to failing services.</li>
+                            <li><strong>Load Balancing:</strong> Distributes traffic evenly across service instances to optimize performance.</li>
+                            <li><strong>Monitoring:</strong> Tools like Prometheus and Grafana are used to monitor system health and performance in real-time.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Shared Components Accordion -->
+                <div class="accordion-item">
+                    <button class="accordion-header" onclick="toggleAccordion(this)">
+                        3️⃣ Shared Components - Centralized libraries for consistency
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Shared components are an essential part of this project, ensuring consistency and reducing redundancy. These are libraries or modules used across multiple microservices.
+                        </p>
+                        <h4>Utils Library:</h4>
+                        <p>
+                            The Utils Library provides reusable functions to simplify development. Key functionalities include:
+                        </p>
+                        <ul>
+                            <li>Logging utilities: Standardized logging across all services.</li>
+                            <li>Date and time helpers: Functions for formatting and manipulating dates.</li>
+                            <li>JWT utilities: Generating and validating tokens for secure communication.</li>
+                        </ul>
+                        <h4>API Library:</h4>
+                        <p>
+                            The API Library ensures consistency in API contracts and error handling. Key features include:
+                        </p>
+                        <ul>
+                            <li>Common request and response DTOs: Standardized data transfer objects for inter-service communication.</li>
+                            <li>Error handling: Unified exception classes and error codes.</li>
+                        </ul>
+                        <h4>Benefits of Shared Components:</h4>
+                        <ul>
+                            <li>Centralized management of common logic reduces code duplication.</li>
+                            <li>Improves maintainability by isolating reusable code.</li>
+                            <li>Ensures consistency across all services, making the system easier to debug and scale.</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+
+
+
+
+            </div>
+        </section>
+
+        <script>
+            function toggleAccordion(button) {
+                const content = button.nextElementSibling;
+                button.classList.toggle('active');
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            }
+        </script>
+
+        <style>
+            .accordion {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+            }
+
+            .accordion-item {
+                margin-bottom: 1rem;
+            }
+
+            .accordion-header {
+                background-color: #f7f7f7;
+                padding: 1rem;
+                width: 100%;
+                text-align: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                font-size: 1rem;
+                font-weight: bold;
+                transition: background 0.3s ease;
+            }
+
+            .accordion-header:hover {
+                background-color: #e2e2e2;
+            }
+
+            .accordion-header.active {
+                background-color: #d1d1d1;
+            }
+
+            .accordion-content {
+                display: none;
+                padding: 1rem;
+                background-color: #ffffff;
+                border: 1px solid #ddd;
+                border-top: none;
+                border-radius: 0 0 8px 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+
+        <!-- Workflow Section -->
+        <section id="workflow">
+            <h2>🚀 Workflow</h2>
+            <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 800 800"
+                    style="border: 1px solid #ddd; background-color: #f9f9f9; font-family: Arial, sans-serif;"
+            >
+                <!-- Client -->
+                <circle cx="170" cy="175" r="25" fill="#2196F3"></circle>
+                <text x="170" y="180" text-anchor="middle" fill="#fff" font-size="12">Client</text>
+
+                <!-- API Gateway -->
+                <rect x="350" y="150" width="100" height="50" fill="#4CAF50" rx="8"></rect>
+                <text x="400" y="180" text-anchor="middle" fill="#fff" font-size="14">API Gateway</text>
+
+                <!-- Auth-Server -->
+                <rect id="auth-server" x="550" y="150" width="120" height="50" fill="#FF5722" rx="8" style="cursor: pointer;"></rect>
+                <text x="610" y="180" text-anchor="middle" fill="#fff" font-size="14">Auth-Server</text>
+
+                <!-- Product-Composite -->
+                <rect x="250" y="300" width="150" height="50" fill="#9C27B0" rx="8"></rect>
+                <text x="325" y="330" text-anchor="middle" fill="#fff" font-size="14">Product-Composite</text>
+
+                <!-- Order-Composite -->
+                <rect x="450" y="300" width="150" height="50" fill="#03A9F4" rx="8"></rect>
+                <text x="525" y="330" text-anchor="middle" fill="#fff" font-size="14">Order-Composite</text>
+
+                <!-- Request Arrow -->
+                <line x1="200" y1="175" x2="350" y2="175" stroke="#888" stroke-width="2" marker-end="url(#arrow)" />
+                <text x="275" y="160" text-anchor="middle" fill="#333" font-size="12">Request</text>
+
+                <!-- Authentication Arrow -->
+                <line x1="450" y1="175" x2="550" y2="175" stroke="#888" stroke-width="2" marker-end="url(#arrow)" />
+                <text x="500" y="160" text-anchor="middle" fill="#333" font-size="8">
+                    Authentication/Authorization
+                </text>
+                <line x1="550" y1="200" x2="450" y2="200" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)" />
+                <text x="500" y="215" text-anchor="middle" fill="#FF9800" font-size="12">Send Token</text>
+
+                <line x1="400" y1="200" x2="325" y2="300" stroke="#673AB7" stroke-width="2" marker-end="url(#arrow-purple)" />
+                <text x="360" y="250" text-anchor="middle" fill="#673AB7" font-size="12" transform="rotate(-45, 360, 250)">handle admin task</text>
+
+                <!-- Order-Composite Arrow (API Gateway → Order-Composite) -->
+                <line x1="400" y1="200" x2="525" y2="300" stroke="#2196F3" stroke-width="2" marker-end="url(#arrow-blue)" />
+                <text x="460" y="250" text-anchor="middle" fill="#2196F3" font-size="12" transform="rotate(45, 460, 250)">handle-order</text>
+
+                <!-- Microservices Region -->
+                <rect x="100" y="500" width="600" height="250" fill="none" stroke="#FFC107" stroke-width="2" stroke-dasharray="5,5"></rect>
+                <text x="400" y="520" text-anchor="middle" fill="#FFC107" font-size="16" font-weight="bold">Microservices</text>
+
+                <!-- Microservice: Product-Service -->
+                <rect x="150" y="550" width="150" height="50" fill="#8E24AA" rx="8"></rect>
+                <text x="225" y="580" text-anchor="middle" fill="#fff" font-size="14">Product-Service</text>
+
+                <!-- Microservice: Order-Service -->
+                <rect x="350" y="550" width="150" height="50" fill="#0288D1" rx="8"></rect>
+                <text x="425" y="580" text-anchor="middle" fill="#fff" font-size="14">Order-Service</text>
+
+                <!-- Microservice: Review-Service -->
+                <rect x="150" y="650" width="150" height="50" fill="#FF5722" rx="8"></rect>
+                <text x="225" y="680" text-anchor="middle" fill="#fff" font-size="14">Review-Service</text>
+
+                <!-- Microservice: Recommendation-Service -->
+                <rect x="350" y="650" width="150" height="50" fill="#FF9800" rx="8"></rect>
+                <text x="425" y="680" text-anchor="middle" fill="#fff" font-size="14">Recommendation-Service</text>
+
+                <!-- Microservice: Order-Email-Service -->
+                <rect x="550" y="650" width="150" height="50" fill="#4CAF50" rx="8"></rect>
+                <text x="625" y="680" text-anchor="middle" fill="#fff" font-size="14">Order-Email-Service</text>
+
+                <!-- Arrows from Product-Composite to new services -->
+                <line x1="325" y1="350" x2="225" y2="550" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrow-purple)" />
+
+                <line x1="325" y1="350" x2="225" y2="650" stroke="#FF5722" stroke-width="2" marker-end="url(#arrow-red)" />
+
+                <line x1="325" y1="350" x2="425" y2="650" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)" />
+
+                <!-- Arrows from Order-Composite to new services -->
+                <line x1="525" y1="350" x2="425" y2="550" stroke="#03A9F4" stroke-width="2" marker-end="url(#arrow-blue)" />
+
+                <line x1="525" y1="350" x2="625" y2="650" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrow-green)" />
+
+                <!-- Arrow Definition -->
+                <defs>
+                    <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#9C27B0" />
+                    </marker>
+                    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#03A9F4" />
+                    </marker>
+                    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#FF5722" />
+                    </marker>
+                    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#FF9800" />
+                    </marker>
+                    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#4CAF50" />
+                    </marker>
+                </defs>
+            </svg>
+            <!-- Fullscreen SVG for Auth-Server -->
+            <div id="fullscreen-svg" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+
+
+                <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 1400 450"
+                        style="border: 1px solid #ddd; background-color: #f9f9f9; font-family: Arial, sans-serif;"
+                >
+                    <!-- Boxes -->
+                    <rect x="50" y="180" width="200" height="60" fill="#2196F3" rx="10" />
+                    <text x="150" y="215" fill="white" font-size="14" text-anchor="middle">User</text>
+
+                    <rect x="350" y="180" width="200" height="60" fill="#FF5722" rx="10" />
+                    <text x="450" y="215" fill="white" font-size="14" text-anchor="middle">Auth-Server</text>
+
+                    <rect x="700" y="340" width="200" height="60" fill="#FFC107" rx="10" />
+                    <text x="800" y="375" fill="#333" font-size="14" text-anchor="middle">User Email</text>
+
+                    <rect x="1050" y="180" width="200" height="60" fill="#4CAF50" rx="10" />
+                    <text x="1150" y="215" fill="white" font-size="14" text-anchor="middle">API Gateway</text>
+
+                    <!-- Arrow Markers -->
+                    <defs>
+                        <marker id="arrow-grey" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#666" />
+                        </marker>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#1E88E5" />
+                        </marker>
+                        <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#F57C00" />
+                        </marker>
+                        <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#43A047" />
+                        </marker>
+                        <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#9C4DCC" />
+                        </marker>
+
+                        <!-- Define paths for animation -->
+                        <path id="path1" d="M250,210 L350,210" /> <!-- User → Auth -->
+                        <path id="path2" d="M350,230 L250,230" /> <!-- Auth → User -->
+                        <path id="path3" d="M450,240 C470,300 700,300 750,340" /> <!-- Auth → Email -->
+                        <path id="path4" d="M800,340 C750,300 470,300 450,240" /> <!-- Email → Auth -->
+                        <path id="path5" d="M550,210 L1050,210" /> <!-- Auth → API Gateway -->
+                    </defs>
+
+                    <!-- 1. User → Auth -->
+                    <line x1="250" y1="210" x2="350" y2="210" stroke="#1E88E5" stroke-width="2" marker-end="url(#arrow-blue)" />
+                    <text x="300" y="195" font-size="12" text-anchor="middle" fill="#1E88E5">1. Send Form</text>
+
+                    <!-- 2. Auth → User -->
+                    <line x1="350" y1="230" x2="250" y2="230" stroke="#1E88E5" stroke-width="2" marker-end="url(#arrow-blue)" />
+                    <text x="300" y="245" font-size="12" text-anchor="middle" fill="#1E88E5">2. Submit Info</text>
+
+                    <!-- 3. Auth → Email -->
+                    <path d="M450,240 C470,300 700,300 750,340" stroke="#F57C00" stroke-width="2" fill="none" marker-end="url(#arrow-orange)" />
+                    <text x="600" y="270" font-size="12" text-anchor="middle" dy="-10" fill="#F57C00">3. Send Email</text>
+
+                    <!-- 4. Email → Auth -->
+                    <path d="M800,340 C750,300 470,300 450,240" stroke="#9C4DCC" stroke-width="2" fill="none" marker-end="url(#arrow-purple)" />
+                    <text x="600" y="320" font-size="12" text-anchor="middle" dy="-10" fill="#9C4DCC">4. Click Link</text>
+
+                    <!-- 5. Auth → Gateway -->
+                    <line x1="550" y1="210" x2="1050" y2="210" stroke="#43A047" stroke-width="2" marker-end="url(#arrow-green)" />
+                    <text x="800" y="195" font-size="12" text-anchor="middle" fill="#43A047">5. Send Token</text>
+
+                    <!-- Animated Circle -->
+                    <circle id="animated-circle" r="12" fill="white">>
+                        <!-- Step 1: User → Auth -->
+                        <animateMotion dur="1s" repeatCount="1" begin="0s">
+                            <mpath href="#path1" />
+                        </animateMotion>
+                        <set attributeName="fill" to="#2196F3" begin="0.5s" dur="0.1s" /> <!-- Change to User color -->
+
+                        <!-- Step 2: Auth → User -->
+                        <animateMotion dur="1s" repeatCount="1" begin="1s">
+                            <mpath href="#path2" />
+                        </animateMotion>
+                        <set attributeName="fill" to="#FF5722" begin="1.5s" dur="0.1s" /> <!-- Change to Auth color -->
+
+                        <!-- Step 3: Auth → Email -->
+                        <animateMotion dur="1.5s" repeatCount="1" begin="2s">
+                            <mpath href="#path3" />
+                        </animateMotion>
+                        <set attributeName="fill" to="#FFC107" begin="2.7s" dur="0.1s" /> <!-- Change to Email color -->
+
+                        <!-- Step 4: Email → Auth -->
+                        <animateMotion dur="1.5s" repeatCount="1" begin="3.7s">
+                            <mpath href="#path4" />
+                        </animateMotion>
+                        <set attributeName="fill" to="#FF5722" begin="4.4s" dur="0.1s" /> <!-- Change to Auth color -->
+
+                        <!-- Step 5: Auth → Gateway -->
+                        <animateMotion dur="1.5s" repeatCount="1" begin="5.2s">
+                            <mpath href="#path5" />
+                        </animateMotion>
+                        <set attributeName="fill" to="#4CAF50" begin="5.9s" dur="0.1s" /> <!-- Change to Gateway color -->
+
+                        <!-- Reset: back to white and restart -->
+                        <set attributeName="fill" to="white" begin="7.5s" dur="0.1s" />
+                        <animateMotion dur="0.001s" repeatCount="1" begin="7.5s">
+                            <mpath href="#path1" />
+                        </animateMotion>
+                    </circle>
+                </svg>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </div>
+        </section>
+        <script>
+            const authServer = document.getElementById('auth-server');
+            const fullscreenSvg = document.getElementById('fullscreen-svg');
+            const animatedCircle = document.getElementById('animated-circle');
+
+            // Show fullscreen SVG when clicking on Auth-Server
+            authServer.addEventListener('click', () => {
+                fullscreenSvg.style.display = 'flex';
+
+                // Reset animation by cloning the element
+                const newCircle = animatedCircle.cloneNode(true);
+                animatedCircle.parentNode.replaceChild(newCircle, animatedCircle);
+            });
+
+            // Hide fullscreen SVG when clicking anywhere on it
+            fullscreenSvg.addEventListener('click', () => {
+                fullscreenSvg.style.display = 'none';
+            });
+        </script>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Happy coding! 😊</p>
+    </footer>
+</div>
+
+<script>
+    // Function to show the selected section and hide others
+    function showSection(sectionId) {
+        const sections = document.querySelectorAll('main section');
+        sections.forEach(section => section.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+    }
+        function handleLogin() {
+            const loginUrl = "http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write";
+            window.location.href = loginUrl; // Redirect to the login URL
+        }
+    // Function to show all sections
+    function showAllSections() {
+        const sections = document.querySelectorAll('main section');
+        sections.forEach(section => section.classList.add('active'));
+    }
+</script>
+</body>
+</html>

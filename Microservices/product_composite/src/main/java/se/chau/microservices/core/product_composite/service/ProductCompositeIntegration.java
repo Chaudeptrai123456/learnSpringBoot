@@ -50,7 +50,7 @@ import static se.chau.microservices.api.event.Event.Type.CREATE;
 import static se.chau.microservices.api.event.Event.Type.UPDATE;
 
 @Component
-public class ProductCompositeIntegration implements ProductService, ReviewService,RecommendationService, FeatureService , DiscountService {
+public class ProductCompositeIntegration implements ProductService, ReviewService, RecommendationService, FeatureService, DiscountService {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeIntegration.class);
     private final WebClient webClient;
     private final ObjectMapper mapper;
@@ -58,13 +58,13 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     private final Scheduler publishEventScheduler;
     private final ServiceUtil serviceUtil;
     @Value("${uri.service.product}")
-    private  String PRODUCT_SERVICE_URL ;
+    private String PRODUCT_SERVICE_URL;
     @Value("${uri.service.recommendation}")
-    private  String RECOMMENDATION_SERVICE_URL  ;
+    private String RECOMMENDATION_SERVICE_URL;
     @Value("${uri.service.review}")
-    private  String REVIEW_SERVICE_URL ;
+    private String REVIEW_SERVICE_URL;
     @Value("${uri.service.feature}")
-    private  String FEATURE_SERVICE_URL;
+    private String FEATURE_SERVICE_URL;
     @Value("${uri.service.discount}")
     private String DISCOUNT_SERVICE_URL;
 
@@ -84,10 +84,11 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         this.serviceUtil = serviceUtil;
         this.redisService = redisService;
     }
+
     @Override
     public Mono<Product> createProduct(Product product) {
         return Mono.fromCallable(() -> {
-            sendMessage("products-out-0",new Event(CREATE, product.getProductId(), product));
+            sendMessage("products-out-0", new Event(CREATE, product.getProductId(), product));
             return product;
         }).subscribeOn(publishEventScheduler);
     }
@@ -95,45 +96,41 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     @Override
     public Flux<Product> getProductPage(int page) {
         LOG.debug("get product page");
-        String url  = PRODUCT_SERVICE_URL +"/product/page/"+page;
+        String url = PRODUCT_SERVICE_URL + "/product/page/" + page;
         return webClient.get().uri(url).retrieve()
                 .bodyToFlux(Product.class)
-                .log(LOG.getName(),FINE)
+                .log(LOG.getName(), FINE)
                 .onErrorMap(WebClientResponseException.class,
                         this::handleException
                 );
     }
 
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue") // Giữ nguyên
     @Retry(name = "product")
     public Mono<Product> getProduct(int productId) {
         LOG.debug("test get product " + PRODUCT_SERVICE_URL);
         String url = PRODUCT_SERVICE_URL + "/product/" + productId;
-        return        webClient.get().uri(url).retrieve()
-                        .bodyToMono(Product.class)
-                        .log(LOG.getName(), FINE)
-                .doOnError(err-> LOG.error(err.getMessage()))
+        return webClient.get().uri(url).retrieve()
+                .bodyToMono(Product.class)
+                .log(LOG.getName(), FINE)
+                .doOnError(err -> LOG.error(err.getMessage()))
                 ;
 
     }
-    private Mono<Product> getProductFallbackValue(int   productId) {
 
-        LOG.warn("Creating a fail-fast fallback product for productId = {}, delay = {}, faultPercent = {} and exception = {} ",
-                productId, 5, 50,"test cgoi cho vui");
-
-        if (productId == 13) {
-            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
-            LOG.warn(errMsg);
-            throw new NotFoundException(errMsg);
-        }
-
-        return Mono.just(new Product(productId, "Fallback product" + productId, productId,13.0,serviceUtil.getServiceAddress()));
+    private Mono<Product> getProductFallbackValue(int productId, Throwable ex) { // Đã thêm Throwable ex
+        LOG.warn("Fallback cho getProduct, productId = {}, lỗi: {}", productId, ex.getMessage());
+        // Thêm logic xử lý lỗi cụ thể nếu cần
+        return Mono.just(new Product(productId, "Fallback product " + productId, productId, 13.0, serviceUtil.getServiceAddress()));
     }
+
+
+
     @Override
     public Mono<Recommendation> createRecommendation(Recommendation recommendation) {
         return Mono.fromCallable(() -> {
-                sendMessage("recommendations-out-0",new Event(CREATE, recommendation.getRecommendationId(), recommendation));
+            sendMessage("recommendations-out-0", new Event(CREATE, recommendation.getRecommendationId(), recommendation));
             return recommendation;
         }).subscribeOn(publishEventScheduler);
     }
@@ -144,18 +141,6 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         return null;
     }
 
-//    @Override
-//    public Mono<Product> updateProduct(ProductUpdate product, int productId) throws HttpClientErrorException {
-//        if (productId == 13) {
-//            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
-//            LOG.warn(errMsg);
-//            throw new NotFoundException(errMsg);
-//        }
-//        return Mono.fromCallable(() -> {
-//             sendMessage("products-out-0", new Event(UPDATE, productId, product));
-//             return this.getProduct(productId);
-//            }).subscribeOn(publishEventScheduler).block();
-//        }
     @Override
     public Mono<Product> updateProduct(ProductUpdate product, int productId) {
         if (productId == 13) {
@@ -167,11 +152,12 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         sendMessage("products-out-0", new Event(UPDATE, productId, product));
 
         return Mono.fromRunnable(() -> {
-                redisService.delete("product", productId);
-                LOG.info("Deleted product cache for productId={}", productId);
-            })
-            .then(this.getProduct(productId));
+                    redisService.delete(productId);
+                    LOG.info("Deleted product cache for productId={}", productId);
+                })
+                .then(this.getProduct(productId));
     }
+
     @Override
     public Mono<Double> sumCost(List<ProductOrder> list) {
         return this.sumCost(list);
@@ -185,24 +171,39 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             return ex.getMessage();
         }
     }
+
     @Override
+    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
     public Flux<Recommendation> getRecommendations(int productId) {
         String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
         return webClient.get()
-                                .uri(url)
-                                .retrieve()
-                                .bodyToFlux(Recommendation.class)
-                                .log(LOG.getName(), FINE)
-                                .doOnError(error -> LOG.error("Error while fetching recommendations: {}", error.getMessage()))
-                                .onErrorResume(error -> Flux.empty());
+                .uri(url)
+                .retrieve()
+                .bodyToFlux(Recommendation.class)
+                .log(LOG.getName(), FINE)
+                .doOnError(error -> LOG.error("Error while fetching recommendations: {}", error.getMessage()))
+                .onErrorResume(error -> Flux.empty());
     }
+    //Fallback cho getRecommendations
+    private Flux<Recommendation> getRecommendationsFallbackValue(int productId, Throwable ex) {
+        LOG.warn("Fallback cho getRecommendations, productId = {}, lỗi: {}", productId, ex.getMessage());
+        return Flux.empty();
+    }
+
     @Override
+    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
     public Flux<Review> getReviews(int productId) {
         String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         return webClient.get().uri(url).retrieve().bodyToFlux(Review.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
     }
+    //Fallback cho getReviews
+    private Flux<Review> getReviewsFallbackValue(int productId, Throwable ex) {
+        LOG.warn("Fallback cho getReviews, productId = {}, lỗi: {}", productId, ex.getMessage());
+        return Flux.empty();
+    }
+
     @Override
     public Mono<Review> createReview(Review body) {
         LOG.debug("test create review " + body.getReviewId());
@@ -211,6 +212,7 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
             return body;
         }).subscribeOn(publishEventScheduler);
     }
+
     public Mono<Health> getProductHealth() {
         return getHealth(PRODUCT_SERVICE_URL);
     }
@@ -223,7 +225,9 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
         return getHealth(REVIEW_SERVICE_URL);
     }
 
-    public Mono<Health> getFeatureHealth(){return getHealth(FEATURE_SERVICE_URL);}
+    public Mono<Health> getFeatureHealth() {
+        return getHealth(FEATURE_SERVICE_URL);
+    }
 
     private Mono<Health> getHealth(String url) {
         url += "/actuator/health";
@@ -274,11 +278,16 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductByFeatureFallbackValue") // Đã thêm fallbackMethod
     @Retry(name = "product")
     public Flux<Feature> getProductByFeature(FeatureForSearchPro feature) throws HttpClientErrorException {
-        String url = FEATURE_SERVICE_URL +"/feature/product";
+        String url = FEATURE_SERVICE_URL + "/feature/product";
         return webClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).bodyValue(feature).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+    }
+
+    private Flux<Feature> getProductByFeatureFallbackValue(FeatureForSearchPro feature, Throwable ex) {
+        LOG.warn("Fallback cho getProductByFeature, feature: {}, lỗi: {}", feature, ex.getMessage());
+        return Flux.empty();
     }
 
 
@@ -291,13 +300,17 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
     @Override
-    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    @CircuitBreaker(name = "product", fallbackMethod = "getFeatureOfProductFallbackValue") // Đã thêm fallbackMethod
     @Retry(name = "product")
     public Flux<Feature> getFeatureOfProduct(int productId) {
-        String url = FEATURE_SERVICE_URL+"/feature?productId=" + productId;
+        String url = FEATURE_SERVICE_URL + "/feature?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
-        return
-                webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+        return webClient.get().uri(url).retrieve().bodyToFlux(Feature.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+    }
+
+    private Flux<Feature> getFeatureOfProductFallbackValue(int productId, Throwable ex) {  // Thêm phương thức fallback cho getFeatureOfProduct
+        LOG.warn("Fallback cho getFeatureOfProduct, productId: {}, lỗi: {}", productId, ex.getMessage());
+        return Flux.empty(); // hoặc trả về giá trị mặc định
     }
 
     @Override
@@ -316,10 +329,15 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
     }
 
     @Override
+    @CircuitBreaker(name = "product", fallbackMethod = "getDiscountOfProFallbackValue")
+    @Retry(name = "product")
     public Flux<Discount> getDiscountOfPro(int productId) {
-        String url = DISCOUNT_SERVICE_URL+"/discount/product/" + productId;
+        String url = DISCOUNT_SERVICE_URL + "/discount/product/" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
-        return
-                webClient.get().uri(url).retrieve().bodyToFlux(Discount.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+        return webClient.get().uri(url).retrieve().bodyToFlux(Discount.class).log(LOG.getName(), FINE).onErrorResume(error -> empty());
+    }
+    private Flux<Discount> getDiscountOfProFallbackValue(int productId, Throwable ex) {
+        LOG.warn("Fallback cho getDiscountOfPro, productId: {}, lỗi: {}", productId, ex.getMessage());
+        return Flux.empty();
     }
 }

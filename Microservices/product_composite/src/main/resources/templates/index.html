@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Management</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header>
+    <h1>Sales Management Dashboard</h1>
+    <nav>
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#sales-records">Sales Records</a></li>
+            <li><a href="#product-management">Product Management</a></li>
+            <li><a href="#reports">Reports</a></li>
+            <li><button id="auth-button">Login</button></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section id="dashboard">
+        <h2>Dashboard</h2>
+        <p>Overview of sales performance.</p>
+    </section>
+    <section id="sales-records">
+        <h2>Sales Records</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody id="sales-table">
+            <!-- Dynamic rows will be added here -->
+            </tbody>
+        </table>
+    </section>
+    <section id="product-management">
+        <h2>Product Management</h2>
+        <form id="product-form">
+            <input type="text" id="product-name" placeholder="Product Name" required>
+            <input type="number" id="product-price" placeholder="Price" required>
+            <button type="submit">Add Product</button>
+        </form>
+        <ul id="product-list">
+            <!-- Dynamic product list -->
+        </ul>
+    </section>
+    <section id="reports">
+        <h2>Reports</h2>
+        <p>Generate and view reports.</p>
+    </section>
+</main>
+<footer>
+    <p>&copy; 2025 Sales Management</p>
+</footer>
+
+<!-- <script src="auth.js"></script>
+<script src="scripts.js"></script>
+<script>
+  // Xử lý khi người dùng nhấn nút Login
+  document.getElementById('auth-button').addEventListener('click', () => {
+    const accessToken = localStorage.getItem('access_token');
+    if (accessToken) {
+      alert('Bạn đã đăng nhập. Access Token của bạn: ' + accessToken);
+    } else {
+      redirectToLogin(); // Gọi hàm từ auth.js để thực hiện login
+    }
+  });
+
+  // Kiểm tra trạng thái đăng nhập khi load trang
+  checkAuth(); // Gọi hàm checkAuth từ auth.js
+</script> -->
+</body>
+</html>

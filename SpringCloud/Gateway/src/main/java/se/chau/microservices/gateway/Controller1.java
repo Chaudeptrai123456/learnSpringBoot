@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Mono;
 import se.chau.microservices.gateway.WebBuild.OAuth2TokenResponse;
 
 import java.net.URI;
@@ -16,26 +19,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 
-@RestController
-public class Controller {
+//@RestController
+@Controller
+public class Controller1 {
     // https://localhost:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
     // http://localhost:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
-    // http://gatea:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
+    // http://gatea:9999/oauth2/authorize?response_type=codq&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
     // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
     // https://gateway:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/code&scope=openid%20product:read%20product:write
 
     // http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write
     // https://chaudeptrai.pro.vn:8443/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://backend.chaudeptrai.pro.vn:8443/oauth2/code&scope=openid%20product:read%20product:write
 
-    private static final Logger logger = LoggerFactory.getLogger(Controller.class);
+    private static final Logger logger = LoggerFactory.getLogger(Controller1.class);
 
     @Value("${host.auth}")
     private String authohost;
     @Value("${port.auth}")
 
     private String authport;
+
+
     @GetMapping(value = "/oauth2/code")
-    public OAuth2TokenResponse exchangeCodeForToken(
+    public Mono<Rendering> exchangeCodeForToken(
             @RequestParam(name = "code", required = false) String code) throws Exception {
         ///"http://" + authohost + ":9999/oauth2/token"
         logger.debug("test oauth " + "http://" + authohost + ":"+authport+"/oauth2/token");
@@ -64,7 +70,13 @@ public class Controller {
                 logger.error("Error from OAuth2 server: {}", response.body());
                 throw new RuntimeException("Failed to obtain OAuth2 token");
             }
-            return parseTokenResponse(response.body());
+            OAuth2TokenResponse token = parseTokenResponse(response.body());
+            return Mono.just(
+                    Rendering.view("admin-page")
+                            .modelAttribute("accessToken", token.getAccess_token())
+                            .modelAttribute("refreshToken", token.getRefresh_token())
+                            .build()
+            );
         } catch (Exception e) {
             logger.error("Error during OAuth2 token exchange", e);
             throw new RuntimeException("OAuth2 token exchange failed", e);
@@ -82,3 +94,37 @@ public class Controller {
         return res.toString();
     }
 }
+
+
+//    @GetMapping("/oauth2/code")
+//    public Mono<Rendering> exchangeCodeAndDisplayProducts(@RequestParam(name = "code", required = false) String code) throws Exception {
+//        if (code == null || code.isEmpty()) {
+//            throw new IllegalArgumentException("Authorization code is required");
+//        }
+//
+//        String uri = "http://" + authohost + ":" + authport + "/oauth2/token";
+//        String credentials = "chau:{noop}123";
+//        String auth = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
+//
+//        HttpClient client = HttpClient.newHttpClient();
+//
+//        HttpRequest tokenRequest = HttpRequest.newBuilder()
+//                .uri(URI.create(uri))
+//                .POST(HttpRequest.BodyPublishers.ofString("grant_type=authorization_code&code=" + code +
+//                        "&redirect_uri=https://" + authohost + ":8443/oauth2/code"))
+//                .header("Content-Type", "application/x-www-form-urlencoded")
+//                .header("Authorization", auth)
+//                .build();
+//
+//        HttpResponse<String> tokenResponse = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
+//        OAuth2TokenResponse token = parseTokenResponse(tokenResponse.body());
+//
+//
+//        return Mono.just(
+//                Rendering.view("product-view")
+//                        .modelAttribute("accessToken", token.getAccess_token())
+//                        .modelAttribute("refreshToken", token.getRefresh_token())
+////                        .modelAttribute("productData", apiResponse.body())
+//                        .build()
+//        );
+//    }

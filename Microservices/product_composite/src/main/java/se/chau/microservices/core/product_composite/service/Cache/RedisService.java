@@ -40,10 +40,12 @@ public class RedisService {
         redisTemplate.expire(hashKey, Duration.ofSeconds(ttl));
     }
 
-    public Long delete(Object hashKey, Object key) {
-        return redisTemplate.opsForHash().delete(hashKey, key);
+//    public Long delete(Object hashKey, Object key) {
+//        return redisTemplate.opsForHash().delete(hashKey, key);
+//    }
+    public Boolean delete(Object key) {
+        return redisTemplate.delete(key);
     }
-
     public void putWithTTL(Object hashKey, Object key, Object value, long ttl) {
         redisTemplate.opsForHash().put(hashKey, key, value);
         redisTemplate.expire(hashKey, Duration.ofSeconds(ttl));
