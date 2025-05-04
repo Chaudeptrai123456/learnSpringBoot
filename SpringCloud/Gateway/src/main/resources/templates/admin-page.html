@@ -157,7 +157,7 @@
             <a onclick="showSection('summary')">Summary</a>
             <a onclick="showSection('key-areas')">Key Areas</a>
             <a onclick="showSection('workflow')">Workflow</a>
-            <a onclick="handleLogin()">Login</a> <!-- Updated to call handleLogin -->
+            <a onclick="handleLogout()">Logout</a> <!-- Updated to call handleLogin -->
         </nav>
     </header>
 
@@ -482,6 +482,11 @@
                 <line x1="200" y1="175" x2="350" y2="175" stroke="#888" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="275" y="160" text-anchor="middle" fill="#333" font-size="12">Request</text>
 
+                <!-- Cache -->
+                <rect x="650" y="420" width="100" height="50" fill="#009688" rx="8"></rect>
+                <text x="700" y="450" text-anchor="middle" fill="#fff" font-size="14">Cache</text>
+
+
                 <!-- Authentication Arrow -->
                 <line x1="450" y1="175" x2="550" y2="175" stroke="#888" stroke-width="2" marker-end="url(#arrow)" />
                 <text x="500" y="160" text-anchor="middle" fill="#333" font-size="8">
@@ -499,7 +504,9 @@
 
                 <!-- Microservices Region -->
                 <rect x="100" y="500" width="600" height="250" fill="none" stroke="#FFC107" stroke-width="2" stroke-dasharray="5,5"></rect>
-                <text x="400" y="520" text-anchor="middle" fill="#FFC107" font-size="16" font-weight="bold">Microservices</text>
+                <text x="620" y="520" text-anchor="middle" fill="#FFC107" font-size="16" font-weight="bold">Microservices</text>
+                <rect x="350" y="450" width="100" height="50" fill="#FF9800" rx="8"></rect>
+                <text x="400" y="480" text-anchor="middle" fill="#fff" font-size="14">Queue</text>
 
                 <!-- Microservice: Product-Service -->
                 <rect x="150" y="550" width="150" height="50" fill="#8E24AA" rx="8"></rect>
@@ -521,20 +528,25 @@
                 <rect x="550" y="650" width="150" height="50" fill="#4CAF50" rx="8"></rect>
                 <text x="625" y="680" text-anchor="middle" fill="#fff" font-size="14">Order-Email-Service</text>
 
-                <!-- Arrows from Product-Composite to new services -->
-                <line x1="325" y1="350" x2="225" y2="550" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrow-purple)" />
+                <line x1="325" y1="350" x2="400" y2="450" stroke="#888" stroke-width="2" marker-end="url(#arrow-gray)" />
 
-                <line x1="325" y1="350" x2="225" y2="650" stroke="#FF5722" stroke-width="2" marker-end="url(#arrow-red)" />
+                <line x1="400" y1="500" x2="225" y2="550" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrow-purple)" />
+                <line x1="400" y1="500" x2="425" y2="550" stroke="#03A9F4" stroke-width="2" marker-end="url(#arrow-blue)" />
+                <line x1="400" y1="500" x2="225" y2="650" stroke="#FF5722" stroke-width="2" marker-end="url(#arrow-red)" />
+                <line x1="400" y1="500" x2="425" y2="650" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)" />
+                <line x1="400" y1="500" x2="625" y2="650" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrow-green)" />
+                <!--    Order-composite to order-email-service -->
+                <line x1="525" y1="350" x2="400" y2="450" stroke="#888" stroke-width="2" marker-end="url(#arrow-gray)" />
 
-                <line x1="325" y1="350" x2="425" y2="650" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)" />
-
-                <!-- Arrows from Order-Composite to new services -->
-                <line x1="525" y1="350" x2="425" y2="550" stroke="#03A9F4" stroke-width="2" marker-end="url(#arrow-blue)" />
-
-                <line x1="525" y1="350" x2="625" y2="650" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrow-green)" />
+                <!-- Cache to Microservices Region -->
+                <line x1="700" y1="470" x2="700" y2="500" stroke="#009688" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrow-teal)" />
+                <text x="710" y="525" text-anchor="start" fill="#009688" font-size="12">Data Lookup</text>
 
                 <!-- Arrow Definition -->
                 <defs>
+                    <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#888" />
+                    </marker>
                     <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
                         <path d="M0,0 L10,5 L0,10 Z" fill="#9C27B0" />
                     </marker>
@@ -550,6 +562,10 @@
                     <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
                         <path d="M0,0 L10,5 L0,10 Z" fill="#4CAF50" />
                     </marker>
+                    <marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#009688" />
+                    </marker>
+
                 </defs>
             </svg>
             <!-- Fullscreen SVG for Auth-Server -->
@@ -570,10 +586,11 @@
 
                     <rect x="700" y="340" width="200" height="60" fill="#FFC107" rx="10" />
                     <text x="800" y="375" fill="#333" font-size="14" text-anchor="middle">User Email</text>
-
                     <rect x="1050" y="180" width="200" height="60" fill="#4CAF50" rx="10" />
                     <text x="1150" y="215" fill="white" font-size="14" text-anchor="middle">API Gateway</text>
-
+                    <!-- Queue -->
+                    <rect x="350" y="450" width="100" height="50" fill="#FF9800" rx="8"></rect>
+                    <text x="400" y="480" text-anchor="middle" fill="#fff" font-size="14">Queue</text>
                     <!-- Arrow Markers -->
                     <defs>
                         <marker id="arrow-grey" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
@@ -591,7 +608,21 @@
                         <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
                             <path d="M0,0 L10,5 L0,10 Z" fill="#9C4DCC" />
                         </marker>
-
+                        <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#9C27B0" />
+                        </marker>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#03A9F4" />
+                        </marker>
+                        <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#FF5722" />
+                        </marker>
+                        <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#FF9800" />
+                        </marker>
+                        <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 Z" fill="#4CAF50" />
+                        </marker>
                         <!-- Define paths for animation -->
                         <path id="path1" d="M250,210 L350,210" /> <!-- User → Auth -->
                         <path id="path2" d="M350,230 L250,230" /> <!-- Auth → User -->
@@ -599,6 +630,8 @@
                         <path id="path4" d="M800,340 C750,300 470,300 450,240" /> <!-- Email → Auth -->
                         <path id="path5" d="M550,210 L1050,210" /> <!-- Auth → API Gateway -->
                     </defs>
+                    <line x1="325" y1="350" x2="400" y2="450" stroke="#888" stroke-width="2" marker-end="url(#arrow)" />
+                    <text x="360" y="400" text-anchor="middle" fill="#555" font-size="12">to Queue</text>
 
                     <!-- 1. User → Auth -->
                     <line x1="250" y1="210" x2="350" y2="210" stroke="#1E88E5" stroke-width="2" marker-end="url(#arrow-blue)" />
@@ -710,8 +743,24 @@
     <footer>
         <p>Happy coding! 😊</p>
     </footer>
+<!--    <p>Access Token: [[${accessToken}]]</p>-->
+<!--    <p>Refresh Token: [[${refreshToken}]]</p>-->
 </div>
-
+fetch("/admin/page", {
+method: "GET",
+headers: {
+"Authorization": "Bearer " + accessToken
+}
+})
+.then(res => {
+if (!res.ok) throw new Error("Product HTML load failed");
+return res.text(); // <- HTML chứ không phải JSON
+})
+.then(html => {
+document.open();
+document.write(html);
+document.close();
+});
 <script>
     // Function to show the selected section and hide others
     function showSection(sectionId) {
@@ -719,8 +768,8 @@
         sections.forEach(section => section.classList.remove('active'));
         document.getElementById(sectionId).classList.add('active');
     }
-        function handleLogin() {
-            const loginUrl = "http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write";
+        function handleLogout() {
+            const loginUrl = "http://14.225.206.109:9999/logout";
             window.location.href = loginUrl; // Redirect to the login URL
         }
     // Function to show all sections

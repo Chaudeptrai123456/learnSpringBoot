@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
@@ -86,7 +84,13 @@ public class Controller1 {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(jsonString, OAuth2TokenResponse.class);
     }
-
+    @GetMapping("/admin/page")
+    public Mono<Rendering> adminPage(@RequestHeader("Authorization") String token) {
+        System.out.println("test admin page");
+        return Mono.just(Rendering.view("admin-page")
+                .modelAttribute("accessToken", token)
+                .build());
+    }
     //http://localhost:9999/oauth2/authorize?grant_type=authorization_code&client_id=chau&redirect_uri=https://localhost:8443/oauth2/get-token&code=NsSH5JcKp2cTOaGC0aw4Qo765dkKNK__45rPA2beE_imhn6wYBSBuMtNSb9CAE_9MQssoo4R5TsYJbcM3fG_2iNwEjL3pUIp4unZqMvJk0SIqNFhcoWMMD6h1FDLTwrd
     @GetMapping(value = "/oauth2/get-token")
     public String test1(@RequestBody RequestBody res) {

@@ -13,11 +13,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 import se.chau.microservices.Config.PlainTextPasswordEncoder;
 import se.chau.microservices.Entity.Authority;
 import se.chau.microservices.Entity.UserEntity;
@@ -33,7 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@RestController
+//@RestController
+@Controller
 public class AuthenticateController implements UserService {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateController.class);
     private final AuthenticationManager authenticationManager;
@@ -77,7 +77,7 @@ public class AuthenticateController implements UserService {
             this.emailService.sendOpt(temp,otp);
             this.redisService.writeUser(temp,otp);
 
-            return ResponseEntity.ok("<h2>check your email</h2>");
+            return ResponseEntity.ok("check your email");
         }catch (MessageAggregationException ex) {
             return ResponseEntity.status(HttpStatusCode.valueOf(403)).body("error " + ex);
         }
@@ -121,10 +121,11 @@ public class AuthenticateController implements UserService {
         return this.optService.validateOtp(email,opt);
     }
     @Override
-    public ResponseEntity<String> verifyRegister(@RequestParam String email, @RequestParam String otp) {
+//    public ResponseEntity<String> verifyRegister(@RequestParam String email, @RequestParam String otp) {
         // check otp
+    public String verifyRegister(@RequestParam String email, @RequestParam String otp) {
         if (!this.checkOtp(email,otp)) {
-            return new ResponseEntity<>(HttpStatus.valueOf(401));
+            return "Error";
         } else {
             User temp = this.redisService.getUser(email,otp).block();
             LOG.info("verifyRegister " + temp.getUsername() + " " + temp.getEmail() + " " + temp.getPassword());
@@ -143,7 +144,8 @@ public class AuthenticateController implements UserService {
             a.setUser(b);
             userRepository.save(user);
             authorityRepository.save(a);
-            return new ResponseEntity<String>("Sign up Successfully", HttpStatusCode.valueOf(200));
+//            return new ResponseEntity<String>("Sign up Successfully", HttpStatusCode.valueOf(200));
+            return "custom_login";
         }
     }
 

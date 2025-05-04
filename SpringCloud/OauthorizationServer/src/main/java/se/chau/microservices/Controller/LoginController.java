@@ -20,16 +20,11 @@ public class LoginController {
         return  "custom_regis";
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        // Xóa thông tin xác thực
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
-
-        // Invalidate session (optional, tùy thuộc vào cách quản lý session)
-        request.getSession().invalidate();
-
-        return "redirect:/login?logout"; // Hoặc trang nào đó em muốn redirect sau logout
+        return "logout"; // Redirect to the logout.html page
     }
 }

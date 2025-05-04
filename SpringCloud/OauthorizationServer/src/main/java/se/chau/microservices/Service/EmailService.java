@@ -52,7 +52,7 @@ public class EmailService  {
                     "                <span style=\"display: inline-block; vertical-align: middle; margin-right: 8px;\">✔️</span> Xác nhận tài khoản\n" +
                     "            </a>\n" +
                     "            <p style=\"color: #777; font-size: 14px; margin-top: 10px;\">Hoặc sao chép và dán liên kết sau vào trình duyệt của bạn:</p>\n" +
-                    "            <p style=\"color: #777; font-size: 12px; word-break: break-all;\"><a href=\"" + verificationLink + "\" style=\"color: #007bff; text-decoration: underline;\">" + verificationLink + "</a></p>\n" +
+                    "            <p style=\"color: #777; font-size: 12px; word-break: break-all;\"><a href=\"" + verificationLink +"hoặc " + "http://14.225.206.109:9999/oauth2/authorize?response_type=code&client_id=chau&redirect_uri=https://14.225.206.109:8443/oauth2/code&scope=openid%20product:read%20product:write" +"\" style=\"color: #007bff; text-decoration: underline;\">" + verificationLink + "</a></p>\n" +
                     "        </div>\n" +
                     "        <p style=\"color: #555; font-size: 16px; margin-bottom: 20px;\">Nếu bạn không thực hiện việc đăng ký này, xin vui lòng bỏ qua email này. Tài khoản của bạn sẽ không được kích hoạt.</p>\n" +
                     "        <hr style=\"border: 1px solid #e0e0e0; margin-bottom: 20px;\">\n" +
@@ -74,7 +74,7 @@ public class EmailService  {
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8"); // Thêm encoding UTF-8
             helper.setTo(request.getEmail()); // Sử dụng email từ request
-            helper.setSubject("Xác nhận đơn hàng"); // Chủ đề rõ ràng
+            helper.setSubject("Xác nhận tài khoản "); // Chủ đề rõ ràng
             helper.setText(new OtpTemplate(request, otp, authUrl).getContent(), true); // Truyền authUrl
             mailSender.send(message);
         } catch (MessagingException e) {

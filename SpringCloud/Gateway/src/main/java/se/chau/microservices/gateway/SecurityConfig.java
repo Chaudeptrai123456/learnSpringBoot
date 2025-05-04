@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/error/**",
                                 "/openapi/**",
                                 "/webjars/**",
-                                "/config/**"
+                                "/config/**",
+                                "/logout"
                         ).permitAll()
 
                         // Order service (needs USER or ADMIN)

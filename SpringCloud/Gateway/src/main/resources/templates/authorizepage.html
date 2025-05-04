@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Successful</title>
+</head>
+<body>
+<h1>Authorization Successful</h1>
+
+<p><strong>Access Token:</strong></p>
+<p id="accessToken" th:text="${accessToken}" style="display: none;">[Access Token]</p>
+
+<p><strong>Refresh Token:</strong></p>
+<p id="refreshToken" th:text="${refreshToken}" style="display: none;">[Refresh Token]</p>
+
+<script>
+    // Hàm gọi API /admin/page
+    async function fetchAdminPage() {
+        try {
+            // Lấy accessToken và refreshToken từ HTML
+            const accessToken = document.getElementById('accessToken').innerText.trim();
+            const refreshToken = document.getElementById('refreshToken').innerText.trim();
+
+            // Gọi API /admin/page
+            const response = await fetch('/admin/page', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            // Lấy nội dung trả về từ API
+            const html = await response.text();
+
+            // Render nội dung trả về
+            document.body.innerHTML = html;
+        } catch (error) {
+            console.error('Lỗi khi gọi admin page:', error);
+            alert('Không thể tải trang Admin. Vui lòng kiểm tra logs.');
+        }
+    }
+
+    // Tự động gọi hàm fetchAdminPage khi trang được load
+    window.onload = fetchAdminPage;
+</script>
+</body>
+</html>
+
+
+    <!--                        window.location.href = '/admin/page'; // Thay đổi URI của trình duyệt-->
+

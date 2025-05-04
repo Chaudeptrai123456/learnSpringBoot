@@ -33,6 +33,6 @@ public interface UserService {
     @GetMapping(
             value = "/oauth2/user/verify"
     )
-    ResponseEntity<String> verifyRegister(@RequestParam String email, @RequestParam String otp);
+    String verifyRegister(@RequestParam String email, @RequestParam String otp);
 
 }
